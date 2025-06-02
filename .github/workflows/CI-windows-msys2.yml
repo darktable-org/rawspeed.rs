@@ -1,0 +1,73 @@
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      msys2-msystem:
+        required: true
+        type: string
+      msys2-arch:
+        required: true
+        type: string
+      rust-toolchain-name:
+        required: true
+        type: string
+      flavor:
+        required: true
+        type: string
+
+jobs:
+  windows-msys2:
+    runs-on: ${{ inputs.os }}
+    name: ${{ inputs.os }}.${{ inputs.msys2-msystem }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 2
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+          fetch-depth: 1
+      - name: Install Base Dependencies
+        timeout-minutes: 3
+        uses: msys2/setup-msys2@v2
+        with:
+          cache: false
+          msystem: ${{ inputs.msys2-msystem }}
+          update: true
+          pacboy: >-
+            cc:p
+            curl:p
+      - name: Install Rust
+        timeout-minutes: 1
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          rm -rf $(cygpath $USERPROFILE)/.rustup
+          rm -rf $(cygpath $USERPROFILE)/.cargo
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+          export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
+          rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+          rustup default ${{ inputs.rust-toolchain-name }}
+      - name: Build
+        timeout-minutes: 1
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
+          cd "$SRC_DIR"
+          cargo build --profile ${{ inputs.flavor }}
+      - name: Run tests
+        timeout-minutes: 1
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
+          cd "$SRC_DIR"
+          cargo test --profile ${{ inputs.flavor }}

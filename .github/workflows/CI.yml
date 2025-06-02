@@ -1,0 +1,67 @@
+
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  linux-fast:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ ubuntu-latest, ubuntu-24.04-arm ]
+        os: [ linux ]
+        distro:
+          - { image: "debian:trixie-slim", LLVM: 19 }
+        rust-toolchain-name: [ stable, nightly ]
+        flavor: [ dev, release ]
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      os: ${{ matrix.os }}
+      distro-image: ${{ matrix.distro.image }}
+      distro-LLVM: ${{ matrix.distro.LLVM }}
+      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+      flavor: ${{ matrix.flavor }}
+  windows-msys2-fast:
+    strategy:
+      fail-fast: false
+      matrix:
+        msys2:
+          - { os: windows-latest, msystem: CLANG64,    arch: x86_64 }
+          - { os: windows-11-arm, msystem: CLANGARM64, arch: aarch64 }
+        rust-toolchain-version: [ stable, nightly ]
+        rust-toolchain-abi: [ gnu, msvc ]
+        flavor: [ dev, release ]
+        exclude:
+          - msys2: { os: windows-11-arm, msystem: CLANGARM64, arch: aarch64 }
+            rust-toolchain-abi: gnu
+    uses: ./.github/workflows/CI-windows-msys2.yml
+    with:
+      os: ${{ matrix.msys2.os }}
+      msys2-msystem: ${{ matrix.msys2.msystem }}
+      msys2-arch: ${{ matrix.msys2.arch }}
+      rust-toolchain-name: ${{ matrix.rust-toolchain-version }}-${{ matrix.rust-toolchain-abi }}
+      flavor: ${{ matrix.flavor }}
+  macOS-fast:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - { os: macos-15, family: XCode, version: 16.3 } # AArch64, LLVM19
+          - { os: macos-13, family: XCode, version: 15.2 } # x86_64,  LLVM16
+        rust-toolchain-name: [ stable, nightly ]
+        flavor: [ dev, release ]
+    uses: ./.github/workflows/CI-macOS.yml
+    with:
+      os: ${{ matrix.compiler.os }}
+      xcode-version: ${{ matrix.compiler.version }}
+      os-deployment_target: ${{ matrix.compiler.deployment_target }}
+      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+      flavor: ${{ matrix.flavor }}

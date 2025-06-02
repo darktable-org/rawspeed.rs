@@ -1,0 +1,48 @@
+name: Ensure that the code is properly formatted
+
+on:
+  push:
+    branches: [ master ]
+  pull_request_target:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  rustfmt-check:
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      os: linux
+      distro-image: "debian:trixie-slim"
+      distro-LLVM: 19
+      rust-toolchain-name: stable
+      flavor: RustFmt
+  rustfmt-complain:
+    needs: [ rustfmt-check ]
+    if: always() && github.event_name == 'pull_request_target' && needs.rustfmt-check.outputs.rustfmt-artifact-url != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create comment
+        timeout-minutes: 1
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            The proposed diff is not `rustfmt`ted.
+            To make this check pass, download the following patch
+            (via browser, you must be logged-in in order for this URL to work),
+            (NOTE: save it into the repo checkout dir for the snippet to work)
+            ${{ needs.rustfmt-check.outputs.rustfmt-artifact-url }}
+            ... and run:
+            ```bash
+            cd <path/to/repo/checkout> # NOTE: use your own path here
+            unzip rustfmt.patch.zip
+            git stash # Temporairly stash away any preexisting diff
+            git apply rustfmt.patch # Apply the diff
+            git add -u # Stage changed files
+            git commit -m "Applying rustfmt" # Commit the patch
+            git push
+            git stash pop # Unstast preexisting diff
+            rm rustfmt.patch.zip rustfmt.patch
+            ```

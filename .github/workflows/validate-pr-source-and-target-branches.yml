@@ -1,0 +1,37 @@
+name: Validate source/target branches of Pull Request
+
+on:
+  pull_request_target:
+    types: [ opened, reopened ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+      - name: Close Pull if PR is to a wrong branch
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request_target' && github.base_ref != 'master'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd rawspeed
+          gh pr close --comment "Pull Requests should only be submitted to `master` branch" ${{ github.event.number }}
+          exit 1
+      - name: Close Pull if PR is not from a proper branch
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request_target' && github.head_ref == github.base_ref
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd rawspeed
+          gh pr close --comment "Pull Requests source branch should be branched off of the Pull Request's target branch" ${{ github.event.number }}
+          exit 1

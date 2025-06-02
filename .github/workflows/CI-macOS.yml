@@ -1,0 +1,67 @@
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      os-deployment_target:
+        required: true
+        type: string
+      xcode-version:
+        required: true
+        type: string
+      rust-toolchain-name:
+        required: true
+        type: string
+      flavor:
+        required: true
+        type: string
+
+jobs:
+  macOS:
+    name: ${{ inputs.os }}, XCode ${{ inputs.xcode-version }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    runs-on: ${{ inputs.os }}
+    steps:
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+          fetch-depth: 1
+      - name: Remove unneeded brew formulas/casks
+        timeout-minutes: 3
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          brew update --quiet
+          cd "${SRC_DIR}/.github/"
+          brew bundle cleanup --quiet --force
+          brew autoremove --quiet
+          brew cleanup --quiet --prune=all
+      - name: Install Rust
+        timeout-minutes: 1
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+          rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+      - name: Build
+        timeout-minutes: 1
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo build --profile ${{ inputs.flavor }}
+      - name: Run tests
+        timeout-minutes: 1
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo test --profile ${{ inputs.flavor }}

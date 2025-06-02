@@ -1,0 +1,179 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        default: ubuntu-latest
+      os:
+        required: true
+        type: string
+      distro-image:
+        required: true
+        type: string
+      distro-LLVM:
+        required: true
+        type: string
+      rust-toolchain-name:
+        required: true
+        type: string
+      flavor:
+        required: true
+        type: string
+    outputs:
+      rustfmt-artifact-url:
+        value: ${{ jobs.linux.outputs.rustfmt-artifact-url }}
+
+jobs:
+  linux:
+    runs-on: ${{ inputs.runs-on }}
+    name: ${{ inputs.runs-on }} // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    container:
+      image: ${{ inputs.distro-image }}
+      options: --tmpfs /tmp:exec --tmpfs /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}:exec
+    outputs:
+      rustfmt-artifact-url: ${{ steps.rustfmt-upload.outputs.artifact-url }}
+    steps:
+      - name: Configure APT
+        timeout-minutes: 1
+        run: |
+          set -xe
+          tee /etc/dpkg/dpkg.cfg.d/force-unsafe-io > /dev/null <<EOT
+          force-unsafe-io
+          EOT
+          tee /etc/apt/apt.conf.d/tmpfs > /dev/null <<EOT
+          Dir::Cache::Archives "/tmp/apt/archives";
+          APT::ExtractTemplates::TempDir "/tmp/apt/temp";
+          EOT
+          mkdir -p /tmp/apt/archives
+          tee /etc/apt/apt.conf.d/80retry > /dev/null <<EOT
+          Acquire::Retries "10";
+          EOT
+          tee /etc/apt/apt.conf.d/80recommends > /dev/null <<EOT
+          APT::Install-Recommends "false";
+          EOT
+          tee /etc/apt/apt.conf.d/80suggests > /dev/null <<EOT
+          APT::Install-Suggests "false";
+          EOT
+          tee /etc/apt/apt.conf.d/80forceyes > /dev/null <<EOT
+          APT::Get::Assume-Yes "true";
+          EOT
+          tee /etc/apt/apt.conf.d/80fixmissing > /dev/null <<EOT
+          APT::Get::Fix-Missing "true";
+          EOT
+          rm -rf /etc/apt/sources.list*
+          if [ "${{ inputs.distro-image }}" = "debian:trixie-slim" ]; then
+          tee /etc/apt/sources.list > /dev/null <<EOT
+          deb http://debian-archive.trafficmanager.net/debian trixie main
+          deb http://debian-archive.trafficmanager.net/debian trixie-updates main
+          deb http://debian-archive.trafficmanager.net/debian-security trixie-security main
+          deb http://debian-archive.trafficmanager.net/debian trixie-backports main
+          EOT
+          else
+            exit 1
+          fi
+      - name: Update base packages
+        timeout-minutes: 1
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          set -xe
+          rm -rf /var/lib/apt/lists/*
+          apt update
+          apt install eatmydata
+          eatmydata apt upgrade
+      - name: Install necessary packages
+        timeout-minutes: 1
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          set -xe
+          eatmydata apt install \
+            ca-certificates \
+            curl \
+            git \
+          ;
+          eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+          . "$HOME/.cargo/env"
+          if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
+            eatmydata rustup toolchain install "${{ inputs.rust-toolchain-name }}" --allow-downgrade --profile minimal --component rustfmt
+          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+            eatmydata apt install \
+              clang-${{ inputs.distro-LLVM }} \
+              lld-${{ inputs.distro-LLVM }} \
+            ;
+            dpkg-divert --add --rename --divert /usr/bin/cc.original /usr/bin/cc
+            dpkg-divert --add --rename --divert /usr/bin/gcc.original /usr/bin/gcc
+            dpkg-divert --add --rename --divert /usr/bin/g++.original /usr/bin/g++
+            dpkg-divert --add --rename --divert /usr/bin/ld.original /usr/bin/ld
+            ln -s /usr/bin/clang-${{ inputs.distro-LLVM }} /usr/local/bin/clang
+            ln -s /usr/bin/clang++-${{ inputs.distro-LLVM }} /usr/local/bin/clang++
+            ln -s /usr/bin/ld.lld-${{ inputs.distro-LLVM }} /usr/local/bin/ld.lld
+            ln -s /usr/local/bin/clang /usr/local/bin/cc
+            ln -s /usr/local/bin/clang /usr/local/bin/gcc
+            ln -s /usr/local/bin/clang++ /usr/local/bin/g++
+            ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
+            eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+          else
+            exit 1
+          fi
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          set-safe-directory: ${{ github.workspace }}
+      - name: Switch to the Pull Request's merge commit
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request_target'
+        env:
+          PR: ${{ github.event.number }}
+        run: |
+          set -xe
+          cd rawspeed.rs
+          git fetch origin pull/${PR}/merge:pr/${PR}/merge
+          git switch pr/${PR}/merge
+      - name: Verify that the source code is properly formatted
+        id: rustfmt
+        timeout-minutes: 1
+        if: inputs.flavor == 'RustFmt'
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo fmt --all
+          git diff -p -U8 > "${GITHUB_WORKSPACE}/rustfmt.patch"
+          git diff --exit-code --quiet
+      - name: Upload rustfmt patch
+        id: rustfmt-upload
+        timeout-minutes: 1
+        if: inputs.flavor == 'RustFmt' && failure() && steps.rustfmt.conclusion == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt.patch
+          path: ${{ github.workspace }}/rustfmt.patch
+          if-no-files-found: error
+          compression-level: 9
+          overwrite: true
+      - name: Build
+        timeout-minutes: 1
+        if: inputs.flavor != 'RustFmt'
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo build --profile ${{ inputs.flavor }}
+      - name: Run tests
+        timeout-minutes: 1
+        if: inputs.flavor != 'RustFmt'
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo test --profile ${{ inputs.flavor }}
