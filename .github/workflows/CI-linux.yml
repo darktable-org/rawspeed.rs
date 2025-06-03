@@ -119,6 +119,7 @@ jobs:
           ln -s /usr/bin/ld.lld-${{ inputs.distro-LLVM }} /usr/local/bin/ld.lld
           ln -s /usr/local/bin/clang /usr/local/bin/cc
           ln -s /usr/local/bin/clang /usr/local/bin/gcc
+          ln -s /usr/local/bin/clang++ /usr/local/bin/c++
           ln -s /usr/local/bin/clang++ /usr/local/bin/g++
           ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
           else
@@ -133,15 +134,17 @@ jobs:
           . "$HOME/.cargo/env"
           eatmydata apt install \
             gcc-${{ inputs.builder-target }}-linux-gnu \
-            g++-${{ inputs.builder-target }}-linux-gnu \
             libc6-dev-${{ inputs.builder-target }}-cross \
             qemu-user \
             qemu-user-binfmt \
             ;
+          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-gnu-clang
+          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-gnu-clang++
+          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-gnu-ld
           rustup target add ${{ inputs.builder-target }}-unknown-linux-gnu
           tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
           [target.${{ inputs.builder-target }}-unknown-linux-gnu]
-          linker = "${{ inputs.builder-target }}-linux-gnu-gcc"
+          linker = "${{ inputs.builder-target }}-unknown-linux-gnu-clang"
           runner = "qemu-${{ inputs.builder-target }} -L /usr/${{ inputs.builder-target }}-linux-gnu"
           EOT
       - name: Fetch/Checkout RawSpeed.RS git repo
