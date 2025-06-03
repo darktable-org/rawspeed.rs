@@ -9,6 +9,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   rustfmt-check:
     uses: ./.github/workflows/CI-linux.yml
@@ -24,6 +26,8 @@ jobs:
   rustfmt-complain:
     needs: [ rustfmt-check ]
     if: always() && github.event_name == 'pull_request_target' && needs.rustfmt-check.outputs.rustfmt-artifact-url != ''
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Create comment
