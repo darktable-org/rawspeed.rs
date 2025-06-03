@@ -110,10 +110,10 @@ jobs:
       rust-toolchain-name: stable
       flavor: doc
   publish-pages:
+    if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
     needs: build-docs
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       pages: write
       id-token: write
     environment:
