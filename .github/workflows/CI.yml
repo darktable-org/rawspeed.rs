@@ -65,3 +65,40 @@ jobs:
       os-deployment_target: ${{ matrix.compiler.deployment_target }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
       flavor: ${{ matrix.flavor }}
+  build-docs:
+    needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      runs-on: ubuntu-latest
+      os: linux
+      distro-image: "debian:trixie-slim"
+      distro-LLVM: 19
+      rust-toolchain-name: stable
+      flavor: doc
+  publish-pages:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        timeout-minutes: 1
+        id: pages
+        uses: actions/configure-pages@v2
+      - name: Deploy to GitHub Pages
+        timeout-minutes: 1
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Purge Cloudflare cache
+        timeout-minutes: 1
+        id: cache-purge
+        if: github.repository == 'darktable-org/rawspeed.rs' && github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
+        uses: NathanVaughn/actions-cloudflare-purge@v3.1.0
+        with:
+            cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
+            cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}

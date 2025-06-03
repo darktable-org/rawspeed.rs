@@ -96,7 +96,7 @@ jobs:
           . "$HOME/.cargo/env"
           if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
             eatmydata rustup toolchain install "${{ inputs.rust-toolchain-name }}" --allow-downgrade --profile minimal --component rustfmt
-          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ] || [ "${{ inputs.flavor }}" = "doc" ]; then
             eatmydata apt install \
               clang-${{ inputs.distro-LLVM }} \
               lld-${{ inputs.distro-LLVM }} \
@@ -159,7 +159,7 @@ jobs:
           overwrite: true
       - name: Build
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt'
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
         env:
           SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
@@ -169,7 +169,7 @@ jobs:
           cargo build --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt'
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
         env:
           SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
@@ -177,3 +177,26 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo test --profile ${{ inputs.flavor }}
+      - name: Build docs
+        timeout-minutes: 1
+        if: inputs.flavor == 'doc'
+        env:
+          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo doc
+          if [ ! -f $SRC_DIR/target/doc/index.* ]; then
+          tee $SRC_DIR/target/doc/index.html > /dev/null <<EOT
+          <head>
+          <meta http-equiv="Refresh" content="0; URL=./rawspeed/index.html" />
+          </head>
+          EOT
+          fi
+      - name: Upload docs artifact
+        timeout-minutes: 1
+        if: inputs.flavor == 'doc'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ github.workspace }}/rawspeed.rs/target/doc
