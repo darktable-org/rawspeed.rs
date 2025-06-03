@@ -1,10 +1,16 @@
 on:
   workflow_call:
     inputs:
-      runs-on:
-        type: string
-        default: ubuntu-latest
       os:
+        required: true
+        type: string
+      runs-on:
+        required: true
+        type: string
+      builder-host:
+        required: true
+        type: string
+      builder-target:
         required: true
         type: string
       distro-image:
@@ -26,7 +32,7 @@ on:
 jobs:
   linux:
     runs-on: ${{ inputs.runs-on }}
-    name: ${{ inputs.runs-on }} // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    name: ${{ inputs.runs-on }} (${{ inputs.builder-host }}, for ${{ inputs.builder-target}}) // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
     container:
       image: ${{ inputs.distro-image }}
       options: --tmpfs /tmp:exec --tmpfs /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}:exec
@@ -94,28 +100,50 @@ jobs:
           ;
           eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
           . "$HOME/.cargo/env"
+          eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
-            eatmydata rustup toolchain install "${{ inputs.rust-toolchain-name }}" --allow-downgrade --profile minimal --component rustfmt
-          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ] || [ "${{ inputs.flavor }}" = "doc" ]; then
-            eatmydata apt install \
-              clang-${{ inputs.distro-LLVM }} \
-              lld-${{ inputs.distro-LLVM }} \
-            ;
-            dpkg-divert --add --rename --divert /usr/bin/cc.original /usr/bin/cc
-            dpkg-divert --add --rename --divert /usr/bin/gcc.original /usr/bin/gcc
-            dpkg-divert --add --rename --divert /usr/bin/g++.original /usr/bin/g++
-            dpkg-divert --add --rename --divert /usr/bin/ld.original /usr/bin/ld
-            ln -s /usr/bin/clang-${{ inputs.distro-LLVM }} /usr/local/bin/clang
-            ln -s /usr/bin/clang++-${{ inputs.distro-LLVM }} /usr/local/bin/clang++
-            ln -s /usr/bin/ld.lld-${{ inputs.distro-LLVM }} /usr/local/bin/ld.lld
-            ln -s /usr/local/bin/clang /usr/local/bin/cc
-            ln -s /usr/local/bin/clang /usr/local/bin/gcc
-            ln -s /usr/local/bin/clang++ /usr/local/bin/g++
-            ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
-            eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+          eatmydata rustup component add rustfmt
+          elif [ "${{ inputs.flavor }}" = "doc" ]; then
+          /bin/true
+          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          eatmydata apt install \
+            clang-${{ inputs.distro-LLVM }} \
+            lld-${{ inputs.distro-LLVM }} \
+          ;
+          dpkg-divert --add --rename --divert /usr/bin/cc.original /usr/bin/cc
+          dpkg-divert --add --rename --divert /usr/bin/gcc.original /usr/bin/gcc
+          dpkg-divert --add --rename --divert /usr/bin/g++.original /usr/bin/g++
+          dpkg-divert --add --rename --divert /usr/bin/ld.original /usr/bin/ld
+          ln -s /usr/bin/clang-${{ inputs.distro-LLVM }} /usr/local/bin/clang
+          ln -s /usr/bin/clang++-${{ inputs.distro-LLVM }} /usr/local/bin/clang++
+          ln -s /usr/bin/ld.lld-${{ inputs.distro-LLVM }} /usr/local/bin/ld.lld
+          ln -s /usr/local/bin/clang /usr/local/bin/cc
+          ln -s /usr/local/bin/clang /usr/local/bin/gcc
+          ln -s /usr/local/bin/clang++ /usr/local/bin/g++
+          ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
           else
-            exit 1
+          exit 1
           fi
+      - name: Install necessary packages for cross-compilation
+        timeout-minutes: 1
+        if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.builder-host != inputs.builder-target
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          . "$HOME/.cargo/env"
+          eatmydata apt install \
+            gcc-${{ inputs.builder-target }}-linux-gnu \
+            g++-${{ inputs.builder-target }}-linux-gnu \
+            libc6-dev-${{ inputs.builder-target }}-cross \
+            qemu-user \
+            qemu-user-binfmt \
+            ;
+          rustup target add ${{ inputs.builder-target }}-unknown-linux-gnu
+          tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          [target.${{ inputs.builder-target }}-unknown-linux-gnu]
+          linker = "${{ inputs.builder-target }}-linux-gnu-gcc"
+          runner = "qemu-${{ inputs.builder-target }} -L /usr/${{ inputs.builder-target }}-linux-gnu"
+          EOT
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
         uses: actions/checkout@v4
@@ -166,7 +194,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo build --profile ${{ inputs.flavor }}
+          cargo build --target ${{ inputs.builder-target }}-unknown-linux-gnu --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -176,7 +204,8 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo test --profile ${{ inputs.flavor }}
+          cargo run --target ${{ inputs.builder-target }}-unknown-linux-gnu --profile ${{ inputs.flavor }}
+          cargo test --target ${{ inputs.builder-target }}-unknown-linux-gnu --profile ${{ inputs.flavor }}
       - name: Build docs
         timeout-minutes: 1
         if: inputs.flavor == 'doc'

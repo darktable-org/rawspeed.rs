@@ -15,16 +15,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on: [ ubuntu-latest, ubuntu-24.04-arm ]
         os: [ linux ]
+        stack:
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64" }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64"  }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x" }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
         flavor: [ dev, release ]
     uses: ./.github/workflows/CI-linux.yml
     with:
-      runs-on: ${{ matrix.runs-on }}
       os: ${{ matrix.os }}
+      runs-on: ${{ matrix.stack.runs-on }}
+      builder-host: ${{ matrix.stack.host }}
+      builder-target: ${{ matrix.stack.target }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
@@ -69,8 +74,10 @@ jobs:
     needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml
     with:
-      runs-on: ubuntu-latest
       os: linux
+      runs-on: ubuntu-latest
+      builder-host: x86_64
+      builder-target: x86_64
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
       rust-toolchain-name: stable

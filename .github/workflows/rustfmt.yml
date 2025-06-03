@@ -14,6 +14,9 @@ jobs:
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: linux
+      runs-on: "ubuntu-latest"
+      builder-host: x86_64
+      builder-target: x86_64
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
       rust-toolchain-name: stable
