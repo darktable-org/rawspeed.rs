@@ -100,6 +100,36 @@ jobs:
           ;
           eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
           . "$HOME/.cargo/env"
+          if [ "${{ inputs.builder-target }}" = "x86_64" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "aarch64" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "i686" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "powerpc64le" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "s390x" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          RUST_TARGET=arm
+          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
+          RUST_TARGET=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "riscv64" ]; then
+          RUST_TARGET=riscv64gc
+          else
+          exit 1
+          fi
+          if [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          ABI=gnueabi
+          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
+          ABI=gnueabihf
+          else
+          ABI=gnu
+          fi
+          echo "RUST_TARGET=$(echo ${RUST_TARGET})" >> $GITHUB_ENV
+          echo "ABI=$(echo ${ABI})" >> $GITHUB_ENV
           eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
           eatmydata rustup component add rustfmt
@@ -131,21 +161,47 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          set -xe
           . "$HOME/.cargo/env"
+          if [ "${{ inputs.builder-target }}" = "i686" ]; then
+          LIBC6_ARCH=i386
+          elif [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
+          LIBC6_ARCH=ppc64
+          elif [ "${{ inputs.builder-target }}" = "powerpc64le" ]; then
+          LIBC6_ARCH=ppc64el
+          elif [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          LIBC6_ARCH=armel
+          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
+          LIBC6_ARCH=armhf
+          else
+          LIBC6_ARCH=${{ inputs.builder-target }}
+          fi
+          if [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          GCC_ARCH=arm
+          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
+          GCC_ARCH=arm
+          else
+          GCC_ARCH=${{ inputs.builder-target }}
+          fi
           eatmydata apt install \
-            gcc-${{ inputs.builder-target }}-linux-gnu \
-            libc6-dev-${{ inputs.builder-target }}-cross \
+            gcc-${GCC_ARCH}-linux-${ABI} \
+            libc6-dev-${LIBC6_ARCH}-cross \
             qemu-user \
             qemu-user-binfmt \
             ;
-          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-gnu-clang
-          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-gnu-clang++
-          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-gnu-ld
-          rustup target add ${{ inputs.builder-target }}-unknown-linux-gnu
+          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-${ABI}-clang
+          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-${ABI}-clang++
+          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-${ABI}-ld
+          rustup target add ${RUST_TARGET}-unknown-linux-${ABI}
+          LINKER="${{ inputs.builder-target }}-unknown-linux-${ABI}-clang"
+          if [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
+          # LLD/clang does not support powerpc64 ELFv1 ABI
+          LINKER="${GCC_ARCH}-linux-${ABI}-gcc"
+          fi
           tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
-          [target.${{ inputs.builder-target }}-unknown-linux-gnu]
-          linker = "${{ inputs.builder-target }}-unknown-linux-gnu-clang"
-          runner = "qemu-${{ inputs.builder-target }} -L /usr/${{ inputs.builder-target }}-linux-gnu"
+          [target.${RUST_TARGET}-unknown-linux-${ABI}]
+          linker = "${LINKER}"
+          runner = "qemu-${LIBC6_ARCH} -L /usr/${GCC_ARCH}-linux-${ABI}"
           EOT
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
@@ -197,7 +253,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo build --target ${{ inputs.builder-target }}-unknown-linux-gnu --profile ${{ inputs.flavor }}
+          cargo build --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -207,8 +263,8 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo run --target ${{ inputs.builder-target }}-unknown-linux-gnu --profile ${{ inputs.flavor }}
-          cargo test --target ${{ inputs.builder-target }}-unknown-linux-gnu --profile ${{ inputs.flavor }}
+          cargo run --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+          cargo test --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
       - name: Build docs
         timeout-minutes: 1
         if: inputs.flavor == 'doc'

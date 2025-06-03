@@ -17,9 +17,36 @@ jobs:
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64" }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64"  }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64"  }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64" }
+        distro:
+          - { image: "debian:trixie-slim", LLVM: 19 }
+        rust-toolchain-name: [ stable, nightly ]
+        flavor: [ dev, release ]
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      os: ${{ matrix.os }}
+      runs-on: ${{ matrix.stack.runs-on }}
+      builder-host: ${{ matrix.stack.host }}
+      builder-target: ${{ matrix.stack.target }}
+      distro-image: ${{ matrix.distro.image }}
+      distro-LLVM: ${{ matrix.distro.LLVM }}
+      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+      flavor: ${{ matrix.flavor }}
+  linux-cross:
+    needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ linux ]
+        stack:
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686"        }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6"       }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64"   }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64"     }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
@@ -71,7 +98,7 @@ jobs:
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
       flavor: ${{ matrix.flavor }}
   build-docs:
-    needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
+    needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: linux
