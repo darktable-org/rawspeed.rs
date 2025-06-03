@@ -25,9 +25,16 @@ on:
       flavor:
         required: true
         type: string
+    secrets:
+      CODECOV_TOKEN:
     outputs:
       rustfmt-artifact-url:
         value: ${{ jobs.linux.outputs.rustfmt-artifact-url }}
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+  CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
 
 jobs:
   linux:
@@ -79,8 +86,6 @@ jobs:
           fi
       - name: Update base packages
         timeout-minutes: 1
-        env:
-          DEBIAN_FRONTEND: noninteractive
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
@@ -89,14 +94,13 @@ jobs:
           eatmydata apt upgrade
       - name: Install necessary packages
         timeout-minutes: 1
-        env:
-          DEBIAN_FRONTEND: noninteractive
         run: |
           set -xe
           eatmydata apt install \
             ca-certificates \
             curl \
             git \
+            gpg \
           ;
           eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
           . "$HOME/.cargo/env"
@@ -158,8 +162,6 @@ jobs:
       - name: Install necessary packages for cross-compilation
         timeout-minutes: 1
         if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.builder-host != inputs.builder-target
-        env:
-          DEBIAN_FRONTEND: noninteractive
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -203,6 +205,14 @@ jobs:
           linker = "${LINKER}"
           runner = "qemu-${LIBC6_ARCH} -L /usr/${GCC_ARCH}-linux-${ABI}"
           EOT
+      - name: Install necessary packages for code coverage
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.builder-host == inputs.builder-target && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        timeout-minutes: 2
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          eatmydata rustup component add llvm-tools-preview
+          eatmydata cargo install cargo-llvm-cov
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
         uses: actions/checkout@v4
@@ -224,8 +234,6 @@ jobs:
         id: rustfmt
         timeout-minutes: 1
         if: inputs.flavor == 'RustFmt'
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -247,8 +255,6 @@ jobs:
       - name: Build
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -257,19 +263,54 @@ jobs:
       - name: Run tests
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo run --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
           cargo test --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+      - name: Run tests to collect code coverage
+        timeout-minutes: 1
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.builder-host == inputs.builder-target && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        env:
+          RUSTFLAGS: "-C instrument-coverage"
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo clean
+          cargo llvm-cov run --no-report --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+          cargo llvm-cov     --no-report --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+      - name: Aggregate code coverage
+        timeout-minutes: 1
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.builder-host == inputs.builder-target && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+      - name: Upload coverage reports to Codecov
+        timeout-minutes: 1
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.builder-host == inputs.builder-target && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        uses: codecov/codecov-action@v5
+        env:
+          OS: ${{ inputs.os }}
+          BUILDER_HOST: ${{ inputs.builder-host }}
+          BUILDER_TARGET: ${{ inputs.builder-target }}
+          ENDIANNESS: ${{ ((inputs.builder-target == 's390x' || inputs.builder-target == 'powerpc64') && 'big') || 'little' }}
+          RUST_TOOLCHAIN: ${{ inputs.rust-toolchain-name }}
+          LLVM_VER: ${{ inputs.distro-LLVM }}
+          RUST_PROFILE: ${{ inputs.flavor }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS,BUILDER_HOST,BUILDER_TARGET,RUST_TOOLCHAIN,LLVM_VER,RUST_PROFILE
+          flags: ${{ env.OS }}, host=${{ env.BUILDER_HOST }}, target=${{ env.BUILDER_TARGET }}, endianness=${{ env.ENDIANNESS }}, rust=${{ env.RUST_TOOLCHAIN }}, LLVM=${{ env.LLVM_VER }}, profile=${{ env.RUST_PROFILE }}
+          files: ${{ env.SRC_DIR }}/codecov.json
+          root_dir: ${{ env.SRC_DIR }}
+          fail_ci_if_error: true
       - name: Build docs
         timeout-minutes: 1
         if: inputs.flavor == 'doc'
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           . "$HOME/.cargo/env"

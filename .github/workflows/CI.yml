@@ -33,6 +33,8 @@ jobs:
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
       flavor: ${{ matrix.flavor }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-cross:
     needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
     strategy:
@@ -61,6 +63,8 @@ jobs:
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
       flavor: ${{ matrix.flavor }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   windows-msys2-fast:
     strategy:
       fail-fast: false
