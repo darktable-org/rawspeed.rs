@@ -90,17 +90,22 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - { os: macos-15, family: XCode, version: 16.3 } # AArch64, LLVM19
-          - { os: macos-13, family: XCode, version: 15.2 } # x86_64,  LLVM16
+          - { os: macos, os-ver: 15, host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
+          - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
         rust-toolchain-name: [ stable, nightly ]
         flavor: [ dev, release ]
     uses: ./.github/workflows/CI-macOS.yml
     with:
       os: ${{ matrix.compiler.os }}
-      xcode-version: ${{ matrix.compiler.version }}
-      os-deployment_target: ${{ matrix.compiler.deployment_target }}
+      runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
+      builder-host: ${{ matrix.compiler.host }}
+      builder-target: ${{ matrix.compiler.target }}
+      xcode-version: ${{ matrix.compiler.XCode }}
+      LLVM_VER: ${{ matrix.compiler.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
       flavor: ${{ matrix.flavor }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-docs:
     needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml

@@ -4,10 +4,19 @@ on:
       os:
         required: true
         type: string
-      os-deployment_target:
+      runs-on:
+        required: true
+        type: string
+      builder-host:
+        required: true
+        type: string
+      builder-target:
         required: true
         type: string
       xcode-version:
+        required: true
+        type: string
+      LLVM_VER:
         required: true
         type: string
       rust-toolchain-name:
@@ -16,11 +25,17 @@ on:
       flavor:
         required: true
         type: string
+    secrets:
+      CODECOV_TOKEN:
+
+env:
+  SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+  CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
 
 jobs:
   macOS:
-    name: ${{ inputs.os }}, XCode ${{ inputs.xcode-version }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
-    runs-on: ${{ inputs.os }}
+    name: ${{ inputs.runs-on }}, XCode ${{ inputs.xcode-version }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
@@ -30,8 +45,6 @@ jobs:
           fetch-depth: 1
       - name: Remove unneeded brew formulas/casks
         timeout-minutes: 3
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           brew update --quiet
@@ -41,16 +54,20 @@ jobs:
           brew cleanup --quiet --prune=all
       - name: Install Rust
         timeout-minutes: 1
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
           rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+      - name: Install necessary packages for code coverage
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        timeout-minutes: 3
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          rustup component add llvm-tools-preview
+          cargo install cargo-llvm-cov
       - name: Build
         timeout-minutes: 1
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -58,10 +75,47 @@ jobs:
           cargo build --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 1
-        env:
-          SRC_DIR: ${{ github.workspace }}/rawspeed.rs
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo test --profile ${{ inputs.flavor }}
+      - name: Run tests to collect code coverage
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        env:
+          RUSTFLAGS: "-C instrument-coverage"
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo clean
+          cargo llvm-cov run --no-report --profile ${{ inputs.flavor }}
+          cargo llvm-cov     --no-report --profile ${{ inputs.flavor }}
+      - name: Aggregate code coverage
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --profile ${{ inputs.flavor }}
+      - name: Upload coverage reports to Codecov
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        uses: codecov/codecov-action@v5
+        env:
+          OS: ${{ inputs.os }}
+          BUILDER_HOST: ${{ inputs.builder-host }}
+          BUILDER_TARGET: ${{ inputs.builder-target }}
+          ENDIANNESS: ${{ ((inputs.builder-target == 's390x' || inputs.builder-target == 'powerpc64') && 'big') || 'little' }}
+          RUST_TOOLCHAIN: ${{ inputs.rust-toolchain-name }}
+          LLVM_VER: ${{ inputs.LLVM_VER }}
+          RUST_PROFILE: ${{ inputs.flavor }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS,BUILDER_HOST,BUILDER_TARGET,RUST_TOOLCHAIN,LLVM_VER,RUST_PROFILE
+          flags: ${{ env.OS }}, host=${{ env.BUILDER_HOST }}, target=${{ env.BUILDER_TARGET }}, endianness=${{ env.ENDIANNESS }}, rust=${{ env.RUST_TOOLCHAIN }}, LLVM=${{ env.LLVM_VER }}, profile=${{ env.RUST_PROFILE }}
+          files: ${{ env.SRC_DIR }}/codecov.json
+          root_dir: ${{ env.SRC_DIR }}
+          fail_ci_if_error: true
