@@ -33,6 +33,7 @@ on:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
 
@@ -135,11 +136,13 @@ jobs:
           echo "RUST_TARGET=$(echo ${RUST_TARGET})" >> $GITHUB_ENV
           echo "ABI=$(echo ${ABI})" >> $GITHUB_ENV
           eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+          eatmydata rustup default ${{ inputs.rust-toolchain-name }}
           if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
           eatmydata rustup component add rustfmt
           elif [ "${{ inputs.flavor }}" = "doc" ]; then
           /bin/true
           elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          eatmydata rustup component add clippy
           eatmydata apt install \
             clang-${{ inputs.distro-LLVM }} \
             lld-${{ inputs.distro-LLVM }} \
@@ -260,6 +263,14 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo build --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+      - name: Run Clippy
+        timeout-minutes: 1
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo clippy --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Run tests
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
