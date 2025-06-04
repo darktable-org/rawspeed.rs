@@ -29,6 +29,7 @@ on:
       CODECOV_TOKEN:
 
 env:
+  RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
 

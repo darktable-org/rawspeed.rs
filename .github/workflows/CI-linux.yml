@@ -33,6 +33,7 @@ on:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
 
