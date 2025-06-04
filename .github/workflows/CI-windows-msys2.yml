@@ -69,6 +69,7 @@ jobs:
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
           rustup toolchain install ${{ env.RUST_TOOLCHAIN_NAME }} --allow-downgrade --profile minimal
           rustup default ${{ env.RUST_TOOLCHAIN_NAME }}
+          rustup component add clippy
       - name: Install necessary packages for code coverage
         if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true) && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
         timeout-minutes: 3
@@ -84,6 +85,13 @@ jobs:
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
           cd "$SRC_DIR"
           cargo build --profile ${{ inputs.flavor }}
+      - name: Run Clippy
+        timeout-minutes: 1
+        run: |
+          set -xe
+          export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
+          cd "$SRC_DIR"
+          cargo clippy --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Run tests
         timeout-minutes: 1
         run: |
