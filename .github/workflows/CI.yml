@@ -69,22 +69,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        msys2:
-          - { os: windows-latest, msystem: CLANG64,    arch: x86_64 }
-          - { os: windows-11-arm, msystem: CLANGARM64, arch: aarch64 }
+        stack:
+          - { os: windows, os-ver: latest, host: "x86_64",  target: "x86_64",  msystem: CLANG64 }
+          - { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
         rust-toolchain-version: [ stable, nightly ]
         rust-toolchain-abi: [ gnu, msvc ]
         flavor: [ dev, release ]
         exclude:
-          - msys2: { os: windows-11-arm, msystem: CLANGARM64, arch: aarch64 }
+          - stack: { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
             rust-toolchain-abi: gnu
     uses: ./.github/workflows/CI-windows-msys2.yml
     with:
-      os: ${{ matrix.msys2.os }}
-      msys2-msystem: ${{ matrix.msys2.msystem }}
-      msys2-arch: ${{ matrix.msys2.arch }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-version }}-${{ matrix.rust-toolchain-abi }}
+      os: ${{ matrix.stack.os }}
+      runs-on: ${{ matrix.stack.os }}-${{ matrix.stack.os-ver }}
+      builder-host: ${{ matrix.stack.host }}
+      builder-target: ${{ matrix.stack.target }}
+      msys2-msystem: ${{ matrix.stack.msystem }}
+      rust-toolchain-version: ${{ matrix.rust-toolchain-version }}
+      rust-toolchain-abi: ${{ matrix.rust-toolchain-abi }}
       flavor: ${{ matrix.flavor }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   macOS-fast:
     strategy:
       fail-fast: false
