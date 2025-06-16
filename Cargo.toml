@@ -1,8 +1,14 @@
-[package]
-name = "rawspeed"
+[workspace]
+resolver = "3"
+members = [
+    "src",
+    "src/memory",
+    "src/memory/endianness",
+]
+
+[workspace.package]
 version = "0.1.0"
 authors = ["Roman Lebedev <lebedev.ri@gmail.com>"]
-year = "2025"
 edition = "2024"
 rust-version = "1.87"  # MSRV:1
 documentation = "https://rawspeed.rs"
@@ -10,4 +16,5 @@ homepage = "https://rawspeed.rs"
 repository = "https://github.com/darktable-org/rawspeed.rs"
 license = "MIT OR Apache-2.0"
 
-[dependencies]
+[profile.release]
+panic = 'abort'

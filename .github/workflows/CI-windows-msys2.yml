@@ -78,13 +78,13 @@ jobs:
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
           rustup component add llvm-tools-preview
           cargo install cargo-llvm-cov
-      - name: Build
+      - name: Run cargo check
         timeout-minutes: 1
         run: |
           set -xe
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
           cd "$SRC_DIR"
-          cargo build --profile ${{ inputs.flavor }}
+          cargo check --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Run Clippy
         timeout-minutes: 1
         run: |
@@ -92,6 +92,13 @@ jobs:
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
           cd "$SRC_DIR"
           cargo clippy --profile ${{ inputs.flavor }} --all-targets --all-features
+      - name: Build
+        timeout-minutes: 1
+        run: |
+          set -xe
+          export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
+          cd "$SRC_DIR"
+          cargo build --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 1
         run: |
@@ -109,8 +116,7 @@ jobs:
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov run --no-report --profile ${{ inputs.flavor }}
-          cargo llvm-cov     --no-report --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true) && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
