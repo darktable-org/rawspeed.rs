@@ -286,7 +286,6 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo run --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
           cargo test --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 1
@@ -298,8 +297,7 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov run --no-report --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
-          cargo llvm-cov     --no-report --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --target ${RUST_TARGET}-unknown-linux-${ABI} --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.builder-host == inputs.builder-target && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)

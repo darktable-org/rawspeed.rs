@@ -107,8 +107,7 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov run --no-report --profile ${{ inputs.flavor }}
-          cargo llvm-cov     --no-report --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
