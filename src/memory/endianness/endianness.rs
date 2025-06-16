@@ -29,9 +29,9 @@ pub mod endianness {
         }
 
         pub fn get_host_endianness_runtime() -> Result<Endianness, EndiannessDetectionError> {
-            match u16::from_ne_bytes([1, 0]) {
-                1 => Ok(Endianness::Little),
-                0 => Ok(Endianness::Big),
+            match u16::from_ne_bytes([1, 0]).to_le_bytes() {
+                [1, 0] => Ok(Endianness::Little),
+                [0, 1] => Ok(Endianness::Big),
                 _ => Err(EndiannessDetectionError::Unknown),
             }
         }
