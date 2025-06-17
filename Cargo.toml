@@ -4,6 +4,7 @@ members = [
     "src",
     "src/memory",
     "src/memory/endianness",
+    "src/memory/bitstream",
 ]
 
 [workspace.package]
