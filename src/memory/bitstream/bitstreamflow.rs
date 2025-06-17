@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum BitStreamFlow {
     LowInHighOut,
+    HighInLowOut,
 }
 
 pub trait BitStreamFlowTrait {}
@@ -40,6 +41,8 @@ pub trait BitStreamCache {
     fn skip(&mut self, count: usize);
 }
 
+//------------------------------------------------------------------------------
+
 trait Integer {}
 impl Integer for u8 {}
 impl Integer for u16 {}
@@ -74,6 +77,8 @@ impl ConstZero for u64 {
     const ZERO: Self = 0;
 }
 
+//------------------------------------------------------------------------------
+
 fn extract_high_bits<
     T: Integer + ConstZero + std::ops::Shr<usize, Output = T>,
 >(
@@ -88,6 +93,26 @@ fn extract_high_bits<
     assert!(num_low_bits_to_skip < T::bitwidth());
     value >> num_low_bits_to_skip
 }
+
+fn extract_low_bits<
+    T: Integer
+        + ConstZero
+        + std::ops::Shl<usize, Output = T>
+        + std::ops::Shr<usize, Output = T>,
+>(
+    value: T,
+    num_bits: usize,
+) -> T {
+    if num_bits == 0 {
+        return <T>::ZERO;
+    }
+    assert!(num_bits <= T::bitwidth());
+    let num_high_padding_bits = T::bitwidth() - num_bits;
+    assert!(num_high_padding_bits < T::bitwidth());
+    (value << num_high_padding_bits) >> num_high_padding_bits
+}
+
+//------------------------------------------------------------------------------
 
 pub struct BitStreamFlowLowInHighOut;
 
@@ -137,9 +162,48 @@ impl BitStreamCache for BitStreamCacheLowInHighOut {
     }
 }
 
+//------------------------------------------------------------------------------
+
+pub struct BitStreamFlowHighInLowOut;
+
+impl BitStreamFlowTrait for BitStreamFlowHighInLowOut {}
+
+type BitStreamCacheHighInLowOut = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+
+impl BitStreamCache for BitStreamCacheHighInLowOut {
+    fn push(&mut self, bits: u64, count: usize) {
+        // NOTE: `count`` may be zero!
+        assert!(count <= Self::SIZE);
+        assert!(count + (self.fill_level as usize) <= Self::SIZE);
+        self.cache |= bits << self.fill_level;
+        assert!(count <= u32::MAX as usize);
+        self.fill_level += count as u32;
+    }
+    fn peek(&self, count: usize) -> u64 {
+        assert!(count <= Self::SIZE);
+        assert!(count <= Self::MAX_GET_BITS);
+        assert!(count != 0);
+        assert!(count <= self.fill_level as usize);
+        extract_low_bits(self.cache, count)
+    }
+    fn skip(&mut self, count: usize) {
+        // `count` *could* be larger than `MaxGetBits`.
+        // `count` could be zero.
+        assert!(count <= Self::SIZE);
+        assert!(count <= self.fill_level as usize);
+        assert!(count <= u32::MAX as usize);
+        self.fill_level -= count as u32;
+        self.cache >>= count;
+    }
+}
+
+//------------------------------------------------------------------------------
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    //--------------------------------------------------------------------------
 
     #[test]
     fn bitwidth_zero_test() {
@@ -156,6 +220,8 @@ mod tests {
         test!(u32);
         test!(u64);
     }
+
+    //--------------------------------------------------------------------------
 
     #[test]
     fn extract_high_bits_zero_out_test() {
@@ -305,199 +371,563 @@ mod tests {
         extract_high_bits(0u8, 9);
     }
 
+    //--------------------------------------------------------------------------
+
     #[test]
-    fn bitstreamcache_constructable_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let _cache = T::new();
+    fn extract_low_bits_zero_out_test() {
+        macro_rules! test {
+            ($($t:ty)+) => {
+                $(
+                    for input in <$t>::MIN..<$t>::MAX {
+                        const NUM_BITS: usize = 0;
+                        const ALLZEROS: $t = 0;
+                        assert_eq!(ALLZEROS, extract_low_bits(input, NUM_BITS));
+                    }
+                )+
+            };
+        }
+
+        test!(u8);
+        test!(u16);
+        // test!(u32);
+        // test!(u64);
     }
 
     #[test]
-    fn bitstreamcache_push_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        for num_bits in 0usize..T::SIZE {
+    fn extract_low_bits_allzero_input_test() {
+        macro_rules! test {
+            ($($t:ty)+) => {
+                $(
+                    for num_bits in 0usize..<$t>::BITS as usize {
+                        const ALLZEROS: $t = 0;
+                        assert_eq!(ALLZEROS, extract_low_bits(ALLZEROS, num_bits));
+                    }
+                )+
+            };
+        }
+
+        test!(u8);
+        test!(u16);
+        test!(u32);
+        test!(u64);
+    }
+
+    #[test]
+    fn extract_low_bits_passthrough_test() {
+        macro_rules! test {
+            ($($t:ty)+) => {
+                $(
+                    for input in <$t>::MIN..<$t>::MAX {
+                        const NUM_BITS: usize = <$t>::BITS as usize;
+                        assert_eq!(input, extract_low_bits(input, NUM_BITS));
+                    }
+                )+
+            };
+        }
+
+        test!(u8);
+        test!(u16);
+        // test!(u32);
+        // test!(u64);
+    }
+
+    #[test]
+    fn extract_low_bits_allones_input_test() {
+        macro_rules! test {
+            ($($t:ty)+) => {
+                $(
+                    for num_bits in 0usize..<$t>::BITS as usize {
+                        const ALLONES: $t = <$t>::MAX;
+                        let res = extract_low_bits(ALLONES, num_bits);
+                        assert_eq!((res.trailing_ones() as usize), num_bits);
+                        assert_eq!(
+                            (res.leading_zeros() as usize),
+                            ((<$t>::BITS as usize) - num_bits)
+                        );
+                    }
+                )+
+            };
+        }
+
+        test!(u8);
+        test!(u16);
+        test!(u32);
+        test!(u64);
+    }
+
+    #[test]
+    fn extract_low_bits_input_test() {
+        macro_rules! test {
+            ($($t:ty)+) => {
+                $(
+                    for input in <$t>::MIN..<$t>::MAX {
+                        let mut bits = input;
+                        let mut input_reconstructed: $t = 0;
+                        for i in 0..<$t>::BITS {
+                            input_reconstructed |= (
+                                extract_low_bits(bits, 1) as $t << i
+                            );
+                            bits >>= 1;
+                        }
+                        assert_eq!(input_reconstructed, input);
+                    }
+                )+
+            };
+        }
+
+        test!(u8);
+        test!(u16);
+        // test!(u32);
+        // test!(u64);
+    }
+
+    #[test]
+    fn extract_low_bits_test() {
+        #[derive(Debug, Copy, Clone, PartialEq)]
+        struct Pat {
+            input: u8,
+            num_bits: usize,
+            output: u8,
+        }
+        let pats = [
+            Pat {
+                input: 0b11100111u8,
+                num_bits: 1,
+                output: 0b00000001u8,
+            },
+            Pat {
+                input: 0b11100111u8,
+                num_bits: 2,
+                output: 0b00000011u8,
+            },
+            Pat {
+                input: 0b11100111u8,
+                num_bits: 6,
+                output: 0b00100111u8,
+            },
+            Pat {
+                input: 0b11100111u8,
+                num_bits: 7,
+                output: 0b01100111u8,
+            },
+        ];
+        for p in pats {
+            assert_eq!(p.output, extract_low_bits(p.input, p.num_bits));
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "num_bits <= T::bitwidth()")]
+    fn extract_low_bits_too_many_bits_test() {
+        extract_low_bits(0u8, 9);
+    }
+
+    //--------------------------------------------------------------------------
+    #[cfg(test)]
+    mod low_in_high_out {
+        use super::*;
+
+        #[test]
+        fn bitstreamcache_constructable_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let _cache = T::new();
+        }
+
+        #[test]
+        fn bitstreamcache_push_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            for num_bits in 0usize..T::SIZE {
+                let mut cache = T::new();
+                cache.push(0, num_bits);
+            }
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count + (self.fill_level as usize) <= Self::SIZE"
+        )]
+        fn bitstreamcache_push_overflow_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
-            cache.push(0, num_bits);
+            cache.push(0, T::SIZE);
+            cache.push(0, 1);
+        }
+
+        #[test]
+        fn bitstreamcache_double_push_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            for first_bits in 0usize..T::SIZE {
+                for second_bits in 0usize..T::SIZE {
+                    if first_bits + second_bits <= T::SIZE {
+                        let mut cache = T::new();
+                        cache.push(0, first_bits);
+                        cache.push(0, second_bits);
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn bitstreamcache_zero_skip_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.skip(0);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_non_zero_skip_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.skip(1);
+        }
+
+        #[test]
+        fn bitstreamcache_non_zero_skip_of_nonempty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.skip(1);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_skip_overflow_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.skip(1);
+        }
+
+        #[test]
+        fn bitstreamcache_skip_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.push(0, 1);
+            cache.skip(1);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_skip_overflow_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.skip(1);
+        }
+
+        #[test]
+        #[should_panic(expected = "assertion failed: count != 0")]
+        fn bitstreamcache_zero_peek_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let cache = T::new();
+            cache.peek(0);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_non_zero_peek_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let cache = T::new();
+            cache.peek(1);
+        }
+
+        #[test]
+        #[should_panic(expected = "assertion failed: count != 0")]
+        fn bitstreamcache_zero_peek_of_non_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.peek(0);
+        }
+
+        #[test]
+        fn bitstreamcache_non_zero_peek_of_non_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.peek(1);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_peek_overflow_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.peek(2);
+        }
+
+        #[test]
+        fn bitstreamcache_peek_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.peek(1);
+            cache.push(0, 1);
+            cache.peek(2);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_peek_overflow_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.peek(1);
+            cache.push(0, 1);
+            cache.peek(3);
+        }
+
+        #[test]
+        fn bitstreamcache_test() {
+            type T = u16;
+            let mut cache =
+                BitStreamCacheBase::<BitStreamFlowLowInHighOut>::new();
+            for _repeats in 0..16 {
+                for bits in T::MIN..T::MAX {
+                    cache.push(bits as u64, T::BITS as usize);
+                    assert_eq!(
+                        bits as usize,
+                        cache.peek(T::BITS as usize) as usize
+                    );
+                    let mut bits_reconstucted: T = 0;
+                    for _ in 0..T::BITS {
+                        bits_reconstucted <<= 1;
+                        bits_reconstucted |= cache.peek(1) as T;
+                        cache.skip(1);
+                    }
+                    assert_eq!(bits_reconstucted, bits);
+                }
+            }
         }
     }
+    //--------------------------------------------------------------------------
 
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count + (self.fill_level as usize) <= Self::SIZE"
-    )]
-    fn bitstreamcache_push_overflow_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.push(0, T::SIZE);
-        cache.push(0, 1);
-    }
+    //--------------------------------------------------------------------------
 
-    #[test]
-    fn bitstreamcache_double_push_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        for first_bits in 0usize..T::SIZE {
-            for second_bits in 0usize..T::SIZE {
-                if first_bits + second_bits <= T::SIZE {
-                    let mut cache = T::new();
-                    cache.push(0, first_bits);
-                    cache.push(0, second_bits);
+    #[cfg(test)]
+    mod high_in_low_out {
+        use super::*;
+
+        #[test]
+        fn bitstreamcache_constructable_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let _cache = T::new();
+        }
+
+        #[test]
+        fn bitstreamcache_push_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            for num_bits in 0usize..T::SIZE {
+                let mut cache = T::new();
+                cache.push(0, num_bits);
+            }
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count + (self.fill_level as usize) <= Self::SIZE"
+        )]
+        fn bitstreamcache_push_overflow_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.push(0, T::SIZE);
+            cache.push(0, 1);
+        }
+
+        #[test]
+        fn bitstreamcache_double_push_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            for first_bits in 0usize..T::SIZE {
+                for second_bits in 0usize..T::SIZE {
+                    if first_bits + second_bits <= T::SIZE {
+                        let mut cache = T::new();
+                        cache.push(0, first_bits);
+                        cache.push(0, second_bits);
+                    }
+                }
+            }
+        }
+
+        #[test]
+        fn bitstreamcache_zero_skip_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.skip(0);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_non_zero_skip_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.skip(1);
+        }
+
+        #[test]
+        fn bitstreamcache_non_zero_skip_of_nonempty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.skip(1);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_skip_overflow_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.skip(1);
+        }
+
+        #[test]
+        fn bitstreamcache_skip_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.push(0, 1);
+            cache.skip(1);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_skip_overflow_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.push(0, 1);
+            cache.skip(1);
+            cache.skip(1);
+        }
+
+        #[test]
+        #[should_panic(expected = "assertion failed: count != 0")]
+        fn bitstreamcache_zero_peek_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let cache = T::new();
+            cache.peek(0);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_non_zero_peek_of_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let cache = T::new();
+            cache.peek(1);
+        }
+
+        #[test]
+        #[should_panic(expected = "assertion failed: count != 0")]
+        fn bitstreamcache_zero_peek_of_non_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.peek(0);
+        }
+
+        #[test]
+        fn bitstreamcache_non_zero_peek_of_non_empty_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.peek(1);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_peek_overflow_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.peek(2);
+        }
+
+        #[test]
+        fn bitstreamcache_peek_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            cache.push(0, 1);
+            cache.peek(1);
+            cache.push(0, 1);
+            cache.peek(2);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "assertion failed: count <= self.fill_level as usize"
+        )]
+        fn bitstreamcache_peek_overflow_after_refill_test() {
+            type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+            let mut cache = T::new();
+            assert_eq!(cache.fill_level, 0);
+            cache.push(0, 1);
+            cache.peek(1);
+            cache.push(0, 1);
+            cache.peek(3);
+        }
+
+        #[test]
+        fn bitstreamcache_test() {
+            type T = u16;
+            let mut cache =
+                BitStreamCacheBase::<BitStreamFlowHighInLowOut>::new();
+            for _repeats in 0..16 {
+                for bits in T::MIN..T::MAX {
+                    cache.push(bits as u64, T::BITS as usize);
+                    assert_eq!(
+                        bits as usize,
+                        cache.peek(T::BITS as usize) as usize
+                    );
+                    let mut bits_reconstucted: T = 0;
+                    for i in 0..T::BITS {
+                        bits_reconstucted |= (cache.peek(1) as T) << i;
+                        cache.skip(1);
+                    }
+                    assert_eq!(bits_reconstucted, bits);
                 }
             }
         }
     }
 
-    #[test]
-    fn bitstreamcache_zero_skip_of_empty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.skip(0);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count <= self.fill_level as usize"
-    )]
-    fn bitstreamcache_non_zero_skip_of_empty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.skip(1);
-    }
-
-    #[test]
-    fn bitstreamcache_non_zero_skip_of_nonempty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.push(0, 1);
-        cache.skip(1);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count <= self.fill_level as usize"
-    )]
-    fn bitstreamcache_skip_overflow_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        assert_eq!(cache.fill_level, 0);
-        cache.push(0, 1);
-        cache.skip(1);
-        cache.skip(1);
-    }
-
-    #[test]
-    fn bitstreamcache_skip_after_refill_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.push(0, 1);
-        cache.skip(1);
-        cache.push(0, 1);
-        cache.skip(1);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count <= self.fill_level as usize"
-    )]
-    fn bitstreamcache_skip_overflow_after_refill_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        assert_eq!(cache.fill_level, 0);
-        cache.push(0, 1);
-        cache.skip(1);
-        cache.push(0, 1);
-        cache.skip(1);
-        cache.skip(1);
-    }
-
-    #[test]
-    #[should_panic(expected = "assertion failed: count != 0")]
-    fn bitstreamcache_zero_peek_of_empty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let cache = T::new();
-        cache.peek(0);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count <= self.fill_level as usize"
-    )]
-    fn bitstreamcache_non_zero_peek_of_empty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let cache = T::new();
-        cache.peek(1);
-    }
-
-    #[test]
-    #[should_panic(expected = "assertion failed: count != 0")]
-    fn bitstreamcache_zero_peek_of_non_empty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.push(0, 1);
-        cache.peek(0);
-    }
-
-    #[test]
-    fn bitstreamcache_non_zero_peek_of_non_empty_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.push(0, 1);
-        cache.peek(1);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count <= self.fill_level as usize"
-    )]
-    fn bitstreamcache_peek_overflow_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        assert_eq!(cache.fill_level, 0);
-        cache.push(0, 1);
-        cache.peek(2);
-    }
-
-    #[test]
-    fn bitstreamcache_peek_after_refill_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        cache.push(0, 1);
-        cache.peek(1);
-        cache.push(0, 1);
-        cache.peek(2);
-    }
-
-    #[test]
-    #[should_panic(
-        expected = "assertion failed: count <= self.fill_level as usize"
-    )]
-    fn bitstreamcache_peek_overflow_after_refill_test() {
-        type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
-        let mut cache = T::new();
-        assert_eq!(cache.fill_level, 0);
-        cache.push(0, 1);
-        cache.peek(1);
-        cache.push(0, 1);
-        cache.peek(3);
-    }
-
-    #[test]
-    fn bitstreamcache_test() {
-        type T = u16;
-        let mut cache = BitStreamCacheBase::<BitStreamFlowLowInHighOut>::new();
-        for _repeats in 0..16 {
-            for bits in T::MIN..T::MAX {
-                cache.push(bits as u64, T::BITS as usize);
-                assert_eq!(
-                    bits as usize,
-                    cache.peek(T::BITS as usize) as usize
-                );
-                let mut bits_reconstucted: T = 0;
-                for _ in 0..T::BITS {
-                    bits_reconstucted <<= 1;
-                    bits_reconstucted |= cache.peek(1) as T;
-                    cache.skip(1);
-                }
-                assert_eq!(bits_reconstucted, bits);
-            }
-        }
-    }
+    //--------------------------------------------------------------------------
 }
