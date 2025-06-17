@@ -20,10 +20,10 @@ pub struct BitStreamCacheBase<T: BitStreamFlowTrait> {
 
 impl<T: BitStreamFlowTrait> BitStreamCacheBase<T> {
     // Width of cache, in bits
-    const SIZE: usize = u64::BITWIDTH as usize;
+    const SIZE: usize = u64::BITWIDTH;
 
     // How many bits could be requested to be filled
-    const MAX_GET_BITS: usize = u32::BITWIDTH as usize;
+    const MAX_GET_BITS: usize = u32::BITWIDTH;
 
     pub fn new() -> Self {
         Self {
@@ -227,7 +227,7 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    assert_eq!(<$t>::BITWIDTH as usize, <$t>::BITWIDTH);
+                    assert_eq!(<$t>::BITWIDTH, <$t>::BITWIDTH);
                 )+
             };
         }
@@ -265,7 +265,7 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_high_bits(ALLZEROS, num_bits));
                     }
@@ -285,7 +285,7 @@ mod tests {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = <$t>::BITWIDTH as usize;
+                        const NUM_BITS: usize = <$t>::BITWIDTH;
                         assert_eq!(input, extract_high_bits(input, NUM_BITS));
                     }
                 )+
@@ -303,13 +303,13 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_high_bits(ALLONES, num_bits);
                         assert_eq!((res.trailing_ones() as usize), num_bits);
                         assert_eq!(
                             (res.leading_zeros() as usize),
-                            ((<$t>::BITWIDTH as usize) - num_bits)
+                            ((<$t>::BITWIDTH) - num_bits)
                         );
                     }
                 )+
@@ -415,7 +415,7 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_low_bits(ALLZEROS, num_bits));
                     }
@@ -435,7 +435,7 @@ mod tests {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = <$t>::BITWIDTH as usize;
+                        const NUM_BITS: usize = <$t>::BITWIDTH;
                         assert_eq!(input, extract_low_bits(input, NUM_BITS));
                     }
                 )+
@@ -453,13 +453,13 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_low_bits(ALLONES, num_bits);
                         assert_eq!((res.trailing_ones() as usize), num_bits);
                         assert_eq!(
                             (res.leading_zeros() as usize),
-                            ((<$t>::BITWIDTH as usize) - num_bits)
+                            ((<$t>::BITWIDTH) - num_bits)
                         );
                     }
                 )+
