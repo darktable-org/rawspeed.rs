@@ -253,7 +253,7 @@ jobs:
           cd "$SRC_DIR"
           cargo fmt --all
           git diff -p -U8 > "${GITHUB_WORKSPACE}/rustfmt.patch"
-          git diff --exit-code --quiet
+          git diff --stat --exit-code
       - name: Upload rustfmt patch
         id: rustfmt-upload
         timeout-minutes: 1
