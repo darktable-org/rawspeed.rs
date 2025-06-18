@@ -18,6 +18,25 @@ pub mod endianness {
         Endianness::Big
     }
 
+    pub trait SwapBytes<T> {
+        fn swap_bytes(self) -> Self;
+    }
+
+    macro_rules! impl_swap_bytes {
+        ($($t:ty)+) => {
+            $(
+                impl<T> SwapBytes<T> for $t {
+                    #[inline]
+                    fn swap_bytes(self) -> Self {
+                        self.swap_bytes()
+                    }
+                }
+            )+
+        };
+    }
+
+    impl_swap_bytes!(u16 u32 u64);
+
     #[cfg(test)]
     mod tests {
 
@@ -53,6 +72,29 @@ pub mod endianness {
                 get_host_endianness(),
                 get_host_endianness_runtime().expect("")
             );
+        }
+
+        #[test]
+        fn swap_bytes_test() {
+            macro_rules! test {
+                ($($t:ty)+) => {
+                    $(
+                        {
+                            const NUM_BYTES: usize = (<$t>::BITS / 8) as usize;
+                            let mut bytes = [0; NUM_BYTES];
+                            for i in 0..NUM_BYTES {
+                                bytes[i] = 1 + i as u8;
+                            }
+                            let bits = <$t>::from_ne_bytes(bytes);
+                            let swapped_bits = <$t as SwapBytes<$t>>::swap_bytes(bits);
+                            let swapped_bytes = <$t>::to_ne_bytes(swapped_bits);
+                            assert_eq!(swapped_bytes.to_vec(),
+                                       (bytes.iter().copied().rev().collect::<Vec<u8>>()));
+                        }
+                    )+
+                };
+            }
+            test!(u16 u32 u64);
         }
     }
 }
