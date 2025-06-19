@@ -20,10 +20,10 @@ pub struct BitStreamCacheBase<T: BitStreamFlowTrait> {
 
 impl<T: BitStreamFlowTrait> BitStreamCacheBase<T> {
     // Width of cache, in bits
-    const SIZE: usize = u64::BITS as usize;
+    const SIZE: usize = u64::BITWIDTH as usize;
 
     // How many bits could be requested to be filled
-    const MAX_GET_BITS: usize = u32::BITS as usize;
+    const MAX_GET_BITS: usize = u32::BITWIDTH as usize;
 
     #[allow(dead_code)]
     fn new() -> Self {
@@ -49,16 +49,21 @@ impl Integer for u16 {}
 impl Integer for u32 {}
 impl Integer for u64 {}
 
-trait Bitwidth {
-    fn bitwidth() -> usize;
+pub trait Bitwidth {
+    const BITWIDTH: usize;
 }
 
-impl<T: Integer> Bitwidth for T {
-    fn bitwidth() -> usize {
-        const BITS_PER_BYTE: usize = 8;
-        BITS_PER_BYTE * std::mem::size_of::<T>()
-    }
+macro_rules! impl_bitwidth {
+    ($($t:ty)+) => {
+        $(
+            impl Bitwidth for $t {
+                const BITWIDTH: usize = <$t>::BITS as usize;
+            }
+        )+
+    };
 }
+
+impl_bitwidth!(u8 u16 u32 u64);
 
 pub trait ConstZero {
     const ZERO: Self;
@@ -80,7 +85,7 @@ impl ConstZero for u64 {
 //------------------------------------------------------------------------------
 
 fn extract_high_bits<
-    T: Integer + ConstZero + std::ops::Shr<usize, Output = T>,
+    T: Integer + ConstZero + Bitwidth + std::ops::Shr<usize, Output = T>,
 >(
     value: T,
     num_bits: usize,
@@ -88,15 +93,16 @@ fn extract_high_bits<
     if num_bits == 0 {
         return <T>::ZERO;
     }
-    assert!(num_bits <= T::bitwidth());
-    let num_low_bits_to_skip = T::bitwidth() - num_bits;
-    assert!(num_low_bits_to_skip < T::bitwidth());
+    assert!(num_bits <= T::BITWIDTH);
+    let num_low_bits_to_skip = T::BITWIDTH - num_bits;
+    assert!(num_low_bits_to_skip < T::BITWIDTH);
     value >> num_low_bits_to_skip
 }
 
 fn extract_low_bits<
     T: Integer
         + ConstZero
+        + Bitwidth
         + std::ops::Shl<usize, Output = T>
         + std::ops::Shr<usize, Output = T>,
 >(
@@ -106,9 +112,9 @@ fn extract_low_bits<
     if num_bits == 0 {
         return <T>::ZERO;
     }
-    assert!(num_bits <= T::bitwidth());
-    let num_high_padding_bits = T::bitwidth() - num_bits;
-    assert!(num_high_padding_bits < T::bitwidth());
+    assert!(num_bits <= T::BITWIDTH);
+    let num_high_padding_bits = T::BITWIDTH - num_bits;
+    assert!(num_high_padding_bits < T::BITWIDTH);
     (value << num_high_padding_bits) >> num_high_padding_bits
 }
 
@@ -118,7 +124,8 @@ pub struct BitStreamFlowLowInHighOut;
 
 impl BitStreamFlowTrait for BitStreamFlowLowInHighOut {}
 
-type BitStreamCacheLowInHighOut = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+pub type BitStreamCacheLowInHighOut =
+    BitStreamCacheBase<BitStreamFlowLowInHighOut>;
 
 impl BitStreamCache for BitStreamCacheLowInHighOut {
     fn push(&mut self, bits: u64, count: usize) {
@@ -168,7 +175,8 @@ pub struct BitStreamFlowHighInLowOut;
 
 impl BitStreamFlowTrait for BitStreamFlowHighInLowOut {}
 
-type BitStreamCacheHighInLowOut = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+pub type BitStreamCacheHighInLowOut =
+    BitStreamCacheBase<BitStreamFlowHighInLowOut>;
 
 impl BitStreamCache for BitStreamCacheHighInLowOut {
     fn push(&mut self, bits: u64, count: usize) {
@@ -210,7 +218,7 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    assert_eq!(<$t>::BITS as usize, <$t>::bitwidth());
+                    assert_eq!(<$t>::BITWIDTH as usize, <$t>::BITWIDTH);
                 )+
             };
         }
@@ -248,7 +256,7 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITS as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_high_bits(ALLZEROS, num_bits));
                     }
@@ -268,7 +276,7 @@ mod tests {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = <$t>::BITS as usize;
+                        const NUM_BITS: usize = <$t>::BITWIDTH as usize;
                         assert_eq!(input, extract_high_bits(input, NUM_BITS));
                     }
                 )+
@@ -286,13 +294,13 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITS as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_high_bits(ALLONES, num_bits);
                         assert_eq!((res.trailing_ones() as usize), num_bits);
                         assert_eq!(
                             (res.leading_zeros() as usize),
-                            ((<$t>::BITS as usize) - num_bits)
+                            ((<$t>::BITWIDTH as usize) - num_bits)
                         );
                     }
                 )+
@@ -313,7 +321,7 @@ mod tests {
                     for input in <$t>::MIN..<$t>::MAX {
                         let mut bits = input;
                         let mut input_reconstructed: $t = 0;
-                        for _ in 0..<$t>::BITS {
+                        for _ in 0..<$t>::BITWIDTH {
                             input_reconstructed <<= 1;
                             input_reconstructed |= extract_high_bits(bits, 1) as $t;
                             bits <<= 1;
@@ -366,7 +374,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "num_bits <= T::bitwidth()")]
+    #[should_panic(expected = "num_bits <= T::BITWIDTH")]
     fn extract_high_bits_too_many_bits_test() {
         extract_high_bits(0u8, 9);
     }
@@ -398,7 +406,7 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITS as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_low_bits(ALLZEROS, num_bits));
                     }
@@ -418,7 +426,7 @@ mod tests {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = <$t>::BITS as usize;
+                        const NUM_BITS: usize = <$t>::BITWIDTH as usize;
                         assert_eq!(input, extract_low_bits(input, NUM_BITS));
                     }
                 )+
@@ -436,13 +444,13 @@ mod tests {
         macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITS as usize {
+                    for num_bits in 0usize..<$t>::BITWIDTH as usize {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_low_bits(ALLONES, num_bits);
                         assert_eq!((res.trailing_ones() as usize), num_bits);
                         assert_eq!(
                             (res.leading_zeros() as usize),
-                            ((<$t>::BITS as usize) - num_bits)
+                            ((<$t>::BITWIDTH as usize) - num_bits)
                         );
                     }
                 )+
@@ -463,7 +471,7 @@ mod tests {
                     for input in <$t>::MIN..<$t>::MAX {
                         let mut bits = input;
                         let mut input_reconstructed: $t = 0;
-                        for i in 0..<$t>::BITS {
+                        for i in 0..<$t>::BITWIDTH {
                             input_reconstructed |= (
                                 extract_low_bits(bits, 1) as $t << i
                             );
@@ -517,7 +525,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "num_bits <= T::bitwidth()")]
+    #[should_panic(expected = "num_bits <= T::BITWIDTH")]
     fn extract_low_bits_too_many_bits_test() {
         extract_low_bits(0u8, 9);
     }
@@ -708,13 +716,13 @@ mod tests {
                 BitStreamCacheBase::<BitStreamFlowLowInHighOut>::new();
             for _repeats in 0..16 {
                 for bits in T::MIN..T::MAX {
-                    cache.push(bits as u64, T::BITS as usize);
+                    cache.push(bits as u64, T::BITWIDTH as usize);
                     assert_eq!(
                         bits as usize,
-                        cache.peek(T::BITS as usize) as usize
+                        cache.peek(T::BITWIDTH as usize) as usize
                     );
                     let mut bits_reconstucted: T = 0;
-                    for _ in 0..T::BITS {
+                    for _ in 0..T::BITWIDTH {
                         bits_reconstucted <<= 1;
                         bits_reconstucted |= cache.peek(1) as T;
                         cache.skip(1);
@@ -913,13 +921,13 @@ mod tests {
                 BitStreamCacheBase::<BitStreamFlowHighInLowOut>::new();
             for _repeats in 0..16 {
                 for bits in T::MIN..T::MAX {
-                    cache.push(bits as u64, T::BITS as usize);
+                    cache.push(bits as u64, T::BITWIDTH as usize);
                     assert_eq!(
                         bits as usize,
-                        cache.peek(T::BITS as usize) as usize
+                        cache.peek(T::BITWIDTH as usize) as usize
                     );
                     let mut bits_reconstucted: T = 0;
-                    for i in 0..T::BITS {
+                    for i in 0..T::BITWIDTH {
                         bits_reconstucted |= (cache.peek(1) as T) << i;
                         cache.skip(1);
                     }
