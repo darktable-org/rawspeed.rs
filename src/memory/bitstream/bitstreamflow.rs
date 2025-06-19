@@ -25,13 +25,18 @@ impl<T: BitStreamFlowTrait> BitStreamCacheBase<T> {
     // How many bits could be requested to be filled
     const MAX_GET_BITS: usize = u32::BITWIDTH as usize;
 
-    #[allow(dead_code)]
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             cache: 0,
             fill_level: 0,
             _phantom_data: PhantomData,
         }
+    }
+}
+
+impl<T: BitStreamFlowTrait> Default for BitStreamCacheBase<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
