@@ -11,6 +11,7 @@ pub mod bitstream {
     #[derive(Debug, Copy, Clone, PartialEq)]
     pub enum BitOrder {
         LSB,
+        MSB,
     }
 
     pub trait BitOrderTrait {}
@@ -48,6 +49,28 @@ pub mod bitstream {
 
     //--------------------------------------------------------------------------
 
+    pub struct BitOrderMSB;
+
+    impl BitOrderTrait for BitOrderMSB {}
+
+    impl BitStreamTraits<BitOrderMSB> for BitOrderMSB {
+        const TAG: BitOrder = BitOrder::MSB;
+
+        type StreamFlow = super::bitstreamflow::BitStreamCacheLowInHighOut;
+
+        const FIXED_SIZE_CHUNKS: bool = true;
+
+        type ChunkType = u32;
+
+        const CHUNK_ENDIANNESS: Endianness = Endianness::Big;
+
+        const MIN_LOAD_STEP_BYTE_MULTIPLE: u32 = 1;
+    }
+
+    pub type BitVacuumerMSB<'a, W> = BitVacuumerBase<'a, BitOrderMSB, W>;
+
+    //--------------------------------------------------------------------------
+
     pub struct BitVacuumerBase<'a, T, W>
     where
         T: BitOrderTrait + BitStreamTraits<T>,
@@ -56,7 +79,7 @@ pub mod bitstream {
         T::ChunkType: Bitwidth + SwapBytes<T::ChunkType> + TryFrom<u64>,
         u32: std::ops::BitOrAssign<T::ChunkType>,
     {
-        cache: super::bitstreamflow::BitStreamCacheHighInLowOut,
+        cache: T::StreamFlow,
         writer: &'a mut W,
         _phantom_data: PhantomData<T>,
     }
@@ -122,7 +145,10 @@ pub mod bitstream {
         u32: std::ops::BitOrAssign<T::ChunkType>,
     {
         #[allow(dead_code)]
-        pub fn new(writer: &'a mut W) -> Self {
+        pub fn new(writer: &'a mut W) -> Self
+        where
+            T::StreamFlow: Default,
+        {
             Self {
                 cache: Default::default(),
                 writer,
@@ -198,7 +224,8 @@ pub mod bitstream {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests_lsb {
+    use core::result::Result::Ok;
     use std::io::Write;
 
     use super::bitstream::*;
@@ -267,21 +294,9 @@ mod tests {
     }
 
     #[test]
-    fn single_bit_test() -> std::io::Result<()> {
-        use std::io::Cursor;
-        let mut buf = Cursor::new(vec![]);
-        let mut vac = BitVacuumerLSB::new(&mut buf);
-        vac.put(1, 1)?;
-        vac.flush()?;
-        buf.flush()?;
-        assert_eq!(&buf.get_ref(), &&vec![1, 0, 0, 0]);
-        Ok(())
-    }
-
-    #[test]
     fn byte_enumeration_test() -> std::io::Result<()> {
         let mut res: Vec<Vec<u8>> = vec![];
-        for num_bytes in 0..17 {
+        for num_bytes in 0..(8 + 1) {
             use std::io::Cursor;
             let mut buf = Cursor::new(vec![]);
             let mut vac = BitVacuumerLSB::new(&mut buf);
@@ -302,14 +317,6 @@ mod tests {
             vec![1, 2, 3, 4, 5, 6, 0, 0],
             vec![1, 2, 3, 4, 5, 6, 7, 0],
             vec![1, 2, 3, 4, 5, 6, 7, 8],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 0],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 0, 0, 0],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0, 0],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         ];
         assert_eq!(res, expected);
         Ok(())
@@ -318,7 +325,7 @@ mod tests {
     #[test]
     fn bit_enumeration_test() -> std::io::Result<()> {
         let mut res: Vec<Vec<u8>> = vec![];
-        for num_leading_zeros in 0..64 {
+        for num_leading_zeros in 0..32 {
             use std::io::Cursor;
             let mut buf = Cursor::new(vec![]);
             let mut vac = BitVacuumerLSB::new(&mut buf);
@@ -363,38 +370,251 @@ mod tests {
             vec![0, 0, 0, 32],
             vec![0, 0, 0, 64],
             vec![0, 0, 0, 128],
-            vec![0, 0, 0, 0, 1, 0, 0, 0],
-            vec![0, 0, 0, 0, 2, 0, 0, 0],
-            vec![0, 0, 0, 0, 4, 0, 0, 0],
-            vec![0, 0, 0, 0, 8, 0, 0, 0],
-            vec![0, 0, 0, 0, 16, 0, 0, 0],
-            vec![0, 0, 0, 0, 32, 0, 0, 0],
-            vec![0, 0, 0, 0, 64, 0, 0, 0],
-            vec![0, 0, 0, 0, 128, 0, 0, 0],
-            vec![0, 0, 0, 0, 0, 1, 0, 0],
-            vec![0, 0, 0, 0, 0, 2, 0, 0],
-            vec![0, 0, 0, 0, 0, 4, 0, 0],
-            vec![0, 0, 0, 0, 0, 8, 0, 0],
-            vec![0, 0, 0, 0, 0, 16, 0, 0],
-            vec![0, 0, 0, 0, 0, 32, 0, 0],
-            vec![0, 0, 0, 0, 0, 64, 0, 0],
-            vec![0, 0, 0, 0, 0, 128, 0, 0],
-            vec![0, 0, 0, 0, 0, 0, 1, 0],
-            vec![0, 0, 0, 0, 0, 0, 2, 0],
-            vec![0, 0, 0, 0, 0, 0, 4, 0],
-            vec![0, 0, 0, 0, 0, 0, 8, 0],
-            vec![0, 0, 0, 0, 0, 0, 16, 0],
-            vec![0, 0, 0, 0, 0, 0, 32, 0],
-            vec![0, 0, 0, 0, 0, 0, 64, 0],
-            vec![0, 0, 0, 0, 0, 0, 128, 0],
-            vec![0, 0, 0, 0, 0, 0, 0, 1],
-            vec![0, 0, 0, 0, 0, 0, 0, 2],
-            vec![0, 0, 0, 0, 0, 0, 0, 4],
-            vec![0, 0, 0, 0, 0, 0, 0, 8],
-            vec![0, 0, 0, 0, 0, 0, 0, 16],
-            vec![0, 0, 0, 0, 0, 0, 0, 32],
-            vec![0, 0, 0, 0, 0, 0, 0, 64],
-            vec![0, 0, 0, 0, 0, 0, 0, 128],
+        ];
+        assert_eq!(res, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn sliding_0xff_test() -> std::io::Result<()> {
+        let mut res: Vec<Vec<u8>> = vec![];
+        for num_leading_zeros in 0..(32 - 8 + 1) {
+            use std::io::Cursor;
+            let mut buf = Cursor::new(vec![]);
+            let mut vac = BitVacuumerLSB::new(&mut buf);
+            for _i in 0..num_leading_zeros {
+                vac.put(0, 1)?;
+            }
+            vac.put(0xFF, 8)?;
+            vac.flush()?;
+            buf.flush()?;
+            res.push(buf.get_ref().clone());
+        }
+        let expected: Vec<Vec<u8>> = vec![
+            vec![255, 0, 0, 0],
+            vec![254, 1, 0, 0],
+            vec![252, 3, 0, 0],
+            vec![248, 7, 0, 0],
+            vec![240, 15, 0, 0],
+            vec![224, 31, 0, 0],
+            vec![192, 63, 0, 0],
+            vec![128, 127, 0, 0],
+            vec![0, 255, 0, 0],
+            vec![0, 254, 1, 0],
+            vec![0, 252, 3, 0],
+            vec![0, 248, 7, 0],
+            vec![0, 240, 15, 0],
+            vec![0, 224, 31, 0],
+            vec![0, 192, 63, 0],
+            vec![0, 128, 127, 0],
+            vec![0, 0, 255, 0],
+            vec![0, 0, 254, 1],
+            vec![0, 0, 252, 3],
+            vec![0, 0, 248, 7],
+            vec![0, 0, 240, 15],
+            vec![0, 0, 224, 31],
+            vec![0, 0, 192, 63],
+            vec![0, 0, 128, 127],
+            vec![0, 0, 0, 255],
+        ];
+        assert_eq!(res, expected);
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests_msb {
+    use core::result::Result::Ok;
+    use std::io::Write;
+
+    use super::bitstream::*;
+
+    #[test]
+    fn vec_ctor_test() {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let _vac = BitVacuumerMSB::new(&mut buf);
+    }
+
+    #[test]
+    fn arr_ctor_test() {
+        use std::io::Cursor;
+        let mut buf = [0u8; 1024];
+        let mut buf = Cursor::new(buf.as_mut());
+        let _vac = BitVacuumerMSB::new(&mut buf);
+    }
+
+    #[test]
+    fn drop_empty_test() -> std::io::Result<()> {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let vac = BitVacuumerMSB::new(&mut buf);
+        drop(vac);
+        buf.flush()?;
+        assert!(&buf.get_ref().is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn flush_empty_test() -> std::io::Result<()> {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let vac = BitVacuumerMSB::new(&mut buf);
+        vac.flush()?;
+        buf.flush()?;
+        assert!(&buf.get_ref().is_empty());
+        Ok(())
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Unrecoverable Error: trying to drop non-empty BitVacuumer. Did you forget to call `flush()`?"
+    )]
+    fn dropping_unflushed_vac_byte() {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let mut vac = BitVacuumerMSB::new(&mut buf);
+        match vac.put(0, 1) {
+            Ok(_) => (),
+            Err(_) => panic!("unexpected panic"),
+        }
+        drop(vac);
+    }
+
+    #[test]
+    fn flush_arr_overflow_test() -> std::io::Result<()> {
+        use std::io::Cursor;
+        let mut buf = [0u8; 0];
+        let mut buf = Cursor::new(buf.as_mut());
+        let mut vac = BitVacuumerMSB::new(&mut buf);
+        vac.put(0, 1)?;
+        assert!(vac.flush().is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn byte_enumeration_test() -> std::io::Result<()> {
+        let mut res: Vec<Vec<u8>> = vec![];
+        for num_bytes in 0..(8 + 1) {
+            use std::io::Cursor;
+            let mut buf = Cursor::new(vec![]);
+            let mut vac = BitVacuumerMSB::new(&mut buf);
+            for i in 0..num_bytes {
+                vac.put(1 + i, 8)?;
+            }
+            vac.flush()?;
+            buf.flush()?;
+            res.push(buf.get_ref().clone());
+        }
+        let expected: Vec<Vec<u8>> = vec![
+            vec![],
+            vec![1, 0, 0, 0],
+            vec![1, 2, 0, 0],
+            vec![1, 2, 3, 0],
+            vec![1, 2, 3, 4],
+            vec![1, 2, 3, 4, 5, 0, 0, 0],
+            vec![1, 2, 3, 4, 5, 6, 0, 0],
+            vec![1, 2, 3, 4, 5, 6, 7, 0],
+            vec![1, 2, 3, 4, 5, 6, 7, 8],
+        ];
+        assert_eq!(res, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn bit_enumeration_test() -> std::io::Result<()> {
+        let mut res: Vec<Vec<u8>> = vec![];
+        for num_leading_zeros in 0..32 {
+            use std::io::Cursor;
+            let mut buf = Cursor::new(vec![]);
+            let mut vac = BitVacuumerMSB::new(&mut buf);
+            for _i in 0..num_leading_zeros {
+                vac.put(0, 1)?;
+            }
+            vac.put(1, 1)?;
+            vac.flush()?;
+            buf.flush()?;
+            res.push(buf.get_ref().clone());
+        }
+        let expected: Vec<Vec<u8>> = vec![
+            vec![128, 0, 0, 0],
+            vec![64, 0, 0, 0],
+            vec![32, 0, 0, 0],
+            vec![16, 0, 0, 0],
+            vec![8, 0, 0, 0],
+            vec![4, 0, 0, 0],
+            vec![2, 0, 0, 0],
+            vec![1, 0, 0, 0],
+            vec![0, 128, 0, 0],
+            vec![0, 64, 0, 0],
+            vec![0, 32, 0, 0],
+            vec![0, 16, 0, 0],
+            vec![0, 8, 0, 0],
+            vec![0, 4, 0, 0],
+            vec![0, 2, 0, 0],
+            vec![0, 1, 0, 0],
+            vec![0, 0, 128, 0],
+            vec![0, 0, 64, 0],
+            vec![0, 0, 32, 0],
+            vec![0, 0, 16, 0],
+            vec![0, 0, 8, 0],
+            vec![0, 0, 4, 0],
+            vec![0, 0, 2, 0],
+            vec![0, 0, 1, 0],
+            vec![0, 0, 0, 128],
+            vec![0, 0, 0, 64],
+            vec![0, 0, 0, 32],
+            vec![0, 0, 0, 16],
+            vec![0, 0, 0, 8],
+            vec![0, 0, 0, 4],
+            vec![0, 0, 0, 2],
+            vec![0, 0, 0, 1],
+        ];
+        assert_eq!(res, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn sliding_0xff_test() -> std::io::Result<()> {
+        let mut res: Vec<Vec<u8>> = vec![];
+        for num_leading_zeros in 0..(32 - 8 + 1) {
+            use std::io::Cursor;
+            let mut buf = Cursor::new(vec![]);
+            let mut vac = BitVacuumerMSB::new(&mut buf);
+            for _i in 0..num_leading_zeros {
+                vac.put(0, 1)?;
+            }
+            vac.put(0xFF, 8)?;
+            vac.flush()?;
+            buf.flush()?;
+            res.push(buf.get_ref().clone());
+        }
+        let expected: Vec<Vec<u8>> = vec![
+            vec![255, 0, 0, 0],
+            vec![127, 128, 0, 0],
+            vec![63, 192, 0, 0],
+            vec![31, 224, 0, 0],
+            vec![15, 240, 0, 0],
+            vec![7, 248, 0, 0],
+            vec![3, 252, 0, 0],
+            vec![1, 254, 0, 0],
+            vec![0, 255, 0, 0],
+            vec![0, 127, 128, 0],
+            vec![0, 63, 192, 0],
+            vec![0, 31, 224, 0],
+            vec![0, 15, 240, 0],
+            vec![0, 7, 248, 0],
+            vec![0, 3, 252, 0],
+            vec![0, 1, 254, 0],
+            vec![0, 0, 255, 0],
+            vec![0, 0, 127, 128],
+            vec![0, 0, 63, 192],
+            vec![0, 0, 31, 224],
+            vec![0, 0, 15, 240],
+            vec![0, 0, 7, 248],
+            vec![0, 0, 3, 252],
+            vec![0, 0, 1, 254],
+            vec![0, 0, 0, 255],
         ];
         assert_eq!(res, expected);
         Ok(())
