@@ -8,6 +8,16 @@ pub enum BitStreamFlow {
 
 pub trait BitStreamFlowTrait {}
 
+pub trait BitStreamCache {
+    fn new() -> Self;
+
+    fn fill_level(&self) -> usize;
+
+    fn push(&mut self, bits: u64, count: usize);
+    fn peek(&self, count: usize) -> u64;
+    fn skip(&mut self, count: usize);
+}
+
 pub struct BitStreamCacheBase<T: BitStreamFlowTrait> {
     // The actual bits stored in the cache
     cache: u64,
@@ -24,30 +34,6 @@ impl<T: BitStreamFlowTrait> BitStreamCacheBase<T> {
 
     // How many bits could be requested to be filled
     const MAX_GET_BITS: usize = u32::BITWIDTH;
-
-    pub fn new() -> Self {
-        Self {
-            cache: 0,
-            fill_level: 0,
-            _phantom_data: PhantomData,
-        }
-    }
-
-    pub fn fill_level(&self) -> usize {
-        self.fill_level as usize
-    }
-}
-
-impl<T: BitStreamFlowTrait> Default for BitStreamCacheBase<T> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-pub trait BitStreamCache {
-    fn push(&mut self, bits: u64, count: usize);
-    fn peek(&self, count: usize) -> u64;
-    fn skip(&mut self, count: usize);
 }
 
 //------------------------------------------------------------------------------
@@ -137,6 +123,18 @@ pub type BitStreamCacheLowInHighOut =
     BitStreamCacheBase<BitStreamFlowLowInHighOut>;
 
 impl BitStreamCache for BitStreamCacheLowInHighOut {
+    fn new() -> Self {
+        Self {
+            cache: 0,
+            fill_level: 0,
+            _phantom_data: PhantomData,
+        }
+    }
+
+    fn fill_level(&self) -> usize {
+        self.fill_level as usize
+    }
+
     fn push(&mut self, bits: u64, count: usize) {
         // NOTE: `count`` may be zero!
         assert!(count <= Self::SIZE);
@@ -178,6 +176,12 @@ impl BitStreamCache for BitStreamCacheLowInHighOut {
     }
 }
 
+impl Default for BitStreamCacheLowInHighOut {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 //------------------------------------------------------------------------------
 
 pub struct BitStreamFlowHighInLowOut;
@@ -188,6 +192,18 @@ pub type BitStreamCacheHighInLowOut =
     BitStreamCacheBase<BitStreamFlowHighInLowOut>;
 
 impl BitStreamCache for BitStreamCacheHighInLowOut {
+    fn new() -> Self {
+        Self {
+            cache: 0,
+            fill_level: 0,
+            _phantom_data: PhantomData,
+        }
+    }
+
+    fn fill_level(&self) -> usize {
+        self.fill_level as usize
+    }
+
     fn push(&mut self, bits: u64, count: usize) {
         // NOTE: `count`` may be zero!
         assert!(count <= Self::SIZE);
@@ -211,6 +227,12 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
         assert!(count <= u32::MAX as usize);
         self.fill_level -= count as u32;
         self.cache >>= count;
+    }
+}
+
+impl Default for BitStreamCacheHighInLowOut {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
