@@ -32,6 +32,10 @@ impl<T: BitStreamFlowTrait> BitStreamCacheBase<T> {
             _phantom_data: PhantomData,
         }
     }
+
+    pub fn fill_level(&self) -> usize {
+        self.fill_level as usize
+    }
 }
 
 impl<T: BitStreamFlowTrait> Default for BitStreamCacheBase<T> {
@@ -551,7 +555,9 @@ mod tests {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             for num_bits in 0usize..T::SIZE {
                 let mut cache = T::new();
+                assert_eq!(cache.fill_level(), 0);
                 cache.push(0, num_bits);
+                assert_eq!(cache.fill_level(), num_bits);
             }
         }
 
@@ -562,8 +568,11 @@ mod tests {
         fn bitstreamcache_push_overflow_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, T::SIZE);
+            assert_eq!(cache.fill_level(), T::SIZE);
             cache.push(0, 1);
+            unreachable!();
         }
 
         #[test]
@@ -573,8 +582,14 @@ mod tests {
                 for second_bits in 0usize..T::SIZE {
                     if first_bits + second_bits <= T::SIZE {
                         let mut cache = T::new();
+                        assert_eq!(cache.fill_level(), 0);
                         cache.push(0, first_bits);
+                        assert_eq!(cache.fill_level(), first_bits);
                         cache.push(0, second_bits);
+                        assert_eq!(
+                            cache.fill_level(),
+                            first_bits + second_bits
+                        );
                     }
                 }
             }
@@ -584,7 +599,9 @@ mod tests {
         fn bitstreamcache_zero_skip_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(0);
+            assert_eq!(cache.fill_level(), 0);
         }
 
         #[test]
@@ -594,15 +611,20 @@ mod tests {
         fn bitstreamcache_non_zero_skip_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(1);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_non_zero_skip_of_nonempty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
         }
 
         #[test]
@@ -612,20 +634,28 @@ mod tests {
         fn bitstreamcache_skip_overflow_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(1);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_skip_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
         }
 
         #[test]
@@ -635,12 +665,17 @@ mod tests {
         fn bitstreamcache_skip_overflow_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(1);
+            unreachable!()
         }
 
         #[test]
@@ -648,7 +683,9 @@ mod tests {
         fn bitstreamcache_zero_peek_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.peek(0);
+            unreachable!();
         }
 
         #[test]
@@ -658,7 +695,9 @@ mod tests {
         fn bitstreamcache_non_zero_peek_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.peek(1);
+            unreachable!();
         }
 
         #[test]
@@ -666,16 +705,22 @@ mod tests {
         fn bitstreamcache_zero_peek_of_non_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(0);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_non_zero_peek_of_non_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(1);
+            assert_eq!(cache.fill_level(), 1);
         }
 
         #[test]
@@ -685,19 +730,26 @@ mod tests {
         fn bitstreamcache_peek_overflow_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(2);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_peek_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(1);
+            assert_eq!(cache.fill_level(), 1);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 2);
             cache.peek(2);
+            assert_eq!(cache.fill_level(), 2);
         }
 
         #[test]
@@ -707,11 +759,15 @@ mod tests {
         fn bitstreamcache_peek_overflow_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowLowInHighOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(1);
+            assert_eq!(cache.fill_level(), 1);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 2);
             cache.peek(3);
+            unreachable!();
         }
 
         #[test]
@@ -721,16 +777,18 @@ mod tests {
                 BitStreamCacheBase::<BitStreamFlowLowInHighOut>::new();
             for _repeats in 0..16 {
                 for bits in T::MIN..T::MAX {
-                    cache.push(bits as u64, T::BITWIDTH as usize);
-                    assert_eq!(
-                        bits as usize,
-                        cache.peek(T::BITWIDTH as usize) as usize
-                    );
+                    assert_eq!(cache.fill_level(), 0);
+                    cache.push(bits as u64, T::BITWIDTH);
+                    assert_eq!(cache.fill_level(), T::BITWIDTH);
+                    assert_eq!(bits as usize, cache.peek(T::BITWIDTH) as usize);
                     let mut bits_reconstucted: T = 0;
-                    for _ in 0..T::BITWIDTH {
+                    for i in 0..T::BITWIDTH {
                         bits_reconstucted <<= 1;
+                        assert_eq!(cache.fill_level(), T::BITWIDTH - i);
                         bits_reconstucted |= cache.peek(1) as T;
+                        assert_eq!(cache.fill_level(), T::BITWIDTH - i);
                         cache.skip(1);
+                        assert_eq!(cache.fill_level(), T::BITWIDTH - i - 1);
                     }
                     assert_eq!(bits_reconstucted, bits);
                 }
@@ -743,6 +801,7 @@ mod tests {
 
     #[cfg(test)]
     mod high_in_low_out {
+
         use super::*;
 
         #[test]
@@ -756,7 +815,9 @@ mod tests {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             for num_bits in 0usize..T::SIZE {
                 let mut cache = T::new();
+                assert_eq!(cache.fill_level(), 0);
                 cache.push(0, num_bits);
+                assert_eq!(cache.fill_level(), num_bits);
             }
         }
 
@@ -767,8 +828,11 @@ mod tests {
         fn bitstreamcache_push_overflow_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, T::SIZE);
+            assert_eq!(cache.fill_level(), T::SIZE);
             cache.push(0, 1);
+            unreachable!();
         }
 
         #[test]
@@ -778,8 +842,14 @@ mod tests {
                 for second_bits in 0usize..T::SIZE {
                     if first_bits + second_bits <= T::SIZE {
                         let mut cache = T::new();
+                        assert_eq!(cache.fill_level(), 0);
                         cache.push(0, first_bits);
+                        assert_eq!(cache.fill_level(), first_bits);
                         cache.push(0, second_bits);
+                        assert_eq!(
+                            cache.fill_level(),
+                            first_bits + second_bits
+                        );
                     }
                 }
             }
@@ -789,7 +859,9 @@ mod tests {
         fn bitstreamcache_zero_skip_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(0);
+            assert_eq!(cache.fill_level(), 0);
         }
 
         #[test]
@@ -799,15 +871,20 @@ mod tests {
         fn bitstreamcache_non_zero_skip_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(1);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_non_zero_skip_of_nonempty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
         }
 
         #[test]
@@ -817,20 +894,28 @@ mod tests {
         fn bitstreamcache_skip_overflow_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(1);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_skip_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
         }
 
         #[test]
@@ -840,12 +925,17 @@ mod tests {
         fn bitstreamcache_skip_overflow_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.skip(1);
+            assert_eq!(cache.fill_level(), 0);
             cache.skip(1);
+            unreachable!()
         }
 
         #[test]
@@ -853,7 +943,9 @@ mod tests {
         fn bitstreamcache_zero_peek_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.peek(0);
+            unreachable!();
         }
 
         #[test]
@@ -863,7 +955,9 @@ mod tests {
         fn bitstreamcache_non_zero_peek_of_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.peek(1);
+            unreachable!();
         }
 
         #[test]
@@ -871,16 +965,22 @@ mod tests {
         fn bitstreamcache_zero_peek_of_non_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(0);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_non_zero_peek_of_non_empty_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(1);
+            assert_eq!(cache.fill_level(), 1);
         }
 
         #[test]
@@ -890,19 +990,26 @@ mod tests {
         fn bitstreamcache_peek_overflow_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(2);
+            unreachable!();
         }
 
         #[test]
         fn bitstreamcache_peek_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(1);
+            assert_eq!(cache.fill_level(), 1);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 2);
             cache.peek(2);
+            assert_eq!(cache.fill_level(), 2);
         }
 
         #[test]
@@ -912,11 +1019,15 @@ mod tests {
         fn bitstreamcache_peek_overflow_after_refill_test() {
             type T = BitStreamCacheBase<BitStreamFlowHighInLowOut>;
             let mut cache = T::new();
-            assert_eq!(cache.fill_level, 0);
+            assert_eq!(cache.fill_level(), 0);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 1);
             cache.peek(1);
+            assert_eq!(cache.fill_level(), 1);
             cache.push(0, 1);
+            assert_eq!(cache.fill_level(), 2);
             cache.peek(3);
+            unreachable!();
         }
 
         #[test]
@@ -926,15 +1037,17 @@ mod tests {
                 BitStreamCacheBase::<BitStreamFlowHighInLowOut>::new();
             for _repeats in 0..16 {
                 for bits in T::MIN..T::MAX {
-                    cache.push(bits as u64, T::BITWIDTH as usize);
-                    assert_eq!(
-                        bits as usize,
-                        cache.peek(T::BITWIDTH as usize) as usize
-                    );
+                    assert_eq!(cache.fill_level(), 0);
+                    cache.push(bits as u64, T::BITWIDTH);
+                    assert_eq!(cache.fill_level(), T::BITWIDTH);
+                    assert_eq!(bits as usize, cache.peek(T::BITWIDTH) as usize);
                     let mut bits_reconstucted: T = 0;
                     for i in 0..T::BITWIDTH {
+                        assert_eq!(cache.fill_level(), T::BITWIDTH - i);
                         bits_reconstucted |= (cache.peek(1) as T) << i;
+                        assert_eq!(cache.fill_level(), T::BITWIDTH - i);
                         cache.skip(1);
+                        assert_eq!(cache.fill_level(), T::BITWIDTH - i - 1);
                     }
                     assert_eq!(bits_reconstucted, bits);
                 }
