@@ -5,10 +5,9 @@ pub mod bitstream {
     use crate::bitstreamflow::BitStreamCache;
     use core::default::Default;
     use core::result::Result::Ok;
-    use core::unreachable;
     use rawspeed_memory_endianness::endianness::Endianness;
     use rawspeed_memory_endianness::endianness::SwapBytes;
-    use rawspeed_memory_endianness::endianness::get_byte_swapped;
+    use rawspeed_memory_endianness::endianness::get_host_endianness;
     use std::marker::PhantomData;
 
     #[derive(Debug, Copy, Clone, PartialEq)]
@@ -143,106 +142,63 @@ pub mod bitstream {
 
     //--------------------------------------------------------------------------
 
-    pub trait BitVacuumerTraits {
-        const NEEDS_CUSTOM_DRAIN: bool = false; // Eww...
-    }
-
-    impl BitVacuumerTraits for BitOrderLSB {}
-    impl BitVacuumerTraits for BitOrderMSB {}
-    impl BitVacuumerTraits for BitOrderMSB16 {}
-    impl BitVacuumerTraits for BitOrderMSB32 {}
-
-    impl BitVacuumerTraits for BitOrderJPEG {
-        const NEEDS_CUSTOM_DRAIN: bool = true; // Eww...
+    pub trait BitVacuumerDefaultDrainImpl {
+        fn drain_impl(&mut self) -> std::io::Result<()>;
     }
 
     pub trait BitVacuumerDrainImpl {
         fn drain_impl(&mut self) -> std::io::Result<()>;
     }
 
-    pub trait BitVacuumerCustomDrainImpl {
-        fn custom_drain_impl(&mut self) -> std::io::Result<()> {
-            unreachable!(
-                "The default implementation of custom drain \
-                should never be called. Did you forget to override it?"
-            )
-        }
-    }
+    pub trait BitVacuumerUseDefaultDrainImpl {}
 
-    macro_rules! impl_default_BitVacuumerCustomDrainImpl {
-        ($t:ty) => {
-            impl<'a, W> BitVacuumerCustomDrainImpl
-                for BitVacuumerBase<'a, $t, W>
-            where
-                $t: BitOrderTrait + BitStreamTraits + BitVacuumerTraits,
-                W: std::io::Write,
-                u32: From<u8>
-                    + Bitwidth
-                    + From<<$t as BitStreamTraits>::ChunkType>
-                    + std::ops::ShlAssign<usize>
-                    + std::ops::BitOrAssign,
-                <$t as BitStreamTraits>::StreamFlow:
-                    super::bitstreamflow::BitStreamCache,
-                <$t as BitStreamTraits>::ChunkType: Bitwidth
-                    + SwapBytes<<$t as BitStreamTraits>::ChunkType>
-                    + TryFrom<u64>,
-            {
-            }
-        };
-    }
-    impl_default_BitVacuumerCustomDrainImpl!(BitOrderLSB);
-    impl_default_BitVacuumerCustomDrainImpl!(BitOrderMSB);
-    impl_default_BitVacuumerCustomDrainImpl!(BitOrderMSB16);
-    impl_default_BitVacuumerCustomDrainImpl!(BitOrderMSB32);
+    impl BitVacuumerUseDefaultDrainImpl for BitOrderLSB {}
+    impl BitVacuumerUseDefaultDrainImpl for BitOrderMSB {}
+    impl BitVacuumerUseDefaultDrainImpl for BitOrderMSB16 {}
+    impl BitVacuumerUseDefaultDrainImpl for BitOrderMSB32 {}
 
-    impl<'a, W> BitVacuumerCustomDrainImpl for BitVacuumerBase<'a, BitOrderJPEG, W>
+    impl<'a, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, BitOrderJPEG, W>
     where
-        BitOrderJPEG: BitOrderTrait + BitStreamTraits + BitVacuumerTraits,
+        BitOrderJPEG: BitOrderTrait + BitStreamTraits,
         W: std::io::Write,
         u32: From<u8>
             + Bitwidth
             + From<<BitOrderJPEG as BitStreamTraits>::ChunkType>
+            + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
         <BitOrderJPEG as BitStreamTraits>::StreamFlow:
             super::bitstreamflow::BitStreamCache,
-        <BitOrderJPEG as BitStreamTraits>::ChunkType: Bitwidth
-            + SwapBytes<<BitOrderJPEG as BitStreamTraits>::ChunkType>
-            + TryFrom<u64>,
+        <BitOrderJPEG as BitStreamTraits>::ChunkType:
+            Bitwidth + SwapBytes + TryFrom<u64>,
     {
-        fn custom_drain_impl(&mut self) -> std::io::Result<()> {
-            #[allow(clippy::assertions_on_constants)]
-            const {
-                assert!(BitOrderJPEG::NEEDS_CUSTOM_DRAIN);
-            }
+        fn drain_impl(&mut self) -> std::io::Result<()> {
+            type T = BitOrderJPEG;
 
             assert!(self.cache.fill_level() >= u32::BITWIDTH);
 
             let stream_chunk_bitwidth: usize =
-                <BitOrderJPEG as BitStreamTraits>::ChunkType::BITWIDTH;
+                <T as BitStreamTraits>::ChunkType::BITWIDTH;
 
             assert!(u32::BITWIDTH == stream_chunk_bitwidth);
 
-            let chunk =
-                match <<BitOrderJPEG as BitStreamTraits>::ChunkType>::try_from(
-                    self.cache.peek(stream_chunk_bitwidth),
-                ) {
-                    Ok(t) => t,
-                    Err(_) => panic!("lossless cast failed?"),
-                };
-            self.cache.skip(stream_chunk_bitwidth);
-            let chunk: <BitOrderJPEG as BitStreamTraits>::ChunkType =
-                get_byte_swapped(
-                    chunk,
-                    <BitOrderJPEG as BitStreamTraits>::CHUNK_ENDIANNESS
-                        != Endianness::Little,
-                );
-            let bytes = chunk.to_le_bytes();
+            let chunk = match <<T as BitStreamTraits>::ChunkType>::try_from(
+                self.cache.peek(stream_chunk_bitwidth),
+            ) {
+                Ok(t) => t,
+                Err(_) => panic!("lossless cast failed?"),
+            };
 
-            if bytes.iter().all(|byte| *byte != 0xFFu8) {
-                return self.writer.write_all(&bytes);
+            if chunk.to_ne_bytes().iter().all(|byte| *byte != 0xFFu8) {
+                return BitVacuumerDefaultDrainImpl::drain_impl(self);
             }
 
+            self.cache.skip(stream_chunk_bitwidth);
+            let chunk = chunk.get_byte_swapped(
+                <T as BitStreamTraits>::CHUNK_ENDIANNESS
+                    != get_host_endianness(),
+            );
+            let bytes = chunk.to_ne_bytes();
             for byte in bytes {
                 self.writer.write_all(&[byte])?;
                 if byte == 0xFFu8 {
@@ -256,80 +212,112 @@ pub mod bitstream {
 
     pub struct BitVacuumerBase<'a, T, W>
     where
-        T: BitOrderTrait + BitStreamTraits + BitVacuumerTraits,
+        T: BitOrderTrait + BitStreamTraits,
         W: std::io::Write,
         u32: From<u8>
             + Bitwidth
             + From<T::ChunkType>
+            + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
         T::StreamFlow: super::bitstreamflow::BitStreamCache,
-        T::ChunkType: Bitwidth + SwapBytes<T::ChunkType> + TryFrom<u64>,
+        T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         cache: T::StreamFlow,
         writer: &'a mut W,
         _phantom_data: PhantomData<T>,
     }
 
-    impl<'a, T, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, T, W>
+    impl<'a, T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'a, T, W>
     where
-        T: BitOrderTrait + BitStreamTraits + BitVacuumerTraits,
+        T: BitOrderTrait + BitStreamTraits,
         W: std::io::Write,
         u32: From<u8>
             + Bitwidth
             + From<T::ChunkType>
+            + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
         T::StreamFlow: super::bitstreamflow::BitStreamCache,
-        T::ChunkType: Bitwidth + SwapBytes<T::ChunkType> + TryFrom<u64>,
+        T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         fn drain_impl(&mut self) -> std::io::Result<()> {
-            assert!(!T::NEEDS_CUSTOM_DRAIN);
+            type WritebackCache = u32;
 
-            assert!(self.cache.fill_level() >= u32::BITWIDTH);
+            assert!(self.cache.fill_level() >= WritebackCache::BITWIDTH);
 
             let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
 
-            assert!(u32::BITWIDTH >= stream_chunk_bitwidth);
-            assert!(u32::BITWIDTH % stream_chunk_bitwidth == 0);
+            assert!(WritebackCache::BITWIDTH >= stream_chunk_bitwidth);
+            assert!(WritebackCache::BITWIDTH % stream_chunk_bitwidth == 0);
             let num_chunks_needed: usize =
-                u32::BITWIDTH / stream_chunk_bitwidth;
+                WritebackCache::BITWIDTH / stream_chunk_bitwidth;
             assert!(num_chunks_needed >= 1);
 
-            let mut cache: u32 = Default::default();
-            for i in 0..num_chunks_needed {
-                let chunk: T::ChunkType = match <T::ChunkType>::try_from(
+            let mut cache: WritebackCache = Default::default();
+            for _i in 0..num_chunks_needed {
+                let chunk = match <T::ChunkType>::try_from(
                     self.cache.peek(stream_chunk_bitwidth),
                 ) {
                     Ok(t) => t,
                     Err(_) => panic!("lossless cast failed?"),
                 };
                 self.cache.skip(stream_chunk_bitwidth);
-                let chunk: T::ChunkType = get_byte_swapped(
-                    chunk,
-                    T::CHUNK_ENDIANNESS != Endianness::Little,
+                let chunk = chunk.get_byte_swapped(
+                    T::CHUNK_ENDIANNESS != get_host_endianness(),
                 );
-                let mut chunk = <u32>::from(chunk);
-                chunk <<= i * stream_chunk_bitwidth;
+                let chunk: WritebackCache = chunk.into();
+                let chunk: WritebackCache = {
+                    #[cfg(target_endian = "little")]
+                    {
+                        chunk << (_i * stream_chunk_bitwidth)
+                    }
+                    #[cfg(not(target_endian = "little"))]
+                    {
+                        if num_chunks_needed != 1 {
+                            cache <<= stream_chunk_bitwidth;
+                        }
+                        chunk
+                    }
+                };
                 cache |= chunk;
             }
-            let bytes = cache.to_le_bytes();
+            let bytes = cache.to_ne_bytes();
             self.writer.write_all(&bytes)
+        }
+    }
+
+    impl<'a, T, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, T, W>
+    where
+        T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
+        W: std::io::Write,
+        u32: From<u8>
+            + Bitwidth
+            + From<T::ChunkType>
+            + std::ops::Shl<usize>
+            + std::ops::ShlAssign<usize>
+            + std::ops::BitOrAssign,
+        T::StreamFlow: super::bitstreamflow::BitStreamCache,
+        T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
+    {
+        fn drain_impl(&mut self) -> std::io::Result<()> {
+            BitVacuumerDefaultDrainImpl::drain_impl(self)
         }
     }
 
     impl<'a, T, W> BitVacuumerBase<'a, T, W>
     where
-        T: BitOrderTrait + BitStreamTraits + BitVacuumerTraits,
-        Self: BitVacuumerDrainImpl + BitVacuumerCustomDrainImpl,
+        T: BitOrderTrait + BitStreamTraits,
+        Self: BitVacuumerDrainImpl,
         W: std::io::Write,
         u32: From<u8>
             + Bitwidth
             + From<T::ChunkType>
+            + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
         T::StreamFlow: super::bitstreamflow::BitStreamCache,
-        T::ChunkType: Bitwidth + SwapBytes<T::ChunkType> + TryFrom<u64>,
+        T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         #[allow(dead_code)]
         pub fn new(writer: &'a mut W) -> Self
@@ -368,11 +356,7 @@ pub mod bitstream {
                 return Ok(()); // NOTE: does not mean the cache is empty!
             }
 
-            if T::NEEDS_CUSTOM_DRAIN {
-                self.custom_drain_impl()?;
-            } else {
-                self.drain_impl()?;
-            }
+            BitVacuumerDrainImpl::drain_impl(self)?;
 
             assert!(self.cache.fill_level() < u32::BITWIDTH);
             Ok(())
@@ -388,15 +372,16 @@ pub mod bitstream {
 
     impl<'a, T, W> Drop for BitVacuumerBase<'a, T, W>
     where
-        T: BitOrderTrait + BitStreamTraits + BitVacuumerTraits,
+        T: BitOrderTrait + BitStreamTraits,
         W: std::io::Write,
         u32: From<u8>
             + Bitwidth
             + From<T::ChunkType>
+            + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
         T::StreamFlow: super::bitstreamflow::BitStreamCache,
-        T::ChunkType: Bitwidth + SwapBytes<T::ChunkType> + TryFrom<u64>,
+        T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         fn drop(&mut self) {
             let err: &'static str = "Unrecoverable Error: trying to drop \
