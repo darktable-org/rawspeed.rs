@@ -193,7 +193,7 @@ where
     fn drop(&mut self) {
         let err: &'static str = "Unrecoverable Error: trying to drop \
             non-empty BitVacuumer. Did you forget to call `flush()`?";
-        assert!((self.cache.fill_level() == 0), "{}", err)
+        assert!((self.cache.fill_level() == 0), "{}", err);
     }
 }
 
