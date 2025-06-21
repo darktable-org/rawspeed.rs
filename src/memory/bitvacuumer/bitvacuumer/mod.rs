@@ -63,7 +63,7 @@ where
         assert!(num_chunks_needed >= 1);
 
         let mut cache: WritebackCache = Default::default();
-        for _i in 0..num_chunks_needed {
+        for i in 0..num_chunks_needed {
             let Ok(chunk) = <T::ChunkType>::try_from(
                 self.cache.peek(stream_chunk_bitwidth),
             ) else {
@@ -76,10 +76,11 @@ where
             let chunk: WritebackCache = {
                 #[cfg(target_endian = "little")]
                 {
-                    chunk << (_i * stream_chunk_bitwidth)
+                    chunk << (i * stream_chunk_bitwidth)
                 }
                 #[cfg(not(target_endian = "little"))]
                 {
+                    let _i = i; // i is only used in little-endian block.
                     if num_chunks_needed != 1 {
                         cache <<= stream_chunk_bitwidth;
                     }
