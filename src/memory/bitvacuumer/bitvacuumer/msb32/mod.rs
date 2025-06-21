@@ -1,4 +1,4 @@
-use super::*;
+use super::{BitVacuumerBase, BitVacuumerUseDefaultDrainImpl};
 
 use rawspeed_memory_bitstream::bitstream::BitOrderMSB32;
 

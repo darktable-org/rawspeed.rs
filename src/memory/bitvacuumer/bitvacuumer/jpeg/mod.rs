@@ -1,4 +1,8 @@
-use super::*;
+use super::{
+    BitOrderTrait, BitStreamCache, BitStreamTraits, BitVacuumerBase,
+    BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl, Bitwidth, SwapBytes,
+    get_host_endianness,
+};
 
 use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
 

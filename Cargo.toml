@@ -48,6 +48,7 @@ match_wild_err_arm = { level = "warn", priority = 0 }
 return_self_not_must_use = { level = "warn", priority = 0 }
 checked_conversions = { level = "warn", priority = 0 }
 used_underscore_binding = { level = "warn", priority = 0 }
+wildcard_imports = { level = "warn", priority = 0 }
 
 [profile.release]
 panic = 'abort'

@@ -1,4 +1,6 @@
-use super::*;
+use super::{
+    BitStreamCache, BitStreamCacheBase, BitStreamFlowTrait, PhantomData,
+};
 
 use rawspeed_common::common::extract_low_bits;
 
