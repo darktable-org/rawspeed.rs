@@ -10,6 +10,7 @@ pub enum BitStreamFlow {
 pub trait BitStreamFlowTrait {}
 
 pub trait BitStreamCache {
+    #[must_use]
     fn new() -> Self;
 
     fn fill_level(&self) -> usize;

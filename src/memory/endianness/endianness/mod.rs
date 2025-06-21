@@ -19,8 +19,10 @@ pub const fn get_host_endianness() -> Endianness {
 }
 
 pub trait SwapBytes {
+    #[must_use]
     fn swap_bytes(self) -> Self;
 
+    #[must_use]
     fn get_byte_swapped(self, cond: bool) -> Self;
 }
 
