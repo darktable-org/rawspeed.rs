@@ -1,10 +1,11 @@
-pub mod bitstreamflow;
-
 pub mod bitstream {
-    use super::bitstreamflow::Bitwidth;
-    use crate::bitstreamflow::BitStreamCache;
     use core::default::Default;
     use core::result::Result::Ok;
+    use rawspeed_memory_bitstreamcache::bitstreamcache;
+    use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
+    use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOut;
+    use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
+    use rawspeed_memory_bitstreamcache::bitstreamcache::Bitwidth;
     use rawspeed_memory_endianness::endianness::Endianness;
     use rawspeed_memory_endianness::endianness::SwapBytes;
     use rawspeed_memory_endianness::endianness::get_host_endianness;
@@ -39,7 +40,7 @@ pub mod bitstream {
     impl BitStreamTraits for BitOrderLSB {
         const TAG: BitOrder = BitOrder::LSB;
 
-        type StreamFlow = super::bitstreamflow::BitStreamCacheHighInLowOut;
+        type StreamFlow = BitStreamCacheHighInLowOut;
 
         const FIXED_SIZE_CHUNKS: bool = true;
 
@@ -61,7 +62,7 @@ pub mod bitstream {
     impl BitStreamTraits for BitOrderMSB {
         const TAG: BitOrder = BitOrder::MSB;
 
-        type StreamFlow = super::bitstreamflow::BitStreamCacheLowInHighOut;
+        type StreamFlow = BitStreamCacheLowInHighOut;
 
         const FIXED_SIZE_CHUNKS: bool = true;
 
@@ -83,7 +84,7 @@ pub mod bitstream {
     impl BitStreamTraits for BitOrderMSB16 {
         const TAG: BitOrder = BitOrder::MSB16;
 
-        type StreamFlow = super::bitstreamflow::BitStreamCacheLowInHighOut;
+        type StreamFlow = BitStreamCacheLowInHighOut;
 
         const FIXED_SIZE_CHUNKS: bool = true;
 
@@ -105,7 +106,7 @@ pub mod bitstream {
     impl BitStreamTraits for BitOrderMSB32 {
         const TAG: BitOrder = BitOrder::MSB32;
 
-        type StreamFlow = super::bitstreamflow::BitStreamCacheLowInHighOut;
+        type StreamFlow = bitstreamcache::BitStreamCacheLowInHighOut;
 
         const FIXED_SIZE_CHUNKS: bool = true;
 
@@ -127,7 +128,7 @@ pub mod bitstream {
     impl BitStreamTraits for BitOrderJPEG {
         const TAG: BitOrder = BitOrder::JPEG;
 
-        type StreamFlow = super::bitstreamflow::BitStreamCacheLowInHighOut;
+        type StreamFlow = bitstreamcache::BitStreamCacheLowInHighOut;
 
         const FIXED_SIZE_CHUNKS: bool = false; // Stuffing byte...
 
@@ -167,8 +168,7 @@ pub mod bitstream {
             + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
-        <BitOrderJPEG as BitStreamTraits>::StreamFlow:
-            super::bitstreamflow::BitStreamCache,
+        <BitOrderJPEG as BitStreamTraits>::StreamFlow: BitStreamCache,
         <BitOrderJPEG as BitStreamTraits>::ChunkType:
             Bitwidth + SwapBytes + TryFrom<u64>,
     {
@@ -220,7 +220,7 @@ pub mod bitstream {
             + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
-        T::StreamFlow: super::bitstreamflow::BitStreamCache,
+        T::StreamFlow: bitstreamcache::BitStreamCache,
         T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         cache: T::StreamFlow,
@@ -238,7 +238,7 @@ pub mod bitstream {
             + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
-        T::StreamFlow: super::bitstreamflow::BitStreamCache,
+        T::StreamFlow: bitstreamcache::BitStreamCache,
         T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         fn drain_impl(&mut self) -> std::io::Result<()> {
@@ -297,7 +297,7 @@ pub mod bitstream {
             + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
-        T::StreamFlow: super::bitstreamflow::BitStreamCache,
+        T::StreamFlow: bitstreamcache::BitStreamCache,
         T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         fn drain_impl(&mut self) -> std::io::Result<()> {
@@ -316,7 +316,7 @@ pub mod bitstream {
             + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
-        T::StreamFlow: super::bitstreamflow::BitStreamCache,
+        T::StreamFlow: bitstreamcache::BitStreamCache,
         T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         #[allow(dead_code)]
@@ -380,7 +380,7 @@ pub mod bitstream {
             + std::ops::Shl<usize>
             + std::ops::ShlAssign<usize>
             + std::ops::BitOrAssign,
-        T::StreamFlow: super::bitstreamflow::BitStreamCache,
+        T::StreamFlow: bitstreamcache::BitStreamCache,
         T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
     {
         fn drop(&mut self) {
