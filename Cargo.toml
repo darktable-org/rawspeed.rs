@@ -2,9 +2,12 @@
 resolver = "3"
 members = [
     "src",
+    "src/common",
     "src/memory",
     "src/memory/endianness",
     "src/memory/bitstream",
+    "src/memory/bitvacuumer",
+    "src/memory/bitstreamcache",
 ]
 
 [workspace.package]

@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-memory-bitstream"
+name = "rawspeed-common"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -10,8 +10,6 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-rawspeed-memory-bitstreamcache = { path = "../bitstreamcache" }
-rawspeed-memory-endianness = { path = "../endianness" }
 
 [lib]
 path = "mod.rs"

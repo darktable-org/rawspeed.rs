@@ -12,4 +12,4 @@ license.workspace = true
 [dependencies]
 
 [lib]
-path = "endianness.rs"
+path = "mod.rs"
