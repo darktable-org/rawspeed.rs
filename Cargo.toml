@@ -2,6 +2,7 @@
 resolver = "3"
 members = [
     "src",
+    "src/common",
     "src/memory",
     "src/memory/endianness",
     "src/memory/bitstream",

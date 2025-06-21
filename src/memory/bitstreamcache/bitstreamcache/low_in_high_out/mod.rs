@@ -1,5 +1,7 @@
 use super::*;
 
+use rawspeed_common::common::extract_high_bits;
+
 pub struct BitStreamFlowLowInHighOut;
 
 impl BitStreamFlowTrait for BitStreamFlowLowInHighOut {}

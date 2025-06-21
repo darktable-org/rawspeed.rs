@@ -1,9 +1,9 @@
 use core::marker::PhantomData;
+use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
 use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
 use rawspeed_memory_bitstreamcache::bitstreamcache;
 use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_memory_bitstreamcache::bitstreamcache::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
 
