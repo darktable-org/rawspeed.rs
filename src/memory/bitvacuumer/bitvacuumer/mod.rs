@@ -64,11 +64,10 @@ where
 
         let mut cache: WritebackCache = Default::default();
         for _i in 0..num_chunks_needed {
-            let chunk = match <T::ChunkType>::try_from(
+            let Ok(chunk) = <T::ChunkType>::try_from(
                 self.cache.peek(stream_chunk_bitwidth),
-            ) {
-                Ok(t) => t,
-                Err(_) => panic!("lossless cast failed?"),
+            ) else {
+                panic!("lossless cast failed?")
             };
             self.cache.skip(stream_chunk_bitwidth);
             let chunk = chunk

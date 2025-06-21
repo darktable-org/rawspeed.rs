@@ -29,11 +29,10 @@ where
 
         assert!(u32::BITWIDTH == stream_chunk_bitwidth);
 
-        let chunk = match <<T as BitStreamTraits>::ChunkType>::try_from(
+        let Ok(chunk) = <<T as BitStreamTraits>::ChunkType>::try_from(
             self.cache.peek(stream_chunk_bitwidth),
-        ) {
-            Ok(t) => t,
-            Err(_) => panic!("lossless cast failed?"),
+        ) else {
+            panic!("lossless cast failed?")
         };
 
         if chunk.to_ne_bytes().iter().all(|byte| *byte != 0xFFu8) {
