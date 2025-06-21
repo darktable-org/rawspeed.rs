@@ -80,7 +80,10 @@ where
                 }
                 #[cfg(not(target_endian = "little"))]
                 {
-                    let _i = i; // i is only used in little-endian block.
+                    #[allow(clippy::no_effect_underscore_binding)]
+                    {
+                        let _i = i; // i is only used in little-endian block.
+                    }
                     if num_chunks_needed != 1 {
                         cache <<= stream_chunk_bitwidth;
                     }
