@@ -66,7 +66,7 @@ fn flush_arr_overflow_test() -> std::io::Result<()> {
 #[test]
 fn byte_enumeration_test() -> std::io::Result<()> {
     let mut res: Vec<Vec<u8>> = vec![];
-    for num_bytes in 0..(8 + 1) {
+    for num_bytes in 0..=8 {
         use std::io::Cursor;
         let mut buf = Cursor::new(vec![]);
         let mut vac = BitVacuumerLSB::new(&mut buf);
@@ -148,7 +148,7 @@ fn bit_enumeration_test() -> std::io::Result<()> {
 #[test]
 fn sliding_0xff_test() -> std::io::Result<()> {
     let mut res: Vec<Vec<u8>> = vec![];
-    for num_leading_zeros in 0..(32 - 8 + 1) {
+    for num_leading_zeros in 0..=(32 - 8) {
         use std::io::Cursor;
         let mut buf = Cursor::new(vec![]);
         let mut vac = BitVacuumerLSB::new(&mut buf);
