@@ -16,7 +16,7 @@ pub fn get_host_endianness_runtime()
 
 #[test]
 fn compile_time_succeeds() {
-    get_host_endianness();
+    let _ = get_host_endianness();
 }
 
 #[test]
