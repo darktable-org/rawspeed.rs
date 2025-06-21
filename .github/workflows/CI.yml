@@ -99,18 +99,27 @@ jobs:
           - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
         rust-toolchain-name: [ stable, nightly ]
         flavor: [ dev, release ]
-    uses: ./.github/workflows/CI-macOS.yml
-    with:
-      os: ${{ matrix.compiler.os }}
-      runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
-      builder-host: ${{ matrix.compiler.host }}
-      builder-target: ${{ matrix.compiler.target }}
-      xcode-version: ${{ matrix.compiler.XCode }}
-      LLVM_VER: ${{ matrix.compiler.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
+    timeout-minutes: 1
+    steps:
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+          fetch-depth: 1
+      - uses: ./rawspeed.rs/.github/actions/CI-macOS
+        timeout-minutes: 1
+        with:
+          workspace: ${{ github.workspace }}
+          os: ${{ matrix.compiler.os }}
+          runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
+          builder-host: ${{ matrix.compiler.host }}
+          builder-target: ${{ matrix.compiler.target }}
+          xcode-version: ${{ matrix.compiler.XCode }}
+          LLVM_VER: ${{ matrix.compiler.LLVM }}
+          rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+          flavor: ${{ matrix.flavor }}
   build-docs:
     needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml
