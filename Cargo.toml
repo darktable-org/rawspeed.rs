@@ -40,6 +40,7 @@ cognitive_complexity = { level = "warn", priority = 0 }
 large_stack_frames = { level = "warn", priority = 0 }
 missing_const_for_fn = { level = "warn", priority = 0 }
 elidable_lifetime_names = { level = "warn", priority = 0 }
+manual_assert = { level = "warn", priority = 0 }
 
 [profile.release]
 panic = 'abort'
