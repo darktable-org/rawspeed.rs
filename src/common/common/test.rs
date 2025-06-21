@@ -137,24 +137,24 @@ fn extract_high_bits_test() {
     }
     let pats = [
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 1,
-            output: 0b00000001u8,
+            output: 0b0000_0001_u8,
         },
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 2,
-            output: 0b00000011u8,
+            output: 0b0000_0011_u8,
         },
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 6,
-            output: 0b00111001u8,
+            output: 0b0011_1001_u8,
         },
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 7,
-            output: 0b01110011u8,
+            output: 0b0111_0011_u8,
         },
     ];
     for p in pats {
@@ -288,24 +288,24 @@ fn extract_low_bits_test() {
     }
     let pats = [
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 1,
-            output: 0b00000001u8,
+            output: 0b0000_0001_u8,
         },
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 2,
-            output: 0b00000011u8,
+            output: 0b0000_0011_u8,
         },
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 6,
-            output: 0b00100111u8,
+            output: 0b0010_0111_u8,
         },
         Pat {
-            input: 0b11100111u8,
+            input: 0b1110_0111_u8,
             num_bits: 7,
-            output: 0b01100111u8,
+            output: 0b0110_0111_u8,
         },
     ];
     for p in pats {
