@@ -78,4 +78,5 @@ pub fn extract_low_bits<
 //------------------------------------------------------------------------------
 
 #[cfg(test)]
+#[allow(clippy::large_stack_frames)]
 mod test;

@@ -8,4 +8,5 @@ impl BitVacuumerUseDefaultDrainImpl for BitOrderMSB16 {}
 pub type BitVacuumerMSB16<'a, W> = BitVacuumerBase<'a, BitOrderMSB16, W>;
 
 #[cfg(test)]
+#[allow(clippy::large_stack_frames)]
 mod test;
