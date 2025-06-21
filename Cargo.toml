@@ -37,6 +37,7 @@ cargo = { level = "warn", priority = -1 }
 
 cargo_common_metadata = { level = "allow", priority = 0 }
 cognitive_complexity = { level = "warn", priority = 0 }
+large_stack_frames = { level = "warn", priority = 0 }
 
 [profile.release]
 panic = 'abort'
