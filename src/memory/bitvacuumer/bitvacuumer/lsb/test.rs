@@ -48,10 +48,7 @@ fn dropping_unflushed_vac_byte() {
     use std::io::Cursor;
     let mut buf = Cursor::new(vec![]);
     let mut vac = BitVacuumerLSB::new(&mut buf);
-    match vac.put(0, 1) {
-        Ok(_) => (),
-        Err(_) => panic!("unexpected panic"),
-    }
+    vac.put(0, 1).expect("unexpected panic");
     drop(vac);
 }
 
