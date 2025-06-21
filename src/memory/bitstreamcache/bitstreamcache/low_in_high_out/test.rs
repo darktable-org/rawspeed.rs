@@ -231,7 +231,7 @@ fn bitstreamcache_test() {
     for _repeats in 0..16 {
         for bits in T::MIN..T::MAX {
             assert_eq!(cache.fill_level(), 0);
-            cache.push(bits as u64, T::BITWIDTH);
+            cache.push(u64::from(bits), T::BITWIDTH);
             assert_eq!(cache.fill_level(), T::BITWIDTH);
             assert_eq!(bits as usize, cache.peek(T::BITWIDTH) as usize);
             let mut bits_reconstucted: T = 0;
