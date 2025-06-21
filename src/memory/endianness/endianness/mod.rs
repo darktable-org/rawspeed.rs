@@ -6,13 +6,13 @@ pub enum Endianness {
 
 #[inline]
 #[cfg(target_endian = "little")]
-pub fn get_host_endianness() -> Endianness {
+pub const fn get_host_endianness() -> Endianness {
     Endianness::Little
 }
 
 #[inline]
 #[cfg(target_endian = "big")]
-pub fn get_host_endianness() -> Endianness {
+pub const fn get_host_endianness() -> Endianness {
     Endianness::Big
 }
 
