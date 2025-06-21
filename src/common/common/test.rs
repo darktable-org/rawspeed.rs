@@ -79,6 +79,7 @@ fn extract_high_bits_passthrough_test() {
 }
 
 #[test]
+#[allow(clippy::cognitive_complexity)]
 fn extract_high_bits_allones_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
@@ -229,6 +230,7 @@ fn extract_low_bits_passthrough_test() {
 }
 
 #[test]
+#[allow(clippy::cognitive_complexity)]
 fn extract_low_bits_allones_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {

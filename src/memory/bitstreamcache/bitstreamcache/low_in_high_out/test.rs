@@ -225,6 +225,7 @@ fn bitstreamcache_peek_overflow_after_refill_test() {
 }
 
 #[test]
+#[allow(clippy::cognitive_complexity)]
 fn bitstreamcache_test() {
     type T = u16;
     let mut cache = BitStreamCacheLowInHighOut::new();
