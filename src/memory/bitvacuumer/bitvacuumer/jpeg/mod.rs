@@ -5,7 +5,7 @@ use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
 #[allow(dead_code)]
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 
-impl<'a, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, BitOrderJPEG, W>
+impl<W> BitVacuumerDrainImpl for BitVacuumerBase<'_, BitOrderJPEG, W>
 where
     BitOrderJPEG: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,

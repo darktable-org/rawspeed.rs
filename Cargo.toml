@@ -39,6 +39,7 @@ cargo_common_metadata = { level = "allow", priority = 0 }
 cognitive_complexity = { level = "warn", priority = 0 }
 large_stack_frames = { level = "warn", priority = 0 }
 missing_const_for_fn = { level = "warn", priority = 0 }
+elidable_lifetime_names = { level = "warn", priority = 0 }
 
 [profile.release]
 panic = 'abort'

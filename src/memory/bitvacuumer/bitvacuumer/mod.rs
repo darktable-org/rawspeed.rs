@@ -36,7 +36,7 @@ where
     _phantom_data: PhantomData<T>,
 }
 
-impl<'a, T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'a, T, W>
+impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
@@ -94,7 +94,7 @@ where
     }
 }
 
-impl<'a, T, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, T, W>
+impl<T, W> BitVacuumerDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
@@ -177,7 +177,7 @@ where
     }
 }
 
-impl<'a, T, W> Drop for BitVacuumerBase<'a, T, W>
+impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
