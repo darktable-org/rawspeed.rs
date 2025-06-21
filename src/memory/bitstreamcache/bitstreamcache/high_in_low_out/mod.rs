@@ -27,7 +27,7 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
         assert!(count <= Self::SIZE);
         assert!(count + (self.fill_level as usize) <= Self::SIZE);
         self.cache |= bits << self.fill_level;
-        assert!(count <= u32::MAX as usize);
+        assert!(u32::try_from(count).is_ok());
         self.fill_level += count as u32;
     }
     fn peek(&self, count: usize) -> u64 {
@@ -42,7 +42,7 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
         // `count` could be zero.
         assert!(count <= Self::SIZE);
         assert!(count <= self.fill_level as usize);
-        assert!(count <= u32::MAX as usize);
+        assert!(u32::try_from(count).is_ok());
         self.fill_level -= count as u32;
         self.cache >>= count;
     }

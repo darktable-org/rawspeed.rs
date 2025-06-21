@@ -46,6 +46,7 @@ semicolon_if_nothing_returned = { level = "warn", priority = 0 }
 manual_let_else = { level = "warn", priority = 0 }
 match_wild_err_arm = { level = "warn", priority = 0 }
 return_self_not_must_use = { level = "warn", priority = 0 }
+checked_conversions = { level = "warn", priority = 0 }
 
 [profile.release]
 panic = 'abort'
