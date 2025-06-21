@@ -5,6 +5,7 @@ members = [
     "src/memory",
     "src/memory/endianness",
     "src/memory/bitstream",
+    "src/memory/bitvacuumer",
     "src/memory/bitstreamcache",
 ]
 

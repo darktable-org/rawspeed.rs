@@ -1,0 +1,18 @@
+[package]
+name = "rawspeed-memory-bitvacuumer"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+rawspeed-memory-bitstream = { path = "../bitstream" }
+rawspeed-memory-endianness = { path = "../endianness" }
+rawspeed-memory-bitstreamcache = { path = "../bitstreamcache" }
+
+[lib]
+path = "mod.rs"
