@@ -21,7 +21,57 @@ repository = "https://github.com/darktable-org/rawspeed.rs"
 license = "MIT OR Apache-2.0"
 
 [workspace.lints.rust]
+warnings = { level = "warn", priority = -1 }
+deprecated_safe = { level = "warn", priority = -1 }
+future_incompatible = { level = "warn", priority = -1 }
+keyword_idents = { level = "warn", priority = -1 }
+let_underscore = { level = "warn", priority = -1 }
+nonstandard_style = { level = "warn", priority = -1 }
+refining_impl_trait = { level = "warn", priority = -1 }
+rust_2018_compatibility = { level = "warn", priority = -1 }
+rust_2018_idioms = { level = "warn", priority = -1 }
+rust_2021_compatibility = { level = "warn", priority = -1 }
+rust_2024_compatibility = { level = "warn", priority = -1 }
+unused = { level = "warn", priority = -1 }
+
+unused_qualifications = { level = "warn", priority = -1 }
+deprecated_in_future = { level = "warn", priority = -1 }
+non_ascii_idents = { level = "warn", priority = -1 }
+deref_into_dyn_supertrait = { level = "warn", priority = -1 }
+ambiguous_negative_literals = { level = "warn", priority = -1 }
+unused_import_braces = { level = "warn", priority = -1 }
+unit_bindings = { level = "warn", priority = -1 }
+unused_lifetimes = { level = "warn", priority = -1 }
+closure_returning_async_block = { level = "warn", priority = -1 }
+redundant_imports = { level = "warn", priority = -1 }
+missing_copy_implementations = { level = "warn", priority = -1 }
+missing_debug_implementations = { level = "warn", priority = -1 }
+trivial_casts = { level = "warn", priority = -1 }
+ffi_unwind_calls = { level = "warn", priority = -1 }
+unstable_features = { level = "warn", priority = -1 }
+single_use_lifetimes = { level = "warn", priority = -1 }
+meta_variable_misuse = { level = "warn", priority = -1 }
+impl_trait_redundant_captures = { level = "warn", priority = -1 }
+redundant_lifetimes = { level = "warn", priority = -1 }
+variant_size_differences = { level = "warn", priority = -1 }
+macro_use_extern_crate = { level = "warn", priority = -1 }
+trivial_numeric_casts = { level = "warn", priority = -1 }
+linker_messages = { level = "warn", priority = -1 }
 unsafe_code = { level = "warn", priority = -1 }
+
+# must_not_suspend = { level = "warn", priority = -1 }
+# multiple_supertrait_upcastable = { level = "warn", priority = -1 }
+# unused_results = { level = "warn", priority = -1 }
+# supertrait_item_shadowing_definition = { level = "warn", priority = -1 }
+# supertrait_item_shadowing_usage = { level = "warn", priority = -1 }
+# unnameable_types = { level = "warn", priority = -1 }
+# unqualified_local_imports = { level = "warn", priority = -1 }
+# unreachable_pub = { level = "warn", priority = -1 }
+# fuzzy_provenance_casts = { level = "warn", priority = -1 }
+# missing_docs = { level = "warn", priority = -1 }
+# lossy_provenance_casts = { level = "warn", priority = -1 }
+# unused_crate_dependencies = { level = "warn", priority = -1 }
+# non_exhaustive_omitted_patterns = { level = "warn", priority = -1 }
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
