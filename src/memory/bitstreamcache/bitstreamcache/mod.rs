@@ -20,6 +20,7 @@ pub trait BitStreamCache {
     fn skip(&mut self, count: usize);
 }
 
+#[derive(Debug)]
 pub struct BitStreamCacheBase<T: BitStreamFlowTrait> {
     // The actual bits stored in the cache
     cache: u64,
