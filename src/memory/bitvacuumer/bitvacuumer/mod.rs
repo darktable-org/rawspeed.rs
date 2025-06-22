@@ -2,7 +2,6 @@ use core::marker::PhantomData;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
 use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
-use rawspeed_memory_bitstreamcache::bitstreamcache;
 use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
@@ -28,7 +27,7 @@ where
         + std::ops::Shl<usize>
         + std::ops::ShlAssign<usize>
         + std::ops::BitOrAssign,
-    T::StreamFlow: bitstreamcache::BitStreamCache,
+    T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
     cache: T::StreamFlow,
@@ -46,7 +45,7 @@ where
         + std::ops::Shl<usize>
         + std::ops::ShlAssign<usize>
         + std::ops::BitOrAssign,
-    T::StreamFlow: bitstreamcache::BitStreamCache,
+    T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
     fn drain_impl(&mut self) -> std::io::Result<()> {
@@ -107,7 +106,7 @@ where
         + std::ops::Shl<usize>
         + std::ops::ShlAssign<usize>
         + std::ops::BitOrAssign,
-    T::StreamFlow: bitstreamcache::BitStreamCache,
+    T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
     fn drain_impl(&mut self) -> std::io::Result<()> {
@@ -126,7 +125,7 @@ where
         + std::ops::Shl<usize>
         + std::ops::ShlAssign<usize>
         + std::ops::BitOrAssign,
-    T::StreamFlow: bitstreamcache::BitStreamCache,
+    T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
     #[allow(dead_code)]
@@ -190,7 +189,7 @@ where
         + std::ops::Shl<usize>
         + std::ops::ShlAssign<usize>
         + std::ops::BitOrAssign,
-    T::StreamFlow: bitstreamcache::BitStreamCache,
+    T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
     fn drop(&mut self) {

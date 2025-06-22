@@ -1,4 +1,3 @@
-use core::result::Result::Ok;
 use std::io::Write;
 
 use super::*;

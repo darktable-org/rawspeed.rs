@@ -113,7 +113,7 @@ fn extract_high_bits_input_test() {
                         let mut input_reconstructed: $t = 0;
                         for _ in 0..<$t>::BITWIDTH {
                             input_reconstructed <<= 1;
-                            input_reconstructed |= extract_high_bits(bits, 1) as $t;
+                            input_reconstructed |= extract_high_bits(bits, 1);
                             bits <<= 1;
                         }
                         assert_eq!(input_reconstructed, input);
@@ -264,7 +264,7 @@ fn extract_low_bits_input_test() {
                         let mut input_reconstructed: $t = 0;
                         for i in 0..<$t>::BITWIDTH {
                             input_reconstructed |= (
-                                extract_low_bits(bits, 1) as $t << i
+                                extract_low_bits(bits, 1) << i
                             );
                             bits >>= 1;
                         }
