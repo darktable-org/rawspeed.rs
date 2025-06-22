@@ -2,6 +2,7 @@ use super::{BitOrder, BitOrderTrait, BitStreamTraits, Endianness};
 
 use rawspeed_memory_bitstreamcache::bitstreamcache;
 
+#[allow(missing_copy_implementations)]
 pub struct BitOrderMSB16;
 
 impl BitOrderTrait for BitOrderMSB16 {}
