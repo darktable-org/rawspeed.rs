@@ -36,7 +36,7 @@ where
     _phantom_data: PhantomData<T>,
 }
 
-impl<'a, T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'a, T, W>
+impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
@@ -63,12 +63,11 @@ where
         assert!(num_chunks_needed >= 1);
 
         let mut cache: WritebackCache = Default::default();
-        for _i in 0..num_chunks_needed {
-            let chunk = match <T::ChunkType>::try_from(
+        for i in 0..num_chunks_needed {
+            let Ok(chunk) = <T::ChunkType>::try_from(
                 self.cache.peek(stream_chunk_bitwidth),
-            ) {
-                Ok(t) => t,
-                Err(_) => panic!("lossless cast failed?"),
+            ) else {
+                panic!("lossless cast failed?")
             };
             self.cache.skip(stream_chunk_bitwidth);
             let chunk = chunk
@@ -77,10 +76,14 @@ where
             let chunk: WritebackCache = {
                 #[cfg(target_endian = "little")]
                 {
-                    chunk << (_i * stream_chunk_bitwidth)
+                    chunk << (i * stream_chunk_bitwidth)
                 }
                 #[cfg(not(target_endian = "little"))]
                 {
+                    #[allow(clippy::no_effect_underscore_binding)]
+                    {
+                        let _i = i; // i is only used in little-endian block.
+                    }
                     if num_chunks_needed != 1 {
                         cache <<= stream_chunk_bitwidth;
                     }
@@ -94,7 +97,7 @@ where
     }
 }
 
-impl<'a, T, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, T, W>
+impl<T, W> BitVacuumerDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
@@ -177,7 +180,7 @@ where
     }
 }
 
-impl<'a, T, W> Drop for BitVacuumerBase<'a, T, W>
+impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
@@ -193,9 +196,7 @@ where
     fn drop(&mut self) {
         let err: &'static str = "Unrecoverable Error: trying to drop \
             non-empty BitVacuumer. Did you forget to call `flush()`?";
-        if self.cache.fill_level() != 0 {
-            panic!("{}", err)
-        }
+        assert!((self.cache.fill_level() == 0), "{}", err);
     }
 }
 

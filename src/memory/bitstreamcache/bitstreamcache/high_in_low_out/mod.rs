@@ -1,4 +1,6 @@
-use super::*;
+use super::{
+    BitStreamCache, BitStreamCacheBase, BitStreamFlowTrait, PhantomData,
+};
 
 use rawspeed_common::common::extract_low_bits;
 
@@ -27,8 +29,8 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
         assert!(count <= Self::SIZE);
         assert!(count + (self.fill_level as usize) <= Self::SIZE);
         self.cache |= bits << self.fill_level;
-        assert!(count <= u32::MAX as usize);
-        self.fill_level += count as u32;
+        assert!(u32::try_from(count).is_ok());
+        self.fill_level += u32::try_from(count).expect("");
     }
     fn peek(&self, count: usize) -> u64 {
         assert!(count <= Self::SIZE);
@@ -42,8 +44,8 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
         // `count` could be zero.
         assert!(count <= Self::SIZE);
         assert!(count <= self.fill_level as usize);
-        assert!(count <= u32::MAX as usize);
-        self.fill_level -= count as u32;
+        assert!(u32::try_from(count).is_ok());
+        self.fill_level -= u32::try_from(count).expect("");
         self.cache >>= count;
     }
 }
@@ -55,4 +57,5 @@ impl Default for BitStreamCacheHighInLowOut {
 }
 
 #[cfg(test)]
+#[allow(clippy::large_stack_frames)]
 mod test;

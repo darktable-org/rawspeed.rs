@@ -1,11 +1,15 @@
-use super::*;
+use super::{
+    BitOrderTrait, BitStreamCache, BitStreamTraits, BitVacuumerBase,
+    BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl, Bitwidth, SwapBytes,
+    get_host_endianness,
+};
 
 use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
 
 #[allow(dead_code)]
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 
-impl<'a, W> BitVacuumerDrainImpl for BitVacuumerBase<'a, BitOrderJPEG, W>
+impl<W> BitVacuumerDrainImpl for BitVacuumerBase<'_, BitOrderJPEG, W>
 where
     BitOrderJPEG: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
@@ -29,11 +33,10 @@ where
 
         assert!(u32::BITWIDTH == stream_chunk_bitwidth);
 
-        let chunk = match <<T as BitStreamTraits>::ChunkType>::try_from(
+        let Ok(chunk) = <<T as BitStreamTraits>::ChunkType>::try_from(
             self.cache.peek(stream_chunk_bitwidth),
-        ) {
-            Ok(t) => t,
-            Err(_) => panic!("lossless cast failed?"),
+        ) else {
+            panic!("lossless cast failed?")
         };
 
         if chunk.to_ne_bytes().iter().all(|byte| *byte != 0xFFu8) {
@@ -57,4 +60,5 @@ where
 }
 
 #[cfg(test)]
+#[allow(clippy::large_stack_frames)]
 mod test;

@@ -6,19 +6,23 @@ pub enum Endianness {
 
 #[inline]
 #[cfg(target_endian = "little")]
-pub fn get_host_endianness() -> Endianness {
+#[must_use]
+pub const fn get_host_endianness() -> Endianness {
     Endianness::Little
 }
 
 #[inline]
 #[cfg(target_endian = "big")]
-pub fn get_host_endianness() -> Endianness {
+#[must_use]
+pub const fn get_host_endianness() -> Endianness {
     Endianness::Big
 }
 
 pub trait SwapBytes {
+    #[must_use]
     fn swap_bytes(self) -> Self;
 
+    #[must_use]
     fn get_byte_swapped(self, cond: bool) -> Self;
 }
 
@@ -47,4 +51,5 @@ macro_rules! impl_swap_bytes {
 impl_swap_bytes!(u16 u32 u64);
 
 #[cfg(test)]
+#[allow(clippy::large_stack_frames)]
 mod test;

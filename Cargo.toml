@@ -20,5 +20,25 @@ homepage = "https://rawspeed.rs"
 repository = "https://github.com/darktable-org/rawspeed.rs"
 license = "MIT OR Apache-2.0"
 
+[workspace.lints.rust]
+unsafe_code = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+correctness = { level = "deny", priority = -1 }
+suspicious = { level = "warn", priority = -1 }
+style = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+restriction = { level = "allow", priority = -1 }
+nursery = { level = "allow", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+
+cargo_common_metadata = { level = "allow", priority = 0 }
+missing_panics_doc = { level = "allow", priority = 0 }
+cognitive_complexity = { level = "warn", priority = 0 }
+large_stack_frames = { level = "warn", priority = 0 }
+
 [profile.release]
 panic = 'abort'

@@ -9,6 +9,9 @@ homepage.workspace = true
 repository.workspace = true
 license.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 
 [lib]

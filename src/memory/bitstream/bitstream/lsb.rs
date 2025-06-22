@@ -1,4 +1,4 @@
-use super::*;
+use super::{BitOrder, BitOrderTrait, BitStreamTraits, Endianness};
 
 use rawspeed_memory_bitstreamcache::bitstreamcache;
 
