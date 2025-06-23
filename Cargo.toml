@@ -45,9 +45,11 @@ members = [
     "src/std/ndslice",
     "src/std/range_rotation",
     "src/utils/librstest",
+    "src/utils/loop_xform",
     "src/utils/rstest",
     "tests/bitstream/bitstreams",
     "tests/metadata/camerasxml_parser",
+    "tests/utils/loop_xform",
 ]
 
 [workspace.dependencies]
