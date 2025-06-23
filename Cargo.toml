@@ -131,6 +131,8 @@ panic_in_result_fn = { level = "allow", priority = 0 }
 implicit_return = { level = "allow", priority = 0 }
 absolute_paths = { level = "allow", priority = 0 }
 question_mark_used = { level = "allow", priority = 0 }
+std_instead_of_alloc = { level = "allow", priority = 0 }
+single_call_fn = { level = "allow", priority = 0 }
 
 [profile.release]
 panic = 'abort'
