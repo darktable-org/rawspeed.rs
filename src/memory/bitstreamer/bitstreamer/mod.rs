@@ -293,3 +293,4 @@ where
 
 mod lsb;
 mod msb;
+mod msb32;
