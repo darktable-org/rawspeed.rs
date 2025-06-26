@@ -20,7 +20,7 @@ pub trait BitStreamCache {
     fn skip(&mut self, count: usize);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct BitStreamCacheBase<T: BitStreamFlowTrait> {
     // The actual bits stored in the cache
     cache: u64,
@@ -33,7 +33,7 @@ pub struct BitStreamCacheBase<T: BitStreamFlowTrait> {
 
 impl<T: BitStreamFlowTrait> BitStreamCacheBase<T> {
     // Width of cache, in bits
-    const SIZE: usize = u64::BITWIDTH;
+    pub const SIZE: usize = u64::BITWIDTH;
 
     // How many bits could be requested to be filled
     const MAX_GET_BITS: usize = u32::BITWIDTH;
