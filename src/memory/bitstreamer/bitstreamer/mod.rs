@@ -46,6 +46,13 @@ pub trait FromNeBytes {
     fn from_ne_bytes(self) -> Self::Output;
 }
 
+impl FromNeBytes for [u8; 2] {
+    type Output = u16;
+    fn from_ne_bytes(self) -> Self::Output {
+        Self::Output::from_ne_bytes(self)
+    }
+}
+
 impl FromNeBytes for [u8; 4] {
     type Output = u32;
     fn from_ne_bytes(self) -> Self::Output {
@@ -190,7 +197,7 @@ where
 
         for i in 0..num_chunks_needed {
             let slice = &input
-                [i * T::MAX_PROCESS_BYTES..(i + 1) * T::MAX_PROCESS_BYTES];
+                [i * (stream_chunk_bitwidth / 8)..(i + 1) * (stream_chunk_bitwidth / 8)];
             let chunk = LoadFromSlice::<T::ChunkByteArrayType>::load_from_slice(slice);
             let chunk = chunk.from_ne_bytes();
             let chunk: T::ChunkType = chunk.into();
@@ -293,4 +300,5 @@ where
 
 mod lsb;
 mod msb;
+mod msb16;
 mod msb32;
