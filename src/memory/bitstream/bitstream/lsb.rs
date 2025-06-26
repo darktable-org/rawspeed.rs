@@ -16,6 +16,7 @@ impl BitStreamTraits for BitOrderLSB {
     const FIXED_SIZE_CHUNKS: bool = true;
 
     type ChunkType = u32;
+    type ChunkByteArrayType = [u8; 4];
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;
 

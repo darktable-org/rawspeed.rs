@@ -16,6 +16,7 @@ impl BitStreamTraits for BitOrderJPEG {
     const FIXED_SIZE_CHUNKS: bool = false; // Stuffing byte...
 
     type ChunkType = u32;
+    type ChunkByteArrayType = [u8; 4];
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Big;
 
