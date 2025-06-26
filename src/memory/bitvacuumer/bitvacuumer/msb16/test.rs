@@ -92,6 +92,44 @@ fn byte_enumeration_test() -> std::io::Result<()> {
 }
 
 #[test]
+fn nibble_enumeration_test() -> std::io::Result<()> {
+    let mut res: Vec<Vec<u8>> = vec![];
+    for num_nibbles in 0..16 {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let mut vac = BitVacuumerMSB16::new(&mut buf);
+        for i in 0..num_nibbles {
+            let nibble = 1 + i;
+            assert!(nibble <= 0xF);
+            vac.put(nibble, 4)?;
+        }
+        vac.flush()?;
+        buf.flush()?;
+        res.push(buf.get_ref().clone());
+    }
+    let expected: Vec<Vec<u8>> = vec![
+        vec![],
+        vec![0, 16, 0, 0],
+        vec![0, 18, 0, 0],
+        vec![48, 18, 0, 0],
+        vec![52, 18, 0, 0],
+        vec![52, 18, 0, 80],
+        vec![52, 18, 0, 86],
+        vec![52, 18, 112, 86],
+        vec![52, 18, 120, 86],
+        vec![52, 18, 120, 86, 0, 144, 0, 0],
+        vec![52, 18, 120, 86, 0, 154, 0, 0],
+        vec![52, 18, 120, 86, 176, 154, 0, 0],
+        vec![52, 18, 120, 86, 188, 154, 0, 0],
+        vec![52, 18, 120, 86, 188, 154, 0, 208],
+        vec![52, 18, 120, 86, 188, 154, 0, 222],
+        vec![52, 18, 120, 86, 188, 154, 240, 222],
+    ];
+    assert_eq!(res, expected);
+    Ok(())
+}
+
+#[test]
 fn bit_enumeration_test() -> std::io::Result<()> {
     let mut res: Vec<Vec<u8>> = vec![];
     for num_leading_zeros in 0..32 {
@@ -185,6 +223,45 @@ fn sliding_0xff_test() -> std::io::Result<()> {
         vec![0, 0, 252, 3],
         vec![0, 0, 254, 1],
         vec![0, 0, 255, 0],
+    ];
+    assert_eq!(res, expected);
+    Ok(())
+}
+
+#[test]
+fn sliding_0xff_prefixed_by_enumerated_nibbles_test() -> std::io::Result<()> {
+    let mut res: Vec<Vec<u8>> = vec![];
+    for num_leading_nibbles in 0..16 {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let mut vac = BitVacuumerMSB16::new(&mut buf);
+        for i in 0..num_leading_nibbles {
+            let nibble = 1 + i;
+            assert!(nibble <= 0xF);
+            vac.put(nibble, 4)?;
+        }
+        vac.put(0xFF, 8)?;
+        vac.flush()?;
+        buf.flush()?;
+        res.push(buf.get_ref().clone());
+    }
+    let expected: Vec<Vec<u8>> = vec![
+        vec![0, 255, 0, 0],
+        vec![240, 31, 0, 0],
+        vec![255, 18, 0, 0],
+        vec![63, 18, 0, 240],
+        vec![52, 18, 0, 255],
+        vec![52, 18, 240, 95],
+        vec![52, 18, 255, 86],
+        vec![52, 18, 127, 86, 0, 240, 0, 0],
+        vec![52, 18, 120, 86, 0, 255, 0, 0],
+        vec![52, 18, 120, 86, 240, 159, 0, 0],
+        vec![52, 18, 120, 86, 255, 154, 0, 0],
+        vec![52, 18, 120, 86, 191, 154, 0, 240],
+        vec![52, 18, 120, 86, 188, 154, 0, 255],
+        vec![52, 18, 120, 86, 188, 154, 240, 223],
+        vec![52, 18, 120, 86, 188, 154, 255, 222],
+        vec![52, 18, 120, 86, 188, 154, 255, 222, 0, 240, 0, 0],
     ];
     assert_eq!(res, expected);
     Ok(())
