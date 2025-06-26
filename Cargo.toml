@@ -8,6 +8,7 @@ members = [
     "src/memory/bitstream",
     "src/memory/bitvacuumer",
     "src/memory/bitstreamcache",
+    "src/memory/variable_length_load",
 ]
 
 [workspace.package]
