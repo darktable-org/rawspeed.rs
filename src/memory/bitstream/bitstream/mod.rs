@@ -16,6 +16,7 @@ pub trait BitStreamTraits {
     type StreamFlow;
     const FIXED_SIZE_CHUNKS: bool;
     type ChunkType;
+    type ChunkByteArrayType;
     const CHUNK_ENDIANNESS: Endianness;
     const MIN_LOAD_STEP_BYTE_MULTIPLE: u32;
 }
