@@ -57,8 +57,8 @@ fn exhaustive_test() {
             let mut out_b: Vec<u8> = vec![];
             out_b.resize(output_length, u8::MAX);
             for src_pos in 0..=4 * input_length {
-                (out_a[..]).variable_length_load(&src[..], src_pos);
-                variable_length_load_naive(&mut out_b[..], &src[..], src_pos);
+                (out_a[..]).variable_length_load(&src, src_pos);
+                variable_length_load_naive(&mut out_b, &src, src_pos);
                 assert_eq!(out_a, out_b);
             }
         }

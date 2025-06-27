@@ -14,6 +14,7 @@ pub trait CopyFromSlice {
 }
 
 impl CopyFromSlice for [u8] {
+    #[inline]
     fn copy_from_slice_(&mut self, src: &[u8]) {
         self.copy_from_slice(src);
     }
@@ -32,6 +33,7 @@ where
     T: Default + core::ops::IndexMut<RangeFull>,
     <T as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
 {
+    #[inline]
     fn load_from_slice(&self) -> T {
         let mut out: T = Default::default();
         out[..].copy_from_slice_(self);
@@ -48,6 +50,7 @@ pub trait FromNeBytes {
 
 impl FromNeBytes for [u8; 2] {
     type Output = u16;
+    #[inline]
     fn from_ne_bytes(self) -> Self::Output {
         Self::Output::from_ne_bytes(self)
     }
@@ -55,6 +58,7 @@ impl FromNeBytes for [u8; 2] {
 
 impl FromNeBytes for [u8; 4] {
     type Output = u32;
+    #[inline]
     fn from_ne_bytes(self) -> Self::Output {
         Self::Output::from_ne_bytes(self)
     }
@@ -88,7 +92,8 @@ where
 {
     #[allow(dead_code)]
     #[must_use]
-    pub fn new(input: &'a [u8]) -> Self {
+    #[inline]
+    pub const fn new(input: &'a [u8]) -> Self {
         Self {
             input,
             pos: 0,
@@ -100,11 +105,11 @@ where
         self.pos
     }
 
-    fn get_remaining_size(&self) -> usize {
+    const fn get_remaining_size(&self) -> usize {
         self.input.len() - self.get_pos()
     }
 
-    fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize) {
+    const fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize) {
         self.pos += num_bytes;
     }
 
@@ -129,8 +134,8 @@ where
         // Note that in order to keep all fill-level invariants
         // we must allow to over-read past-the-end a bit.
         if self.get_pos() > self.input.len() + 2 * T::MAX_PROCESS_BYTES {
-            let err: &'static str = "Buffer overflow read in BitStreamer";
-            return Err(err);
+            const ERR: &str = "Buffer overflow read in BitStreamer";
+            return Err(ERR);
         }
 
         tmp[..].variable_length_load(self.input, self.pos);
@@ -172,12 +177,11 @@ where
 impl<T> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<std::ops::Range<usize>>,
-    <T::MaxProcessByteArray as core::ops::Index<std::ops::Range<usize>>>::Output:
+    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
+    <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:
@@ -187,6 +191,7 @@ where
         + SwapBytes,
     u64: From<T::ChunkType>,
 {
+    #[inline]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
         let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
         assert!(stream_chunk_bitwidth >= 1);
@@ -216,12 +221,11 @@ where
 impl<T> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits + BitStreamerUseDefaultCacheFillImpl,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<std::ops::Range<usize>>,
-    <T::MaxProcessByteArray as core::ops::Index<std::ops::Range<usize>>>::Output:
+    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
+    <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:
@@ -232,6 +236,7 @@ where
         + SwapBytes,
     u64: From<T::ChunkType>,
 {
+    #[inline]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
         BitStreamerDefaultCacheFillImpl::fill_cache_impl(self, input)
     }
@@ -241,12 +246,11 @@ impl<'a, T> BitStreamerBase<'a, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     Self: BitStreamerCacheFillImpl<T>,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
-        CopyFromSlice + VariableLengthLoad,
-    T::StreamFlow: BitStreamCache,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<std::ops::Range<usize>>,
-    <T::MaxProcessByteArray as core::ops::Index<std::ops::Range<usize>>>::Output:
+    CopyFromSlice + VariableLengthLoad,
+    T::StreamFlow: Default + BitStreamCache,
+    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
+    <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:
@@ -256,9 +260,9 @@ where
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
     u64: From<T::ChunkType>,
-    T::StreamFlow: Default,
 {
     #[allow(dead_code)]
+    #[inline]
     #[must_use]
     pub fn new(input: &'a [u8]) -> Self
     {
@@ -269,6 +273,7 @@ where
         }
     }
 
+    #[inline]
     pub fn fill(&mut self, nbits: usize) -> Result<(), &'static str> {
         assert!(nbits != 0);
 
@@ -284,18 +289,21 @@ where
         Ok(())
     }
 
+    #[inline]
     pub fn peek_bits(&mut self, nbits: usize) -> Result<u64, &'static str> {
         self.fill(nbits)?;
         let bits = self.cache.peek(nbits);
         Ok(bits)
     }
 
+    #[inline]
     pub fn skip_bits(&mut self, nbits: usize) -> Result<(), &'static str> {
         self.fill(nbits)?;
         self.cache.skip(nbits);
         Ok(())
     }
 
+    #[inline]
     pub fn get_bits(&mut self, nbits: usize) -> Result<u64, &'static str> {
         let bits = self.peek_bits(nbits)?;
         self.skip_bits(nbits)?;

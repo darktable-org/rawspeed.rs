@@ -26,17 +26,15 @@ type T = BitOrderJPEG;
 impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    <T as BitStreamerTraits>::MaxProcessByteArray:
-        Default + core::ops::IndexMut<core::ops::RangeFull>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
         core::ops::RangeFull,
     >>::Output: CopyFromSlice + VariableLengthLoad,
     <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull>
-        + core::ops::Index<std::ops::Range<usize>>,
+        + core::ops::Index<core::ops::Range<usize>>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        std::ops::Range<usize>,
+        core::ops::Range<usize>,
     >>::Output: LoadFromSlice<<T as BitStreamTraits>::ChunkByteArrayType>,
     <<T as BitStreamTraits>::ChunkByteArrayType as core::ops::Index<
         core::ops::RangeFull,
@@ -49,12 +47,13 @@ where
         > + SwapBytes,
     u64: From<<T as BitStreamTraits>::ChunkType>,
 {
+    #[inline]
     fn fill_cache_impl(
         &mut self,
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
         let chunk = LoadFromSlice::<[u8; 4]>::load_from_slice(&input[0..4]);
-        if chunk.iter().all(|byte| *byte != 0xFFu8) {
+        if chunk.iter().all(|byte| *byte != 0xFF_u8) {
             let chunk = chunk.from_ne_bytes();
             let chunk: <T as BitStreamTraits>::ChunkType = chunk;
             let chunk = chunk.get_byte_swapped(
@@ -73,14 +72,14 @@ where
             let num_bytes_needed = 4 - i;
 
             // Pre-execute most common case, where next byte is 'normal'/non-FF
-            let c0 = input[p];
+            let c0 = *input.get(p).unwrap();
             self.cache.push(c0.into(), 8);
             if c0 != 0xFF {
                 p += 1;
                 continue; // Got normal byte.
             }
             // Found FF -> pre-execute case of FF/00, which represents an FF data byte
-            let c1 = input[p + 1];
+            let c1 = *input.get(p + 1).unwrap();
             if c1 == 0x00 {
                 // Got FF/00, where 0x00 is a stuffing byte
                 // (that should be ignored) so 0xFF is a normal byte. All good.

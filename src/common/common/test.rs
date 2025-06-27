@@ -45,7 +45,7 @@ fn extract_high_bits_allzero_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH {
+                    for num_bits in 0_usize..<$t>::BITWIDTH {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_high_bits(ALLZEROS, num_bits));
                     }
@@ -84,7 +84,7 @@ fn extract_high_bits_allones_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH {
+                    for num_bits in 0_usize..<$t>::BITWIDTH {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_high_bits(ALLONES, num_bits);
                         assert_eq!((res.trailing_ones() as usize), num_bits);
@@ -166,7 +166,7 @@ fn extract_high_bits_test() {
 #[test]
 #[should_panic(expected = "num_bits <= T::BITWIDTH")]
 fn extract_high_bits_too_many_bits_test() {
-    extract_high_bits(0u8, 9);
+    extract_high_bits(0_u8, 9);
 }
 
 //--------------------------------------------------------------------------
@@ -196,7 +196,7 @@ fn extract_low_bits_allzero_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH {
+                    for num_bits in 0_usize..<$t>::BITWIDTH {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_low_bits(ALLZEROS, num_bits));
                     }
@@ -235,7 +235,7 @@ fn extract_low_bits_allones_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0usize..<$t>::BITWIDTH {
+                    for num_bits in 0_usize..<$t>::BITWIDTH {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_low_bits(ALLONES, num_bits);
                         assert_eq!((res.trailing_ones() as usize), num_bits);
@@ -318,7 +318,7 @@ fn extract_low_bits_test() {
 #[test]
 #[should_panic(expected = "num_bits <= T::BITWIDTH")]
 fn extract_low_bits_too_many_bits_test() {
-    extract_low_bits(0u8, 9);
+    extract_low_bits(0_u8, 9);
 }
 
 //--------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 use super::*;
-use rawspeed_common::common::Bitwidth;
+use rawspeed_common::common::Bitwidth as _;
 
 #[test]
 fn bitstreamcache_constructable_test() {
@@ -10,7 +10,7 @@ fn bitstreamcache_constructable_test() {
 #[test]
 fn bitstreamcache_push_test() {
     type T = BitStreamCacheLowInHighOut;
-    for num_bits in 0usize..T::SIZE {
+    for num_bits in 0_usize..T::SIZE {
         let mut cache = T::new();
         assert_eq!(cache.fill_level(), 0);
         cache.push(0, num_bits);
@@ -35,8 +35,8 @@ fn bitstreamcache_push_overflow_test() {
 #[test]
 fn bitstreamcache_double_push_test() {
     type T = BitStreamCacheLowInHighOut;
-    for first_bits in 0usize..T::SIZE {
-        for second_bits in 0usize..T::SIZE {
+    for first_bits in 0_usize..T::SIZE {
+        for second_bits in 0_usize..T::SIZE {
             if first_bits + second_bits <= T::SIZE {
                 let mut cache = T::new();
                 assert_eq!(cache.fill_level(), 0);
@@ -236,13 +236,13 @@ fn bitstreamcache_test() {
             assert_eq!(cache.fill_level(), T::BITWIDTH);
             assert_eq!(
                 bits as usize,
-                usize::try_from(cache.peek(T::BITWIDTH)).expect("")
+                usize::try_from(cache.peek(T::BITWIDTH)).unwrap()
             );
             let mut bits_reconstucted: T = 0;
             for i in 0..T::BITWIDTH {
                 bits_reconstucted <<= 1;
                 assert_eq!(cache.fill_level(), T::BITWIDTH - i);
-                bits_reconstucted |= T::try_from(cache.peek(1)).expect("");
+                bits_reconstucted |= T::try_from(cache.peek(1)).unwrap();
                 assert_eq!(cache.fill_level(), T::BITWIDTH - i);
                 cache.skip(1);
                 assert_eq!(cache.fill_level(), T::BITWIDTH - i - 1);

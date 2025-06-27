@@ -1,6 +1,7 @@
 use rawspeed_memory_endianness::endianness::Endianness;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum BitOrder {
     LSB,
     MSB,

@@ -16,9 +16,9 @@ where
     u32: From<u8>
         + Bitwidth
         + From<<BitOrderJPEG as BitStreamTraits>::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     <BitOrderJPEG as BitStreamTraits>::StreamFlow: BitStreamCache,
     <BitOrderJPEG as BitStreamTraits>::ChunkType:
         Bitwidth + SwapBytes + TryFrom<u64>,
@@ -39,7 +39,7 @@ where
             panic!("lossless cast failed?")
         };
 
-        if chunk.to_ne_bytes().iter().all(|byte| *byte != 0xFFu8) {
+        if chunk.to_ne_bytes().iter().all(|byte| *byte != 0xFF_u8) {
             return BitVacuumerDefaultDrainImpl::drain_impl(self);
         }
 
@@ -50,8 +50,8 @@ where
         let bytes = chunk.to_ne_bytes();
         for byte in bytes {
             self.writer.write_all(&[byte])?;
-            if byte == 0xFFu8 {
-                const STUFFING_BYTE: u8 = 0x00u8;
+            if byte == 0xFF_u8 {
+                const STUFFING_BYTE: u8 = 0x00_u8;
                 self.writer.write_all(&[STUFFING_BYTE])?;
             }
         }

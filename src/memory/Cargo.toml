@@ -17,4 +17,4 @@ rawspeed-memory-bitstream = { path = "bitstream" }
 rawspeed-memory-endianness = { path = "endianness" }
 
 [lib]
-path = "memory.rs"
+path = "mod.rs"

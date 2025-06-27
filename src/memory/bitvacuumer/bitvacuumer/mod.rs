@@ -24,9 +24,9 @@ where
     u32: From<u8>
         + Bitwidth
         + From<T::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
@@ -42,9 +42,9 @@ where
     u32: From<u8>
         + Bitwidth
         + From<T::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
@@ -103,9 +103,9 @@ where
     u32: From<u8>
         + Bitwidth
         + From<T::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
@@ -122,9 +122,9 @@ where
     u32: From<u8>
         + Bitwidth
         + From<T::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
@@ -186,16 +186,16 @@ where
     u32: From<u8>
         + Bitwidth
         + From<T::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
 {
     fn drop(&mut self) {
-        let err: &'static str = "Unrecoverable Error: trying to drop \
+        const ERR: &str = "Unrecoverable Error: trying to drop \
             non-empty BitVacuumer. Did you forget to call `flush()`?";
-        assert!((self.cache.fill_level() == 0), "{}", err);
+        assert!((self.cache.fill_level() == 0), "{}", ERR);
     }
 }
 

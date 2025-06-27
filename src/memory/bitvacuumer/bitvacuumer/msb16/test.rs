@@ -1,6 +1,6 @@
 use super::*;
 
-use std::io::Write;
+use std::io::Write as _;
 
 #[test]
 fn vec_ctor_test() {
@@ -12,7 +12,7 @@ fn vec_ctor_test() {
 #[test]
 fn arr_ctor_test() {
     use std::io::Cursor;
-    let mut buf = [0u8; 1024];
+    let mut buf = [0_u8; 1024];
     let mut buf = Cursor::new(buf.as_mut());
     let _vac = BitVacuumerMSB16::new(&mut buf);
 }
@@ -47,14 +47,14 @@ fn dropping_unflushed_vac_byte() {
     use std::io::Cursor;
     let mut buf = Cursor::new(vec![]);
     let mut vac = BitVacuumerMSB16::new(&mut buf);
-    vac.put(0, 1).expect("unexpected panic");
+    vac.put(0, 1).unwrap();
     drop(vac);
 }
 
 #[test]
 fn flush_arr_overflow_test() -> std::io::Result<()> {
     use std::io::Cursor;
-    let mut buf = [0u8; 0];
+    let mut buf = [0_u8; 0];
     let mut buf = Cursor::new(buf.as_mut());
     let mut vac = BitVacuumerMSB16::new(&mut buf);
     vac.put(0, 1)?;

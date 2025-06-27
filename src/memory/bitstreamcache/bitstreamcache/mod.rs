@@ -1,7 +1,8 @@
-use rawspeed_common::common::Bitwidth;
-use std::marker::PhantomData;
+use core::marker::PhantomData;
+use rawspeed_common::common::Bitwidth as _;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum BitStreamFlow {
     LowInHighOut,
     HighInLowOut,
