@@ -93,7 +93,7 @@ where
     #[allow(dead_code)]
     #[must_use]
     #[inline]
-    pub fn new(input: &'a [u8]) -> Self {
+    pub const fn new(input: &'a [u8]) -> Self {
         Self {
             input,
             pos: 0,
@@ -105,11 +105,11 @@ where
         self.pos
     }
 
-    fn get_remaining_size(&self) -> usize {
+    const fn get_remaining_size(&self) -> usize {
         self.input.len() - self.get_pos()
     }
 
-    fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize) {
+    const fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize) {
         self.pos += num_bytes;
     }
 
