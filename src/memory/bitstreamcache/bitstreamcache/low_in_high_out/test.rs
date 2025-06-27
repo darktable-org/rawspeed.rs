@@ -10,7 +10,7 @@ fn bitstreamcache_constructable_test() {
 #[test]
 fn bitstreamcache_push_test() {
     type T = BitStreamCacheLowInHighOut;
-    for num_bits in 0usize..T::SIZE {
+    for num_bits in 0_usize..T::SIZE {
         let mut cache = T::new();
         assert_eq!(cache.fill_level(), 0);
         cache.push(0, num_bits);
@@ -35,8 +35,8 @@ fn bitstreamcache_push_overflow_test() {
 #[test]
 fn bitstreamcache_double_push_test() {
     type T = BitStreamCacheLowInHighOut;
-    for first_bits in 0usize..T::SIZE {
-        for second_bits in 0usize..T::SIZE {
+    for first_bits in 0_usize..T::SIZE {
+        for second_bits in 0_usize..T::SIZE {
             if first_bits + second_bits <= T::SIZE {
                 let mut cache = T::new();
                 assert_eq!(cache.fill_level(), 0);

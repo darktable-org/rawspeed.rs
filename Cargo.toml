@@ -115,7 +115,6 @@ mod_module_files = { level = "allow", priority = 0 }
 missing_inline_in_public_items = { level = "allow", priority = 0 }
 arithmetic_side_effects = { level = "allow", priority = 0 }
 as_conversions = { level = "allow", priority = 0 }
-unseparated_literal_suffix = { level = "allow", priority = 0 }
 missing_assert_message = { level = "allow", priority = 0 }
 default_numeric_fallback = { level = "allow", priority = 0 }
 allow_attributes = { level = "allow", priority = 0 }

@@ -54,7 +54,7 @@ where
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
         let chunk = LoadFromSlice::<[u8; 4]>::load_from_slice(&input[0..4]);
-        if chunk.iter().all(|byte| *byte != 0xFFu8) {
+        if chunk.iter().all(|byte| *byte != 0xFF_u8) {
             let chunk = chunk.from_ne_bytes();
             let chunk: <T as BitStreamTraits>::ChunkType = chunk;
             let chunk = chunk.get_byte_swapped(

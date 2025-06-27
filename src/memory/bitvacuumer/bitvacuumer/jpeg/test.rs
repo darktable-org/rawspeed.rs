@@ -12,7 +12,7 @@ fn vec_ctor_test() {
 #[test]
 fn arr_ctor_test() {
     use std::io::Cursor;
-    let mut buf = [0u8; 1024];
+    let mut buf = [0_u8; 1024];
     let mut buf = Cursor::new(buf.as_mut());
     let _vac = BitVacuumerJPEG::new(&mut buf);
 }
@@ -54,7 +54,7 @@ fn dropping_unflushed_vac_byte() {
 #[test]
 fn flush_arr_overflow_test() -> std::io::Result<()> {
     use std::io::Cursor;
-    let mut buf = [0u8; 0];
+    let mut buf = [0_u8; 0];
     let mut buf = Cursor::new(buf.as_mut());
     let mut vac = BitVacuumerJPEG::new(&mut buf);
     vac.put(0, 1)?;
@@ -270,7 +270,7 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test() -> std::io::Result<()> {
 #[test]
 fn sliding_0xff_through_enumerated_bytes_test() -> std::io::Result<()> {
     let mut res: Vec<Vec<u8>> = vec![];
-    let bytes = (0x1u8..16).collect::<Vec<u8>>();
+    let bytes = (0x1_u8..16).collect::<Vec<u8>>();
     for oxff_pos in 0..=bytes.len() {
         use std::io::Cursor;
         let mut buf = Cursor::new(vec![]);
@@ -312,7 +312,7 @@ fn sliding_0xff_through_enumerated_bytes_test() -> std::io::Result<()> {
 #[test]
 fn sliding_0xff_through_enumerated_nibbles_test() -> std::io::Result<()> {
     let mut res: Vec<Vec<u8>> = vec![];
-    let nibbles = (0x1u8..0xF).collect::<Vec<u8>>();
+    let nibbles = (0x1_u8..0xF).collect::<Vec<u8>>();
     for oxff_pos in 0..=nibbles.len() {
         use std::io::Cursor;
         let mut buf = Cursor::new(vec![]);
