@@ -1,4 +1,5 @@
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[allow(clippy::exhaustive_enums)]
 pub enum Endianness {
     Little,
     Big,
