@@ -4,6 +4,7 @@ use rawspeed_memory_bitstreamcache::bitstreamcache;
 
 #[allow(missing_copy_implementations)]
 #[allow(missing_debug_implementations)]
+#[non_exhaustive]
 pub struct BitOrderMSB16;
 
 impl BitOrderTrait for BitOrderMSB16 {}

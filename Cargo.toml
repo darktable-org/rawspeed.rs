@@ -101,7 +101,6 @@ module_name_repetitions = { level = "allow", priority = 0 }
 shadow_same = { level = "allow", priority = 0 }
 panic = { level = "allow", priority = 0 }
 semicolon_outside_block = { level = "allow", priority = 0 }
-exhaustive_structs = { level = "allow", priority = 0 }
 indexing_slicing = { level = "allow", priority = 0 }
 integer_division = { level = "allow", priority = 0 }
 pub_use = { level = "allow", priority = 0 }
