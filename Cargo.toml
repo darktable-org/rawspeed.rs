@@ -83,7 +83,7 @@ style = { level = "warn", priority = -1 }
 complexity = { level = "warn", priority = -1 }
 perf = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-restriction = { level = "allow", priority = -1 }
+restriction = { level = "warn", priority = -1 }
 nursery = { level = "allow", priority = -1 }
 cargo = { level = "warn", priority = -1 }
 
@@ -92,6 +92,50 @@ missing_panics_doc = { level = "allow", priority = 0 }
 missing_errors_doc = { level = "allow", priority = 0 }
 cognitive_complexity = { level = "warn", priority = 0 }
 large_stack_frames = { level = "warn", priority = 0 }
+
+blanket_clippy_restriction_lints = { level = "allow", priority = 0 }
+let_underscore_must_use = { level = "allow", priority = 0 }
+let_underscore_untyped = { level = "allow", priority = 0 }
+little_endian_bytes = { level = "allow", priority = 0 }
+module_name_repetitions = { level = "allow", priority = 0 }
+self_named_module_files = { level = "allow", priority = 0 }
+shadow_same = { level = "allow", priority = 0 }
+panic = { level = "allow", priority = 0 }
+redundant_type_annotations = { level = "allow", priority = 0 }
+deref_by_slicing = { level = "allow", priority = 0 }
+exhaustive_enums = { level = "allow", priority = 0 }
+assertions_on_result_states = { level = "allow", priority = 0 }
+semicolon_outside_block = { level = "allow", priority = 0 }
+exhaustive_structs = { level = "allow", priority = 0 }
+indexing_slicing = { level = "allow", priority = 0 }
+integer_division = { level = "allow", priority = 0 }
+pub_use = { level = "allow", priority = 0 }
+unused_trait_names = { level = "allow", priority = 0 }
+integer_division_remainder_used = { level = "allow", priority = 0 }
+host_endian_bytes = { level = "allow", priority = 0 }
+expect_used = { level = "allow", priority = 0 }
+single_char_lifetime_names = { level = "allow", priority = 0 }
+separated_literal_suffix = { level = "allow", priority = 0 }
+unreachable = { level = "allow", priority = 0 }
+shadow_reuse = { level = "allow", priority = 0 }
+unwrap_used = { level = "allow", priority = 0 }
+mod_module_files = { level = "allow", priority = 0 }
+missing_inline_in_public_items = { level = "allow", priority = 0 }
+arithmetic_side_effects = { level = "allow", priority = 0 }
+as_conversions = { level = "allow", priority = 0 }
+unseparated_literal_suffix = { level = "allow", priority = 0 }
+missing_assert_message = { level = "allow", priority = 0 }
+default_numeric_fallback = { level = "allow", priority = 0 }
+allow_attributes = { level = "allow", priority = 0 }
+allow_attributes_without_reason = { level = "allow", priority = 0 }
+arbitrary_source_item_ordering = { level = "allow", priority = 0 }
+min_ident_chars = { level = "allow", priority = 0 }
+std_instead_of_core = { level = "allow", priority = 0 }
+missing_docs_in_private_items = { level = "allow", priority = 0 }
+panic_in_result_fn = { level = "allow", priority = 0 }
+implicit_return = { level = "allow", priority = 0 }
+absolute_paths = { level = "allow", priority = 0 }
+question_mark_used = { level = "allow", priority = 0 }
 
 [profile.release]
 panic = 'abort'
