@@ -100,6 +100,10 @@ where
         self.pos
     }
 
+    fn get_remaining_size(&self) -> usize {
+        self.input.len() - self.get_pos()
+    }
+
     fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize) {
         self.pos += num_bytes;
     }
@@ -141,6 +145,8 @@ where
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize;
 }
 
+pub trait BitStreamerUseDefaultCacheFillImpl {}
+
 pub trait BitStreamerCacheFillImpl<T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
@@ -148,8 +154,6 @@ where
     #[allow(dead_code)]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize;
 }
-
-pub trait BitStreamerUseDefaultCacheFillImpl {}
 
 #[derive(Debug)]
 pub struct BitStreamerBase<'a, T>
@@ -211,7 +215,7 @@ where
 
 impl<T> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits + BitStreamerUseDefaultCacheFillImpl,
     T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
@@ -236,6 +240,7 @@ where
 impl<'a, T> BitStreamerBase<'a, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    Self: BitStreamerCacheFillImpl<T>,
     T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
@@ -298,6 +303,7 @@ where
     }
 }
 
+mod jpeg;
 mod lsb;
 mod msb;
 mod msb16;
