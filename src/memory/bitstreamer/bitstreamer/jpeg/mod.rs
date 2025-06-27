@@ -26,8 +26,6 @@ type T = BitOrderJPEG;
 impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    <T as BitStreamerTraits>::MaxProcessByteArray:
-        Default + core::ops::IndexMut<core::ops::RangeFull>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
         core::ops::RangeFull,
     >>::Output: CopyFromSlice + VariableLengthLoad,

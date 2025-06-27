@@ -93,6 +93,7 @@ missing_errors_doc = { level = "allow", priority = 0 }
 cognitive_complexity = { level = "warn", priority = 0 }
 large_stack_frames = { level = "warn", priority = 0 }
 get_unwrap = { level = "allow", priority = 0 }
+type_repetition_in_bounds = { level = "warn", priority = 0 }
 
 blanket_clippy_restriction_lints = { level = "allow", priority = 0 }
 let_underscore_must_use = { level = "allow", priority = 0 }

@@ -177,7 +177,6 @@ where
 impl<T> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
@@ -222,7 +221,6 @@ where
 impl<T> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits + BitStreamerUseDefaultCacheFillImpl,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
@@ -248,10 +246,9 @@ impl<'a, T> BitStreamerBase<'a, T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     Self: BitStreamerCacheFillImpl<T>,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
-        CopyFromSlice + VariableLengthLoad,
-    T::StreamFlow: BitStreamCache,
+    CopyFromSlice + VariableLengthLoad,
+    T::StreamFlow: Default + BitStreamCache,
     T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
     <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
@@ -263,7 +260,6 @@ where
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
     u64: From<T::ChunkType>,
-    T::StreamFlow: Default,
 {
     #[allow(dead_code)]
     #[inline]
