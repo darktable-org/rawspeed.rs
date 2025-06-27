@@ -92,6 +92,7 @@ missing_panics_doc = { level = "allow", priority = 0 }
 missing_errors_doc = { level = "allow", priority = 0 }
 cognitive_complexity = { level = "warn", priority = 0 }
 large_stack_frames = { level = "warn", priority = 0 }
+get_unwrap = { level = "allow", priority = 0 }
 
 blanket_clippy_restriction_lints = { level = "allow", priority = 0 }
 let_underscore_must_use = { level = "allow", priority = 0 }
@@ -101,7 +102,6 @@ module_name_repetitions = { level = "allow", priority = 0 }
 shadow_same = { level = "allow", priority = 0 }
 panic = { level = "allow", priority = 0 }
 semicolon_outside_block = { level = "allow", priority = 0 }
-indexing_slicing = { level = "allow", priority = 0 }
 integer_division = { level = "allow", priority = 0 }
 pub_use = { level = "allow", priority = 0 }
 unused_trait_names = { level = "allow", priority = 0 }

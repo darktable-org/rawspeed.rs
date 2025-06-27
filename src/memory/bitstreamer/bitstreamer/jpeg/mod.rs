@@ -73,14 +73,14 @@ where
             let num_bytes_needed = 4 - i;
 
             // Pre-execute most common case, where next byte is 'normal'/non-FF
-            let c0 = input[p];
+            let c0 = *input.get(p).unwrap();
             self.cache.push(c0.into(), 8);
             if c0 != 0xFF {
                 p += 1;
                 continue; // Got normal byte.
             }
             // Found FF -> pre-execute case of FF/00, which represents an FF data byte
-            let c1 = input[p + 1];
+            let c1 = *input.get(p + 1).unwrap();
             if c1 == 0x00 {
                 // Got FF/00, where 0x00 is a stuffing byte
                 // (that should be ignored) so 0xFF is a normal byte. All good.

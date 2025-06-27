@@ -7,9 +7,11 @@ impl VariableLengthLoad for [u8] {
         self.fill(0);
 
         let src_pos = std::cmp::min(src_pos, src.len());
-        let src = &src[src_pos..];
+        let src = src.get(src_pos..).unwrap();
         let copy_size = std::cmp::min(self.len(), src.len());
-        self[..copy_size].copy_from_slice(&src[..copy_size]);
+        let dest = self.get_mut(..copy_size).unwrap();
+        let src = src.get(..copy_size).unwrap();
+        dest.copy_from_slice(src);
     }
 }
 
