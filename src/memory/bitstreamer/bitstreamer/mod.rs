@@ -181,8 +181,8 @@ where
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<std::ops::Range<usize>>,
-    <T::MaxProcessByteArray as core::ops::Index<std::ops::Range<usize>>>::Output:
+    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
+    <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:
@@ -226,8 +226,8 @@ where
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<std::ops::Range<usize>>,
-    <T::MaxProcessByteArray as core::ops::Index<std::ops::Range<usize>>>::Output:
+    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
+    <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:
@@ -252,8 +252,8 @@ where
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
-    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<std::ops::Range<usize>>,
-    <T::MaxProcessByteArray as core::ops::Index<std::ops::Range<usize>>>::Output:
+    T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull> +  core::ops::Index<core::ops::Range<usize>>,
+    <T::MaxProcessByteArray as core::ops::Index<core::ops::Range<usize>>>::Output:
             LoadFromSlice<T::ChunkByteArrayType>,
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:

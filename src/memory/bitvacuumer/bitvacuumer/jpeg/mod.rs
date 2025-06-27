@@ -16,9 +16,9 @@ where
     u32: From<u8>
         + Bitwidth
         + From<<BitOrderJPEG as BitStreamTraits>::ChunkType>
-        + std::ops::Shl<usize>
-        + std::ops::ShlAssign<usize>
-        + std::ops::BitOrAssign,
+        + core::ops::Shl<usize>
+        + core::ops::ShlAssign<usize>
+        + core::ops::BitOrAssign,
     <BitOrderJPEG as BitStreamTraits>::StreamFlow: BitStreamCache,
     <BitOrderJPEG as BitStreamTraits>::ChunkType:
         Bitwidth + SwapBytes + TryFrom<u64>,

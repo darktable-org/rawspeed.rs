@@ -3,7 +3,7 @@ use core::assert_eq;
 use super::*;
 
 #[test]
-fn byte_enumeration_test() -> Result<(), Box<dyn std::error::Error>> {
+fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     let inputs: Vec<Vec<u8>> = vec![
         vec![],
         vec![1, 0, 0, 0],
@@ -25,7 +25,7 @@ fn byte_enumeration_test() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn nibble_enumeration_test() -> Result<(), Box<dyn std::error::Error>> {
+fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     let inputs: Vec<Vec<u8>> = vec![
         vec![],
         vec![1, 0, 0, 0],
@@ -54,7 +54,7 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn bit_enumeration_test() -> Result<(), Box<dyn std::error::Error>> {
+fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     let inputs: Vec<Vec<u8>> = vec![
         vec![1, 0, 0, 0],
         vec![2, 0, 0, 0],
@@ -100,7 +100,7 @@ fn bit_enumeration_test() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn sliding_0xff_test() -> Result<(), Box<dyn std::error::Error>> {
+fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
     let inputs: Vec<Vec<u8>> = vec![
         vec![255, 0, 0, 0],
         vec![254, 1, 0, 0],
@@ -140,7 +140,7 @@ fn sliding_0xff_test() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
--> Result<(), Box<dyn std::error::Error>> {
+-> Result<(), Box<dyn core::error::Error>> {
     let inputs: Vec<Vec<u8>> = vec![
         vec![255, 0, 0, 0],
         vec![241, 15, 0, 0],

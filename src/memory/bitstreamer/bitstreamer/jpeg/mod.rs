@@ -34,9 +34,9 @@ where
     <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull>
-        + core::ops::Index<std::ops::Range<usize>>,
+        + core::ops::Index<core::ops::Range<usize>>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        std::ops::Range<usize>,
+        core::ops::Range<usize>,
     >>::Output: LoadFromSlice<<T as BitStreamTraits>::ChunkByteArrayType>,
     <<T as BitStreamTraits>::ChunkByteArrayType as core::ops::Index<
         core::ops::RangeFull,

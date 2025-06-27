@@ -120,7 +120,6 @@ allow_attributes = { level = "allow", priority = 0 }
 allow_attributes_without_reason = { level = "allow", priority = 0 }
 arbitrary_source_item_ordering = { level = "allow", priority = 0 }
 min_ident_chars = { level = "allow", priority = 0 }
-std_instead_of_core = { level = "allow", priority = 0 }
 missing_docs_in_private_items = { level = "allow", priority = 0 }
 panic_in_result_fn = { level = "allow", priority = 0 }
 implicit_return = { level = "allow", priority = 0 }
