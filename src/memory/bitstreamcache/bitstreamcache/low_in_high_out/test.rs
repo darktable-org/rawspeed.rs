@@ -236,13 +236,13 @@ fn bitstreamcache_test() {
             assert_eq!(cache.fill_level(), T::BITWIDTH);
             assert_eq!(
                 bits as usize,
-                usize::try_from(cache.peek(T::BITWIDTH)).expect("")
+                usize::try_from(cache.peek(T::BITWIDTH)).unwrap()
             );
             let mut bits_reconstucted: T = 0;
             for i in 0..T::BITWIDTH {
                 bits_reconstucted <<= 1;
                 assert_eq!(cache.fill_level(), T::BITWIDTH - i);
-                bits_reconstucted |= T::try_from(cache.peek(1)).expect("");
+                bits_reconstucted |= T::try_from(cache.peek(1)).unwrap();
                 assert_eq!(cache.fill_level(), T::BITWIDTH - i);
                 cache.skip(1);
                 assert_eq!(cache.fill_level(), T::BITWIDTH - i - 1);

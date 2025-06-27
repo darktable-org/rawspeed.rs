@@ -106,7 +106,6 @@ integer_division = { level = "allow", priority = 0 }
 pub_use = { level = "allow", priority = 0 }
 integer_division_remainder_used = { level = "allow", priority = 0 }
 host_endian_bytes = { level = "allow", priority = 0 }
-expect_used = { level = "allow", priority = 0 }
 single_char_lifetime_names = { level = "allow", priority = 0 }
 separated_literal_suffix = { level = "allow", priority = 0 }
 unreachable = { level = "allow", priority = 0 }

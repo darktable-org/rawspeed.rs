@@ -28,7 +28,7 @@ fn run_time_succeeds() {
 fn basic() {
     assert_eq!(
         get_host_endianness(),
-        get_host_endianness_runtime().expect("")
+        get_host_endianness_runtime().unwrap()
     );
 }
 
@@ -41,7 +41,7 @@ fn swap_bytes_test() {
                     const NUM_BYTES: usize = (<$t>::BITS / 8) as usize;
                     let mut bytes = [0; NUM_BYTES];
                     for (i,byte) in bytes.iter_mut().enumerate() {
-                        *byte = 1 + u8::try_from(i).expect("");
+                        *byte = 1 + u8::try_from(i).unwrap();
                     }
                     let bits = <$t>::from_ne_bytes(bytes);
                     let swapped_bits = <$t as SwapBytes>::swap_bytes(bits);
@@ -65,7 +65,7 @@ fn get_byte_swapped_test() {
                     const NUM_BYTES: usize = (<$t>::BITS / 8) as usize;
                     let mut bytes: [u8; NUM_BYTES] = [0; NUM_BYTES];
                     for (i,byte) in bytes.iter_mut().enumerate() {
-                        *byte = 1 + u8::try_from(i).expect("");
+                        *byte = 1 + u8::try_from(i).unwrap();
                     }
                     let bits = <$t>::from_ne_bytes(bytes);
                     let non_swapped_bits = <$t as SwapBytes>::get_byte_swapped(bits, false);
