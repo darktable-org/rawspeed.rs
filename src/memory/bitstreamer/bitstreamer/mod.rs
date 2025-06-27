@@ -129,8 +129,8 @@ where
         // Note that in order to keep all fill-level invariants
         // we must allow to over-read past-the-end a bit.
         if self.get_pos() > self.input.len() + 2 * T::MAX_PROCESS_BYTES {
-            let err: &'static str = "Buffer overflow read in BitStreamer";
-            return Err(err);
+            const ERR: &str = "Buffer overflow read in BitStreamer";
+            return Err(ERR);
         }
 
         tmp[..].variable_length_load(self.input, self.pos);
