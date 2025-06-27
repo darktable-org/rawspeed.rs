@@ -3,6 +3,7 @@ pub trait VariableLengthLoad {
 }
 
 impl VariableLengthLoad for [u8] {
+    #[inline]
     fn variable_length_load(&mut self, src: &[u8], src_pos: usize) {
         self.fill(0);
 

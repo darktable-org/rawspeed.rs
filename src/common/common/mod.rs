@@ -41,6 +41,7 @@ impl ConstZero for u64 {
 
 //------------------------------------------------------------------------------
 
+#[inline]
 pub fn extract_high_bits<
     T: Integer + ConstZero + Bitwidth + std::ops::Shr<usize, Output = T>,
 >(
@@ -56,6 +57,7 @@ pub fn extract_high_bits<
     value >> num_low_bits_to_skip
 }
 
+#[inline]
 pub fn extract_low_bits<
     T: Integer
         + ConstZero

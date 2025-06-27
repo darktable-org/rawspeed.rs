@@ -49,6 +49,7 @@ where
         > + SwapBytes,
     u64: From<<T as BitStreamTraits>::ChunkType>,
 {
+    #[inline]
     fn fill_cache_impl(
         &mut self,
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
