@@ -104,7 +104,6 @@ panic = { level = "allow", priority = 0 }
 semicolon_outside_block = { level = "allow", priority = 0 }
 integer_division = { level = "allow", priority = 0 }
 pub_use = { level = "allow", priority = 0 }
-unused_trait_names = { level = "allow", priority = 0 }
 integer_division_remainder_used = { level = "allow", priority = 0 }
 host_endian_bytes = { level = "allow", priority = 0 }
 expect_used = { level = "allow", priority = 0 }

@@ -1,4 +1,4 @@
-use rawspeed_common::common::Bitwidth;
+use rawspeed_common::common::Bitwidth as _;
 use std::marker::PhantomData;
 
 #[derive(Debug, Copy, Clone, PartialEq)]

@@ -1,6 +1,6 @@
 use super::*;
 
-use std::io::Write;
+use std::io::Write as _;
 
 #[test]
 fn vec_ctor_test() {
