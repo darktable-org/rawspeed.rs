@@ -56,7 +56,7 @@ where
         let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
 
         assert!(WritebackCache::BITWIDTH >= stream_chunk_bitwidth);
-        assert!(WritebackCache::BITWIDTH % stream_chunk_bitwidth == 0);
+        assert!(WritebackCache::BITWIDTH.is_multiple_of(stream_chunk_bitwidth));
         let num_chunks_needed: usize =
             WritebackCache::BITWIDTH / stream_chunk_bitwidth;
         assert!(num_chunks_needed >= 1);
