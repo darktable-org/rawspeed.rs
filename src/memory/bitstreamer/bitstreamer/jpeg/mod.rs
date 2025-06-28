@@ -107,4 +107,4 @@ pub type BitStreamerJPEG<'a> = BitStreamerBase<'a, BitOrderJPEG>;
 
 #[cfg(test)]
 #[allow(clippy::large_stack_frames)]
-mod test;
+mod tests;

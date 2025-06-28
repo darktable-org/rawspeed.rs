@@ -9,4 +9,4 @@ pub type BitVacuumerLSB<'a, W> = BitVacuumerBase<'a, BitOrderLSB, W>;
 
 #[cfg(test)]
 #[allow(clippy::large_stack_frames)]
-mod test;
+mod tests;

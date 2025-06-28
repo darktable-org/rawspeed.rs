@@ -18,4 +18,4 @@ pub type BitStreamerMSB<'a> = BitStreamerBase<'a, BitOrderMSB>;
 
 #[cfg(test)]
 #[allow(clippy::large_stack_frames)]
-mod test;
+mod tests;

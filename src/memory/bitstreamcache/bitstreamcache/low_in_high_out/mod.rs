@@ -84,4 +84,4 @@ impl Default for BitStreamCacheLowInHighOut {
 
 #[cfg(test)]
 #[allow(clippy::large_stack_frames)]
-mod test;
+mod tests;

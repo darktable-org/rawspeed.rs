@@ -53,4 +53,4 @@ impl_swap_bytes!(u16 u32 u64);
 
 #[cfg(test)]
 #[allow(clippy::large_stack_frames)]
-mod test;
+mod tests;
