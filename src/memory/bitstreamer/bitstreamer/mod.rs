@@ -195,10 +195,10 @@ where
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
         let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
         assert!(stream_chunk_bitwidth >= 1);
-        assert!(stream_chunk_bitwidth % 8 == 0);
+        assert!(stream_chunk_bitwidth.is_multiple_of(8));
 
         assert!(8 * T::MAX_PROCESS_BYTES >= stream_chunk_bitwidth);
-        assert!(8 * T::MAX_PROCESS_BYTES % stream_chunk_bitwidth == 0);
+        assert!((8 * T::MAX_PROCESS_BYTES).is_multiple_of(stream_chunk_bitwidth));
 
         let num_chunks_needed =
             (8 * T::MAX_PROCESS_BYTES) / stream_chunk_bitwidth;
