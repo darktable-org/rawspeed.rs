@@ -65,6 +65,31 @@ jobs:
       flavor: ${{ matrix.flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  linux-miri:
+    needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ linux ]
+        stack:
+          - { runs-on: "ubuntu-latest", host: "x86_64", target: "x86_64" }
+          - { runs-on: "ubuntu-latest", host: "x86_64", target: "s390x"  }
+        distro:
+          - { image: "debian:trixie-slim", LLVM: 19 }
+        rust-toolchain-name: [ nightly ]
+        flavor: [ Miri ]
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      os: ${{ matrix.os }}
+      runs-on: ${{ matrix.stack.runs-on }}
+      builder-host: ${{ matrix.stack.host }}
+      builder-target: ${{ matrix.stack.target }}
+      distro-image: ${{ matrix.distro.image }}
+      distro-LLVM: ${{ matrix.distro.LLVM }}
+      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+      flavor: ${{ matrix.flavor }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   windows-msys2-fast:
     strategy:
       fail-fast: false
@@ -112,7 +137,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-docs:
-    needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
+    needs: [ linux-fast, linux-cross, linux-miri, windows-msys2-fast, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: linux
