@@ -282,32 +282,20 @@ where
         }
 
         let input = self.replenisher.get_input()?;
-        let num_bytes =
-            BitStreamerCacheFillImpl::<T>::fill_cache_impl(self, input);
+        let num_bytes = BitStreamerCacheFillImpl::<T>::fill_cache_impl(self, input);
         self.replenisher.mark_num_bytes_as_consumed(num_bytes);
         assert!(self.cache.fill_level() >= nbits);
         Ok(())
     }
 
     #[inline]
-    pub fn peek_bits(&mut self, nbits: usize) -> Result<u64, &'static str> {
-        self.fill(nbits)?;
-        let bits = self.cache.peek(nbits);
-        Ok(bits)
+    pub fn peek_bits_no_fill(&mut self, nbits: usize) -> u64 {
+        self.cache.peek(nbits)
     }
 
     #[inline]
-    pub fn skip_bits(&mut self, nbits: usize) -> Result<(), &'static str> {
-        self.fill(nbits)?;
+    pub fn skip_bits_no_fill(&mut self, nbits: usize) {
         self.cache.skip(nbits);
-        Ok(())
-    }
-
-    #[inline]
-    pub fn get_bits(&mut self, nbits: usize) -> Result<u64, &'static str> {
-        let bits = self.peek_bits(nbits)?;
-        self.skip_bits(nbits)?;
-        Ok(bits)
     }
 }
 

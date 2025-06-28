@@ -4,6 +4,7 @@ use super::*;
 
 #[test]
 fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 8;
     let inputs: Vec<Vec<u8>> = vec![
         vec![],
         vec![1, 0, 0, 0],
@@ -18,10 +19,16 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_bytes, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for i in 0..num_bytes {
-            assert_eq!(bs.get_bits(8)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -29,6 +36,7 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
 
 #[test]
 fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 4;
     let inputs: Vec<Vec<u8>> = vec![
         vec![],
         vec![16, 0, 0, 0],
@@ -50,10 +58,16 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_nibbles, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for i in 0..num_nibbles {
-            assert_eq!(bs.get_bits(4)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -61,6 +75,7 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
 
 #[test]
 fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 1;
     let inputs: Vec<Vec<u8>> = vec![
         vec![128, 0, 0, 0],
         vec![64, 0, 0, 0],
@@ -98,11 +113,16 @@ fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for _i in 0..num_leading_zeros {
-            assert_eq!(bs.get_bits(1)?, 0);
+            bs.fill(NUM_BITS)?;
+            assert_eq!(bs.peek_bits_no_fill(NUM_BITS), 0);
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(1)?, 1);
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        bs.fill(1)?;
+        assert_eq!(bs.peek_bits_no_fill(1), 1);
+        bs.skip_bits_no_fill(1);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -110,6 +130,7 @@ fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
 
 #[test]
 fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 1;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0xFF, 0x00, 0, 0, 0],
         vec![127, 128, 0, 0],
@@ -140,11 +161,16 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for _i in 0..num_leading_zeros {
-            assert_eq!(bs.get_bits(1)?, 0);
+            bs.fill(NUM_BITS)?;
+            assert_eq!(bs.peek_bits_no_fill(NUM_BITS), 0);
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(8)?, 0xFF);
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        bs.fill(8)?;
+        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        bs.skip_bits_no_fill(8);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -153,6 +179,7 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
 #[test]
 fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
 -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 4;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0xFF, 0x00, 0, 0, 0],
         vec![31, 240, 0, 0],
@@ -174,11 +201,19 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
     for (num_leading_nibbles, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for i in 0..num_leading_nibbles {
-            assert_eq!(bs.get_bits(4)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(8)?, 0xFF);
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        bs.fill(8)?;
+        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        bs.skip_bits_no_fill(8);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -187,6 +222,7 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
 #[test]
 fn sliding_0xff_through_enumerated_bytes_test()
 -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 8;
     let inputs: Vec<Vec<u8>> = vec![
         vec![
             0xFF, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -240,14 +276,27 @@ fn sliding_0xff_through_enumerated_bytes_test()
     for (oxff_pos, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for i in 0..oxff_pos {
-            assert_eq!(bs.get_bits(8)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(8)?, 0xFF);
+        bs.fill(8)?;
+        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        bs.skip_bits_no_fill(8);
         for i in oxff_pos..15 {
-            assert_eq!(bs.get_bits(8)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -256,6 +305,7 @@ fn sliding_0xff_through_enumerated_bytes_test()
 #[test]
 fn sliding_0xff_through_enumerated_nibbles_test()
 -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 4;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0xFF, 0x00, 18, 52, 86, 120, 154, 188, 222],
         vec![31, 242, 52, 86, 120, 154, 188, 222],
@@ -276,14 +326,27 @@ fn sliding_0xff_through_enumerated_nibbles_test()
     for (oxff_pos, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for i in 0..oxff_pos {
-            assert_eq!(bs.get_bits(4)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(8)?, 0xFF);
+        bs.fill(8)?;
+        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        bs.skip_bits_no_fill(8);
         for i in oxff_pos..14 {
-            assert_eq!(bs.get_bits(4)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -292,6 +355,7 @@ fn sliding_0xff_through_enumerated_nibbles_test()
 #[test]
 fn sliding_0xff_non_0x00_control_sequence_test()
 -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 8;
     let inputs: Vec<Vec<u8>> = vec![
         vec![
             0xFF, 0x01, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -345,10 +409,16 @@ fn sliding_0xff_non_0x00_control_sequence_test()
     for (oxff_pos, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerJPEG::new(input);
         for i in 0..oxff_pos {
-            assert_eq!(bs.get_bits(8)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        while let Ok(bit) = bs.get_bits(1) {
-            assert_eq!(bit, 0);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
