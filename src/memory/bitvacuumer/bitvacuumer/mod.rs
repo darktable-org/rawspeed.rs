@@ -28,7 +28,10 @@ where
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
+    T::ChunkType: Bitwidth
+        + SwapBytes
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
@@ -46,7 +49,10 @@ where
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
+    T::ChunkType: Bitwidth
+        + SwapBytes
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     fn drain_impl(&mut self) -> std::io::Result<()> {
         type WritebackCache = u32;
@@ -107,7 +113,10 @@ where
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
+    T::ChunkType: Bitwidth
+        + SwapBytes
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     fn drain_impl(&mut self) -> std::io::Result<()> {
         BitVacuumerDefaultDrainImpl::drain_impl(self)
@@ -126,7 +135,10 @@ where
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<u64> + From<T::ChunkType>,
+    T::ChunkType: Bitwidth
+        + SwapBytes
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
 {
     #[allow(dead_code)]
     pub fn new(writer: &'a mut W) -> Self
@@ -174,7 +186,7 @@ where
     pub fn put(&mut self, bits: u64, count: usize) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;
-        self.cache.push(bits, count);
+        self.cache.push(bits.into(), count);
         Ok(())
     }
 }
@@ -190,7 +202,10 @@ where
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth + SwapBytes + TryFrom<u64>,
+    T::ChunkType: Bitwidth
+        + SwapBytes
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     fn drop(&mut self) {
         const ERR: &str = "Unrecoverable Error: trying to drop \

@@ -4,6 +4,7 @@ use super::*;
 
 #[test]
 fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 8;
     let inputs: Vec<Vec<u8>> = vec![
         vec![],
         vec![0, 0, 0, 1],
@@ -18,7 +19,16 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_bytes, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerMSB32::new(input);
         for i in 0..num_bytes {
-            assert_eq!(bs.get_bits(8)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
+        }
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -26,6 +36,7 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
 
 #[test]
 fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 4;
     let inputs: Vec<Vec<u8>> = vec![
         vec![],
         vec![0, 0, 0, 16],
@@ -47,7 +58,16 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_nibbles, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerMSB32::new(input);
         for i in 0..num_nibbles {
-            assert_eq!(bs.get_bits(4)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
+        }
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
         }
     }
     Ok(())
@@ -55,6 +75,7 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
 
 #[test]
 fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 1;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0, 0, 0, 128],
         vec![0, 0, 0, 64],
@@ -92,15 +113,24 @@ fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerMSB32::new(input);
         for _i in 0..num_leading_zeros {
-            assert_eq!(bs.get_bits(1)?, 0);
+            bs.fill(NUM_BITS)?;
+            assert_eq!(bs.peek_bits_no_fill(NUM_BITS), 0);
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(1)?, 1);
+        bs.fill(1)?;
+        assert_eq!(bs.peek_bits_no_fill(1), 1);
+        bs.skip_bits_no_fill(1);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
+        }
     }
     Ok(())
 }
 
 #[test]
 fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 1;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0, 0, 0, 255],
         vec![0, 0, 128, 127],
@@ -131,9 +161,17 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerMSB32::new(input);
         for _i in 0..num_leading_zeros {
-            assert_eq!(bs.get_bits(1)?, 0);
+            bs.fill(NUM_BITS)?;
+            assert_eq!(bs.peek_bits_no_fill(NUM_BITS), 0);
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(8)?, 0xFF);
+        bs.fill(8)?;
+        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        bs.skip_bits_no_fill(8);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
+        }
     }
     Ok(())
 }
@@ -141,6 +179,7 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
 #[test]
 fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
 -> Result<(), Box<dyn core::error::Error>> {
+    const NUM_BITS: usize = 4;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0, 0, 0, 255],
         vec![0, 0, 240, 31],
@@ -162,9 +201,20 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
     for (num_leading_nibbles, input) in inputs.iter().enumerate() {
         let mut bs = BitStreamerMSB32::new(input);
         for i in 0..num_leading_nibbles {
-            assert_eq!(bs.get_bits(4)?, (1 + i).try_into().unwrap());
+            bs.fill(NUM_BITS)?;
+            assert_eq!(
+                bs.peek_bits_no_fill(NUM_BITS),
+                (1 + i).try_into().unwrap()
+            );
+            bs.skip_bits_no_fill(NUM_BITS);
         }
-        assert_eq!(bs.get_bits(8)?, 0xFF);
+        bs.fill(8)?;
+        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        bs.skip_bits_no_fill(8);
+        while let Ok(()) = bs.fill(1) {
+            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            bs.skip_bits_no_fill(1);
+        }
     }
     Ok(())
 }

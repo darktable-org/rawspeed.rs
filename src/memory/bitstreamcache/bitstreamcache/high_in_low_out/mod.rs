@@ -1,6 +1,8 @@
-use super::{
-    BitStreamCache, BitStreamCacheBase, BitStreamFlowTrait, PhantomData,
-};
+use super::BitStreamCache;
+use super::BitStreamCacheBase;
+use super::BitStreamCacheData;
+use super::BitStreamFlowTrait;
+use super::PhantomData;
 
 use rawspeed_common::common::extract_low_bits;
 
@@ -11,14 +13,16 @@ pub struct BitStreamFlowHighInLowOut;
 
 impl BitStreamFlowTrait for BitStreamFlowHighInLowOut {}
 
-pub type BitStreamCacheHighInLowOut =
-    BitStreamCacheBase<BitStreamFlowHighInLowOut>;
+pub type BitStreamCacheHighInLowOut<T = u64> =
+    BitStreamCacheBase<BitStreamFlowHighInLowOut, T>;
 
-impl BitStreamCache for BitStreamCacheHighInLowOut {
+impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheHighInLowOut<T> {
+    type Storage = T;
+
     #[inline]
     fn new() -> Self {
         Self {
-            cache: 0,
+            cache: 0.into(),
             fill_level: 0,
             _phantom_data: PhantomData,
         }
@@ -30,19 +34,17 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
     }
 
     #[inline]
-    fn push(&mut self, bits: u64, count: usize) {
+    fn push(&mut self, bits: Self::Storage, count: usize) {
         // NOTE: `count`` may be zero!
         assert!(count <= Self::SIZE);
         assert!(count + (self.fill_level as usize) <= Self::SIZE);
-        self.cache |= bits << self.fill_level;
-        u32::try_from(count).unwrap();
+        self.cache |= bits << self.fill_level();
         self.fill_level += u32::try_from(count).unwrap();
     }
 
     #[inline]
-    fn peek(&self, count: usize) -> u64 {
+    fn peek(&self, count: usize) -> Self::Storage {
         assert!(count <= Self::SIZE);
-        assert!(count <= Self::MAX_GET_BITS);
         assert!(count != 0);
         assert!(count <= self.fill_level as usize);
         extract_low_bits(self.cache, count)
@@ -54,13 +56,12 @@ impl BitStreamCache for BitStreamCacheHighInLowOut {
         // `count` could be zero.
         assert!(count <= Self::SIZE);
         assert!(count <= self.fill_level as usize);
-        u32::try_from(count).unwrap();
         self.fill_level -= u32::try_from(count).unwrap();
         self.cache >>= count;
     }
 }
 
-impl Default for BitStreamCacheHighInLowOut {
+impl<T: BitStreamCacheData> Default for BitStreamCacheHighInLowOut<T> {
     #[inline]
     fn default() -> Self {
         Self::new()

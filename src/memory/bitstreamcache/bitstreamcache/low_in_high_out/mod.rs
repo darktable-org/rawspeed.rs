@@ -1,6 +1,8 @@
-use super::{
-    BitStreamCache, BitStreamCacheBase, BitStreamFlowTrait, PhantomData,
-};
+use super::BitStreamCache;
+use super::BitStreamCacheBase;
+use super::BitStreamCacheData;
+use super::BitStreamFlowTrait;
+use super::PhantomData;
 
 use rawspeed_common::common::extract_high_bits;
 
@@ -11,14 +13,16 @@ pub struct BitStreamFlowLowInHighOut;
 
 impl BitStreamFlowTrait for BitStreamFlowLowInHighOut {}
 
-pub type BitStreamCacheLowInHighOut =
-    BitStreamCacheBase<BitStreamFlowLowInHighOut>;
+pub type BitStreamCacheLowInHighOut<T = u64> =
+    BitStreamCacheBase<BitStreamFlowLowInHighOut, T>;
 
-impl BitStreamCache for BitStreamCacheLowInHighOut {
+impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheLowInHighOut<T> {
+    type Storage = T;
+
     #[inline]
     fn new() -> Self {
         Self {
-            cache: 0,
+            cache: 0.into(),
             fill_level: 0,
             _phantom_data: PhantomData,
         }
@@ -30,7 +34,7 @@ impl BitStreamCache for BitStreamCacheLowInHighOut {
     }
 
     #[inline]
-    fn push(&mut self, bits: u64, count: usize) {
+    fn push(&mut self, bits: Self::Storage, count: usize) {
         // NOTE: `count`` may be zero!
         assert!(count <= Self::SIZE);
         assert!(count + (self.fill_level as usize) <= Self::SIZE);
@@ -55,9 +59,8 @@ impl BitStreamCache for BitStreamCacheLowInHighOut {
     }
 
     #[inline]
-    fn peek(&self, count: usize) -> u64 {
+    fn peek(&self, count: usize) -> Self::Storage {
         assert!(count <= Self::SIZE);
-        assert!(count <= Self::MAX_GET_BITS);
         assert!(count != 0);
         assert!(count <= self.fill_level as usize);
         extract_high_bits(self.cache, count)
@@ -75,7 +78,7 @@ impl BitStreamCache for BitStreamCacheLowInHighOut {
     }
 }
 
-impl Default for BitStreamCacheLowInHighOut {
+impl<T: BitStreamCacheData> Default for BitStreamCacheLowInHighOut<T> {
     #[inline]
     fn default() -> Self {
         Self::new()
