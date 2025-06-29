@@ -2,9 +2,11 @@ use core::marker::PhantomData;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
 use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
-use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
+
+#[allow(clippy::wildcard_imports)]
+use rawspeed_memory_bitstreamcache::bitstreamcache::*;
 
 pub trait BitVacuumerDefaultDrainImpl {
     fn drain_impl(&mut self) -> std::io::Result<()>;
@@ -21,17 +23,7 @@ pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    u32: From<u8>
-        + Bitwidth
-        + From<T::ChunkType>
-        + core::ops::Shl<usize>
-        + core::ops::ShlAssign<usize>
-        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth
-        + SwapBytes
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
@@ -42,33 +34,34 @@ impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    u32: From<u8>
-        + Bitwidth
-        + From<T::ChunkType>
-        + core::ops::Shl<usize>
-        + core::ops::ShlAssign<usize>
-        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth
-        + SwapBytes
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
+        + SwapBytes,
+    u32: From<T::ChunkType>,
 {
     fn drain_impl(&mut self) -> std::io::Result<()> {
-        type WritebackCache = u32;
+        let mut cache: BitStreamCacheBase<_, u32> = {
+            #[cfg(target_endian = "little")]
+            {
+                BitStreamCacheHighInLowOut::<u32>::new()
+            }
+            #[cfg(not(target_endian = "little"))]
+            {
+                BitStreamCacheLowInHighOut::<u32>::new()
+            }
+        };
 
-        assert!(self.cache.fill_level() >= WritebackCache::BITWIDTH);
+        assert!(self.cache.fill_level() >= cache.size());
 
         let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
 
-        assert!(WritebackCache::BITWIDTH >= stream_chunk_bitwidth);
-        assert!(WritebackCache::BITWIDTH.is_multiple_of(stream_chunk_bitwidth));
-        let num_chunks_needed: usize =
-            WritebackCache::BITWIDTH / stream_chunk_bitwidth;
+        assert!(cache.size() >= stream_chunk_bitwidth);
+        assert!(cache.size().is_multiple_of(stream_chunk_bitwidth));
+        let num_chunks_needed: usize = cache.size() / stream_chunk_bitwidth;
         assert!(num_chunks_needed >= 1);
 
-        let mut cache: WritebackCache = Default::default();
-        for i in 0..num_chunks_needed {
+        for _i in 0..num_chunks_needed {
             let Ok(chunk) = <T::ChunkType>::try_from(
                 self.cache.peek(stream_chunk_bitwidth),
             ) else {
@@ -77,27 +70,9 @@ where
             self.cache.skip(stream_chunk_bitwidth);
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
-            let chunk: WritebackCache = chunk.into();
-            let chunk: WritebackCache = {
-                #[cfg(target_endian = "little")]
-                {
-                    chunk << (i * stream_chunk_bitwidth)
-                }
-                #[cfg(not(target_endian = "little"))]
-                {
-                    #[allow(clippy::no_effect_underscore_binding)]
-                    {
-                        let _i = i; // i is only used in little-endian block.
-                    }
-                    if num_chunks_needed != 1 {
-                        cache <<= stream_chunk_bitwidth;
-                    }
-                    chunk
-                }
-            };
-            cache |= chunk;
+            cache.push(chunk.into(), stream_chunk_bitwidth);
         }
-        let bytes = cache.to_ne_bytes();
+        let bytes = cache.peek(cache.size()).to_ne_bytes();
         self.writer.write_all(&bytes)
     }
 }
@@ -106,17 +81,11 @@ impl<T, W> BitVacuumerDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
-    u32: From<u8>
-        + Bitwidth
-        + From<T::ChunkType>
-        + core::ops::Shl<usize>
-        + core::ops::ShlAssign<usize>
-        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
     T::ChunkType: Bitwidth
-        + SwapBytes
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
+        + SwapBytes,
+    u32: From<T::ChunkType>,
 {
     fn drain_impl(&mut self) -> std::io::Result<()> {
         BitVacuumerDefaultDrainImpl::drain_impl(self)
@@ -128,17 +97,12 @@ where
     T: BitOrderTrait + BitStreamTraits,
     Self: BitVacuumerDrainImpl,
     W: std::io::Write,
-    u32: From<u8>
-        + Bitwidth
-        + From<T::ChunkType>
-        + core::ops::Shl<usize>
-        + core::ops::ShlAssign<usize>
-        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    <T::StreamFlow as BitStreamCache>::Storage: From<u64> + From<T::ChunkType>,
     T::ChunkType: Bitwidth
-        + SwapBytes
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
+        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
+        + SwapBytes,
+    u32: From<T::ChunkType>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
 {
     #[allow(dead_code)]
     pub fn new(writer: &'a mut W) -> Self
@@ -195,17 +159,7 @@ impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    u32: From<u8>
-        + Bitwidth
-        + From<T::ChunkType>
-        + core::ops::Shl<usize>
-        + core::ops::ShlAssign<usize>
-        + core::ops::BitOrAssign,
     T::StreamFlow: BitStreamCache,
-    T::ChunkType: Bitwidth
-        + SwapBytes
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     fn drop(&mut self) {
         const ERR: &str = "Unrecoverable Error: trying to drop \

@@ -29,6 +29,11 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheHighInLowOut<T> {
     }
 
     #[inline]
+    fn size(&self) -> usize {
+        Self::SIZE
+    }
+
+    #[inline]
     fn fill_level(&self) -> usize {
         self.fill_level as usize
     }

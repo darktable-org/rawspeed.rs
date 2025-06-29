@@ -36,6 +36,7 @@ pub trait BitStreamCache {
     #[must_use]
     fn new() -> Self;
 
+    fn size(&self) -> usize;
     fn fill_level(&self) -> usize;
 
     fn push(&mut self, bits: Self::Storage, count: usize);
