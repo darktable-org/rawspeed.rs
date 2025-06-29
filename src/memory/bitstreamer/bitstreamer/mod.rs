@@ -190,6 +190,7 @@ where
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
     u64: From<T::ChunkType>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     #[inline]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
@@ -235,6 +236,7 @@ where
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
     u64: From<T::ChunkType>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
 {
     #[inline]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
@@ -259,7 +261,9 @@ where
     T::ChunkType: Bitwidth
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
-    u64: From<T::ChunkType>,
+    u64:  From<
+    <T::StreamFlow as BitStreamCache>::Storage,
+    >,
 {
     #[allow(dead_code)]
     #[inline]
@@ -290,7 +294,7 @@ where
 
     #[inline]
     pub fn peek_bits_no_fill(&mut self, nbits: usize) -> u64 {
-        self.cache.peek(nbits)
+        self.cache.peek(nbits).into()
     }
 
     #[inline]

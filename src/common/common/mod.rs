@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 
-pub trait Integer {}
+pub trait Integer: Sized + Bitwidth + ConstZero {}
 impl Integer for u8 {}
 impl Integer for u16 {}
 impl Integer for u32 {}
@@ -42,9 +42,7 @@ impl ConstZero for u64 {
 //------------------------------------------------------------------------------
 
 #[inline]
-pub fn extract_high_bits<
-    T: Integer + ConstZero + Bitwidth + core::ops::Shr<usize, Output = T>,
->(
+pub fn extract_high_bits<T: Integer + core::ops::Shr<usize, Output = T>>(
     value: T,
     num_bits: usize,
 ) -> T {
@@ -60,8 +58,6 @@ pub fn extract_high_bits<
 #[inline]
 pub fn extract_low_bits<
     T: Integer
-        + ConstZero
-        + Bitwidth
         + core::ops::Shl<usize, Output = T>
         + core::ops::Shr<usize, Output = T>,
 >(
