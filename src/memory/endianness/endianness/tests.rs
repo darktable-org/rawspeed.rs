@@ -53,7 +53,7 @@ fn swap_bytes_test() {
         };
     }
 
-    test!(u16 u32 u64);
+    test!(u8 u16 u32 u64);
 }
 
 #[test]
