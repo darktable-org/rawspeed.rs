@@ -49,7 +49,7 @@ macro_rules! impl_swap_bytes {
     };
 }
 
-impl_swap_bytes!(u16 u32 u64);
+impl_swap_bytes!(u8 u16 u32 u64);
 
 #[cfg(test)]
 #[allow(clippy::large_stack_frames)]
