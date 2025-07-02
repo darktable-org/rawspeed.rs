@@ -1,5 +1,8 @@
 use core::marker::PhantomData;
 use core::ops::RangeFull;
+use rawspeed_common::bit_transmutation::CopyFromSlice;
+use rawspeed_common::bit_transmutation::FromNeBytes;
+use rawspeed_common::bit_transmutation::LoadFromSlice;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream::BitOrder;
 use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
@@ -8,61 +11,6 @@ use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
-
-pub trait CopyFromSlice {
-    fn copy_from_slice_(&mut self, src: &[u8]);
-}
-
-impl CopyFromSlice for [u8] {
-    #[inline]
-    fn copy_from_slice_(&mut self, src: &[u8]) {
-        self.copy_from_slice(src);
-    }
-}
-
-pub trait LoadFromSlice<T>
-where
-    T: Default + core::ops::IndexMut<RangeFull>,
-    <T as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
-{
-    fn load_from_slice(&self) -> T;
-}
-
-impl<T> LoadFromSlice<T> for [u8]
-where
-    T: Default + core::ops::IndexMut<RangeFull>,
-    <T as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
-{
-    #[inline]
-    fn load_from_slice(&self) -> T {
-        let mut out: T = Default::default();
-        out[..].copy_from_slice_(self);
-        out
-    }
-}
-
-pub trait FromNeBytes {
-    type Output;
-
-    #[allow(clippy::wrong_self_convention)]
-    fn from_ne_bytes(self) -> Self::Output;
-}
-
-impl FromNeBytes for [u8; 2] {
-    type Output = u16;
-    #[inline]
-    fn from_ne_bytes(self) -> Self::Output {
-        Self::Output::from_ne_bytes(self)
-    }
-}
-
-impl FromNeBytes for [u8; 4] {
-    type Output = u32;
-    #[inline]
-    fn from_ne_bytes(self) -> Self::Output {
-        Self::Output::from_ne_bytes(self)
-    }
-}
 
 pub trait BitStreamerTraits {
     const TAG: BitOrder;

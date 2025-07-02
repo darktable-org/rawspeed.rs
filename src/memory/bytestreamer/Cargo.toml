@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-memory-bytevacuumer"
+name = "rawspeed-memory-bytestreamer"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
