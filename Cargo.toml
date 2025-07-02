@@ -11,6 +11,7 @@ members = [
     "src/memory/bitstreamer",
     "src/memory/variable_length_load",
     "src/memory/bytevacuumer",
+    "src/memory/bytestreamer",
 ]
 
 [workspace.package]

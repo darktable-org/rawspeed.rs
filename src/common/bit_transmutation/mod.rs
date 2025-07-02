@@ -4,18 +4,18 @@ pub trait ToBits {
 }
 
 macro_rules! impl_to_bits {
-    ($src:ty, $tgt:ty) => {
-        impl ToBits for $src {
-            type Output = $tgt;
+    ($true_ty:ty, $bits_ty:ty) => {
+        impl ToBits for $true_ty {
+            type Output = $bits_ty;
 
             #[inline]
             fn to_bits(self) -> Self::Output {
                 const {
                     assert!(
-                        core::mem::size_of::<$src>()
-                            == core::mem::size_of::<$tgt>()
+                        core::mem::size_of::<$true_ty>()
+                            == core::mem::size_of::<$bits_ty>()
                     );
-                    assert!(<$tgt>::MIN == 0);
+                    assert!(<$bits_ty>::MIN == 0);
                 }
                 Self::Output::from_ne_bytes(self.to_ne_bytes())
             }
@@ -23,17 +23,53 @@ macro_rules! impl_to_bits {
     };
 }
 
-impl_to_bits!(u8, u8);
-impl_to_bits!(i8, u8);
-impl_to_bits!(u16, u16);
-impl_to_bits!(i16, u16);
-impl_to_bits!(u32, u32);
-impl_to_bits!(i32, u32);
-impl_to_bits!(u64, u64);
-impl_to_bits!(i64, u64);
+pub trait FromBits<T> {
+    type BitsTy;
+    type Output;
+    fn from_bits(bits: Self::BitsTy) -> Self::Output;
+}
+
+macro_rules! impl_from_bits {
+    ($true_ty:ty, $bits_ty:ty) => {
+        impl FromBits<$bits_ty> for $true_ty {
+            type BitsTy = $bits_ty;
+            type Output = Self;
+
+            #[inline]
+            fn from_bits(val: $bits_ty) -> Self::Output {
+                const {
+                    assert!(
+                        core::mem::size_of::<$true_ty>()
+                            == core::mem::size_of::<$bits_ty>()
+                    );
+                    assert!(<$bits_ty>::MIN == 0);
+                }
+                Self::Output::from_ne_bytes(val.to_ne_bytes())
+            }
+        }
+    };
+}
+
+macro_rules! impl_bit_cast {
+    ($true_ty:ty, $bits_ty:ty) => {
+        impl_to_bits!($bits_ty, $bits_ty);
+        impl_to_bits!($true_ty, $bits_ty);
+
+        impl_from_bits!($bits_ty, $bits_ty);
+        impl_from_bits!($true_ty, $bits_ty);
+    };
+}
+
+impl_bit_cast!(i8, u8);
+impl_bit_cast!(i16, u16);
+impl_bit_cast!(i32, u32);
+impl_bit_cast!(i64, u64);
 
 impl_to_bits!(f32, u32);
 impl_to_bits!(f64, u64);
+
+impl_from_bits!(f32, u32);
+impl_from_bits!(f64, u64);
 
 pub trait ToNeBytes {
     type Output;

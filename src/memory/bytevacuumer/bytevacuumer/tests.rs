@@ -34,43 +34,6 @@ fn u8_enumeration_test() -> std::io::Result<()> {
 }
 
 #[test]
-fn u32_enumeration_le_test() -> std::io::Result<()> {
-    let inputs: Vec<Vec<u32>> = vec![vec![
-        0,
-        u32::from(u8::MIN),
-        u32::from(u8::MAX),
-        u32::from(i8::MIN as u8),
-        u32::from(i8::MAX as u8),
-        u32::from(u16::MIN),
-        u32::from(u16::MAX),
-        u32::from(i16::MIN as u16),
-        u32::from(i16::MAX as u16),
-        u32::MIN,
-        u32::MAX,
-        i32::MIN as u32,
-        i32::MAX as u32,
-    ]];
-    let mut res: Vec<Vec<u8>> = vec![];
-    for input in inputs {
-        use std::io::Cursor;
-        let mut buf = Cursor::new(vec![]);
-        let mut vac = ByteVacuumer::new(&mut buf, Endianness::Little);
-        for val in input {
-            vac.write::<u32>(val)?;
-        }
-        buf.flush()?;
-        res.push(buf.get_ref().clone());
-    }
-    let expected: Vec<Vec<u8>> = vec![vec![
-        0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 128, 0, 0, 0, 127, 0, 0, 0, 0, 0,
-        0, 0, 255, 255, 0, 0, 0, 128, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 255,
-        255, 255, 255, 0, 0, 0, 128, 255, 255, 255, 127,
-    ]];
-    assert_eq!(res, expected);
-    Ok(())
-}
-
-#[test]
 fn u16_enumeration_le_test() -> std::io::Result<()> {
     let inputs: Vec<Vec<u16>> = vec![vec![
         0,
@@ -127,6 +90,43 @@ fn u16_enumeration_be_test() -> std::io::Result<()> {
     }
     let expected: Vec<Vec<u8>> = vec![vec![
         0, 0, 0, 0, 0, 255, 0, 128, 0, 127, 0, 0, 255, 255, 128, 0, 127, 255,
+    ]];
+    assert_eq!(res, expected);
+    Ok(())
+}
+
+#[test]
+fn u32_enumeration_le_test() -> std::io::Result<()> {
+    let inputs: Vec<Vec<u32>> = vec![vec![
+        0,
+        u32::from(u8::MIN),
+        u32::from(u8::MAX),
+        u32::from(i8::MIN as u8),
+        u32::from(i8::MAX as u8),
+        u32::from(u16::MIN),
+        u32::from(u16::MAX),
+        u32::from(i16::MIN as u16),
+        u32::from(i16::MAX as u16),
+        u32::MIN,
+        u32::MAX,
+        i32::MIN as u32,
+        i32::MAX as u32,
+    ]];
+    let mut res: Vec<Vec<u8>> = vec![];
+    for input in inputs {
+        use std::io::Cursor;
+        let mut buf = Cursor::new(vec![]);
+        let mut vac = ByteVacuumer::new(&mut buf, Endianness::Little);
+        for val in input {
+            vac.write::<u32>(val)?;
+        }
+        buf.flush()?;
+        res.push(buf.get_ref().clone());
+    }
+    let expected: Vec<Vec<u8>> = vec![vec![
+        0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 128, 0, 0, 0, 127, 0, 0, 0, 0, 0,
+        0, 0, 255, 255, 0, 0, 0, 128, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 255,
+        255, 255, 255, 0, 0, 0, 128, 255, 255, 255, 127,
     ]];
     assert_eq!(res, expected);
     Ok(())
