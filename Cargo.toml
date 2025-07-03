@@ -12,6 +12,7 @@ members = [
     "src/memory/variable_length_load",
     "src/memory/bytevacuumer",
     "src/memory/bytestreamer",
+    "src/misc/md5",
 ]
 
 [workspace.package]
@@ -115,6 +116,7 @@ separated_literal_suffix = { level = "allow", priority = 0 }
 unreachable = { level = "allow", priority = 0 }
 shadow_reuse = { level = "allow", priority = 0 }
 unwrap_used = { level = "allow", priority = 0 }
+expect_used = { level = "allow", priority = 0 }
 mod_module_files = { level = "allow", priority = 0 }
 arithmetic_side_effects = { level = "allow", priority = 0 }
 as_conversions = { level = "allow", priority = 0 }

@@ -290,7 +290,7 @@ jobs:
           cd "$SRC_DIR"
           cargo build --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
       - name: Run tests
-        timeout-minutes: 1
+        timeout-minutes: 2
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
         run: |
           set -xe
@@ -298,7 +298,7 @@ jobs:
           cd "$SRC_DIR"
           cargo test --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
-        timeout-minutes: 1
+        timeout-minutes: 2
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
         env:
           RUSTFLAGS: "-C instrument-coverage"
