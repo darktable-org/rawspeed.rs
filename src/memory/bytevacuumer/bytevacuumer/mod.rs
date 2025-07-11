@@ -12,16 +12,15 @@ where
     endianness: Endianness,
 }
 
+#[cfg_attr(not(test), expect(dead_code))]
 impl<'a, W> ByteVacuumer<'a, W>
 where
     W: std::io::Write,
 {
-    #[allow(dead_code)]
     pub const fn new(writer: &'a mut W, endianness: Endianness) -> Self {
         Self { writer, endianness }
     }
 
-    #[allow(dead_code)]
     fn write<T>(&mut self, val: T) -> std::io::Result<()>
     where
         T: ToBits,
@@ -38,6 +37,5 @@ where
 }
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
-#[allow(clippy::cast_sign_loss)]
+#[expect(clippy::cast_sign_loss)]
 mod tests;

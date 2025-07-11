@@ -65,5 +65,4 @@ where
 }
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;

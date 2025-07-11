@@ -2,18 +2,21 @@ use core::marker::PhantomData;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
 use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
+use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheBase;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
 
-#[allow(clippy::wildcard_imports)]
-use rawspeed_memory_bitstreamcache::bitstreamcache::*;
+#[cfg(target_endian = "little")]
+use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOut;
+#[cfg(not(target_endian = "little"))]
+use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
 
 pub trait BitVacuumerDefaultDrainImpl {
     fn drain_impl(&mut self) -> std::io::Result<()>;
 }
 
 pub trait BitVacuumerDrainImpl {
-    #[allow(dead_code)]
     fn drain_impl(&mut self) -> std::io::Result<()>;
 }
 
@@ -104,7 +107,7 @@ where
     u32: From<T::ChunkType>,
     <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
 {
-    #[allow(dead_code)]
+    #[cfg_attr(not(test), expect(dead_code))]
     pub fn new(writer: &'a mut W) -> Self
     where
         T::StreamFlow: Default,
@@ -116,7 +119,7 @@ where
         }
     }
 
-    #[allow(dead_code)]
+    #[cfg_attr(not(test), expect(dead_code))]
     pub fn flush(mut self) -> std::io::Result<()> {
         self.drain()?;
 
@@ -134,7 +137,6 @@ where
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub fn drain(&mut self) -> std::io::Result<()> {
         if self.cache.fill_level() < u32::BITWIDTH {
             return Ok(()); // NOTE: does not mean the cache is empty!
@@ -146,7 +148,6 @@ where
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub fn put(&mut self, bits: u64, count: usize) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;

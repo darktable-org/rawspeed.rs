@@ -122,7 +122,6 @@ arithmetic_side_effects = { level = "allow", priority = 0 }
 as_conversions = { level = "allow", priority = 0 }
 missing_assert_message = { level = "allow", priority = 0 }
 default_numeric_fallback = { level = "allow", priority = 0 }
-allow_attributes = { level = "allow", priority = 0 }
 allow_attributes_without_reason = { level = "allow", priority = 0 }
 arbitrary_source_item_ordering = { level = "allow", priority = 0 }
 min_ident_chars = { level = "allow", priority = 0 }

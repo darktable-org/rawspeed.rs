@@ -1,5 +1,5 @@
 #[derive(Debug, Copy, Clone, PartialEq)]
-#[allow(clippy::exhaustive_enums)]
+#[expect(clippy::exhaustive_enums)]
 pub enum Endianness {
     Little,
     Big,
@@ -52,5 +52,4 @@ macro_rules! impl_swap_bytes {
 impl_swap_bytes!(u8 u16 u32 u64);
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;
