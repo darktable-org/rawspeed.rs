@@ -129,7 +129,7 @@ where
 pub trait FromNeBytes {
     type Output;
 
-    #[allow(clippy::wrong_self_convention)]
+    #[expect(clippy::wrong_self_convention)]
     fn from_ne_bytes(self) -> Self::Output;
 }
 

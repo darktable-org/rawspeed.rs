@@ -102,9 +102,8 @@ where
     }
 }
 
-#[allow(dead_code)]
+#[cfg_attr(not(test), expect(dead_code))]
 pub type BitStreamerJPEG<'a> = BitStreamerBase<'a, BitOrderJPEG>;
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;

@@ -122,7 +122,6 @@ arithmetic_side_effects = { level = "allow", priority = 0 }
 as_conversions = { level = "allow", priority = 0 }
 missing_assert_message = { level = "allow", priority = 0 }
 default_numeric_fallback = { level = "allow", priority = 0 }
-allow_attributes = { level = "allow", priority = 0 }
 allow_attributes_without_reason = { level = "allow", priority = 0 }
 arbitrary_source_item_ordering = { level = "allow", priority = 0 }
 min_ident_chars = { level = "allow", priority = 0 }
@@ -131,6 +130,8 @@ panic_in_result_fn = { level = "allow", priority = 0 }
 implicit_return = { level = "allow", priority = 0 }
 absolute_paths = { level = "allow", priority = 0 }
 question_mark_used = { level = "allow", priority = 0 }
+std_instead_of_alloc = { level = "allow", priority = 0 }
+single_call_fn = { level = "allow", priority = 0 }
 
 [profile.release]
 panic = 'abort'

@@ -38,7 +38,6 @@ where
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
 {
-    #[allow(dead_code)]
     #[must_use]
     #[inline]
     pub const fn new(input: &'a [u8]) -> Self {
@@ -104,7 +103,6 @@ pub trait BitStreamerCacheFillImpl<T>
 where
     T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
 {
-    #[allow(dead_code)]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize;
 }
 
@@ -213,7 +211,6 @@ where
     <T::StreamFlow as BitStreamCache>::Storage,
     >,
 {
-    #[allow(dead_code)]
     #[inline]
     #[must_use]
     pub fn new(input: &'a [u8]) -> Self

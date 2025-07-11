@@ -13,13 +13,12 @@ pub struct ByteStreamer<'a> {
     endianness: Endianness,
 }
 
+#[cfg_attr(not(test), expect(dead_code))]
 impl<'a> ByteStreamer<'a> {
-    #[allow(dead_code)]
     pub const fn new(slice: &'a [u8], endianness: Endianness) -> Self {
         Self { slice, endianness }
     }
 
-    #[allow(dead_code)]
     pub fn read<T>(&mut self) -> T
     where
         T: ToBits + FromBits<<T as ToBits>::Output, Output = T>,
@@ -48,7 +47,6 @@ impl<'a> ByteStreamer<'a> {
 }
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
-#[allow(clippy::cast_sign_loss)]
-#[allow(clippy::float_cmp)]
+#[expect(clippy::cast_sign_loss)]
+#[expect(clippy::float_cmp)]
 mod tests;

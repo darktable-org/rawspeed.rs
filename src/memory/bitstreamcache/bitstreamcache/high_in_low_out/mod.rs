@@ -6,8 +6,6 @@ use super::PhantomData;
 
 use rawspeed_common::common::extract_low_bits;
 
-#[allow(missing_copy_implementations)]
-#[allow(missing_debug_implementations)]
 #[derive(Debug, Copy, Clone)]
 pub struct BitStreamFlowHighInLowOut;
 
@@ -74,5 +72,4 @@ impl<T: BitStreamCacheData> Default for BitStreamCacheHighInLowOut<T> {
 }
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;

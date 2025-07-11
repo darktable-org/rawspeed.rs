@@ -6,7 +6,7 @@ use super::{
 
 use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
 
-#[allow(dead_code)]
+#[cfg_attr(not(test), expect(dead_code))]
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 
 impl<W> BitVacuumerDrainImpl for BitVacuumerBase<'_, BitOrderJPEG, W>
@@ -60,5 +60,4 @@ where
 }
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;

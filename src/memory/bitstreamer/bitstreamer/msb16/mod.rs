@@ -13,9 +13,8 @@ impl BitStreamerTraits for BitOrderMSB16 {
 
 impl BitStreamerUseDefaultCacheFillImpl for BitOrderMSB16 {}
 
-#[allow(dead_code)]
+#[cfg_attr(not(test), expect(dead_code))]
 pub type BitStreamerMSB16<'a> = BitStreamerBase<'a, BitOrderMSB16>;
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;

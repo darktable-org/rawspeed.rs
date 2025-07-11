@@ -107,12 +107,10 @@ impl MD5Round {
 }
 
 impl MD5State {
-    #[allow(clippy::single_call_fn)]
     pub const fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
         Self([a, b, c, d])
     }
 
-    #[allow(clippy::single_call_fn)]
     pub const fn init() -> Self {
         Self::new(0x6745_2301, 0xEFCD_AB89, 0x98BA_DCFE, 0x1032_5476)
     }
@@ -155,6 +153,7 @@ struct MD5 {
     bytes_total: usize,
 }
 
+#[cfg_attr(not(test), expect(dead_code))]
 impl MD5 {
     const MAGIC0: [u8; 1] = [0x80];
     const ZERO_PADDING: [u8; 64] = [0_u8; 64];
@@ -246,5 +245,4 @@ impl Default for MD5 {
 }
 
 #[cfg(test)]
-#[allow(clippy::large_stack_frames)]
 mod tests;
