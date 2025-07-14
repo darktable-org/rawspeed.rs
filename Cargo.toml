@@ -13,6 +13,7 @@ members = [
     "src/memory/bytevacuumer",
     "src/memory/bytestreamer",
     "src/misc/md5",
+    "src/std",
 ]
 
 [workspace.package]
