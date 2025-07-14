@@ -133,6 +133,7 @@ absolute_paths = { level = "allow", priority = 0 }
 question_mark_used = { level = "allow", priority = 0 }
 std_instead_of_alloc = { level = "allow", priority = 0 }
 single_call_fn = { level = "allow", priority = 0 }
+trivially_copy_pass_by_ref = { level = "allow", priority = 0 }
 
 [profile.release]
 panic = 'abort'
