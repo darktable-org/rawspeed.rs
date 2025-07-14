@@ -1,9 +1,9 @@
 use super::Array2DRefMut;
-use super::ColIndex;
-use super::Coord2D;
-use super::RowIndex;
-use super::RowLength;
-use super::RowPitch;
+use crate::coord_common::ColIndex;
+use crate::coord_common::Coord2D;
+use crate::coord_common::RowIndex;
+use crate::coord_common::RowLength;
+use crate::coord_common::RowPitch;
 
 fn get_copy<'a, T>(input: &'a Array2DRefMut<'a, T>) -> Vec<Vec<Option<T>>>
 where
@@ -332,7 +332,7 @@ fn basic_padded_index_mut_test() {
 }
 
 #[test]
-#[should_panic(expected = "row_length.val > 0")]
+#[should_panic(expected = "row_length.val() > 0")]
 fn no_cols_test() {
     let mut input = vec![];
     for i in 1..=6 {
@@ -342,7 +342,7 @@ fn no_cols_test() {
 }
 
 #[test]
-#[should_panic(expected = "pitch.val > 0")]
+#[should_panic(expected = "pitch.val() > 0")]
 fn no_pitch_test() {
     let mut input = vec![];
     for i in 1..=6 {
@@ -352,7 +352,7 @@ fn no_pitch_test() {
 }
 
 #[test]
-#[should_panic(expected = "pitch.val >= row_length")]
+#[should_panic(expected = "pitch.val() >= row_length")]
 fn unsufficient_pitch_test() {
     let mut input = vec![];
     for i in 1..=6 {
