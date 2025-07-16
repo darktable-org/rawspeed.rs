@@ -5,10 +5,12 @@ pub struct RowLength {
 
 #[cfg_attr(not(test), expect(dead_code))]
 impl RowLength {
+    #[must_use]
     pub const fn new(len: usize) -> Self {
         Self { val: len }
     }
 
+    #[must_use]
     pub const fn val(&self) -> usize {
         self.val
     }
@@ -29,10 +31,12 @@ pub struct RowPitch {
 
 #[cfg_attr(not(test), expect(dead_code))]
 impl RowPitch {
+    #[must_use]
     pub const fn new(pitch: usize) -> Self {
         Self { val: pitch }
     }
 
+    #[must_use]
     pub const fn val(&self) -> usize {
         self.val
     }
@@ -53,10 +57,12 @@ pub struct RowIndex {
 
 #[cfg_attr(not(test), expect(dead_code))]
 impl RowIndex {
+    #[must_use]
     pub const fn new(row: usize) -> Self {
         Self { row }
     }
 
+    #[must_use]
     pub const fn val(&self) -> usize {
         self.row
     }
@@ -77,10 +83,12 @@ pub struct ColIndex {
 
 #[cfg_attr(not(test), expect(dead_code))]
 impl ColIndex {
+    #[must_use]
     pub const fn new(col: usize) -> Self {
         Self { col }
     }
 
+    #[must_use]
     pub const fn val(&self) -> usize {
         self.col
     }
@@ -102,14 +110,17 @@ pub struct Coord2D {
 
 #[cfg_attr(not(test), expect(dead_code))]
 impl Coord2D {
+    #[must_use]
     pub const fn new(row: RowIndex, col: ColIndex) -> Self {
         Self { row, col }
     }
 
+    #[must_use]
     pub const fn row(&self) -> usize {
         self.row.val()
     }
 
+    #[must_use]
     pub const fn col(&self) -> usize {
         self.col.val()
     }
