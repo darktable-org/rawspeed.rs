@@ -6,7 +6,6 @@ use super::{
 
 use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
 
-#[cfg_attr(not(test), expect(dead_code))]
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 
 impl<W> BitVacuumer for BitVacuumerJPEG<'_, W> where W: std::io::Write {}

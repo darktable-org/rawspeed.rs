@@ -110,7 +110,6 @@ where
     u32: From<T::ChunkType>,
     <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
 {
-    #[cfg_attr(not(test), expect(dead_code))]
     pub fn new(writer: &'a mut W) -> Self
     where
         T::StreamFlow: Default,
@@ -122,7 +121,6 @@ where
         }
     }
 
-    #[cfg_attr(not(test), expect(dead_code))]
     pub fn flush(mut self) -> std::io::Result<()> {
         self.drain()?;
 

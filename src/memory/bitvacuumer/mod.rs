@@ -1,1 +1,1 @@
-mod bitvacuumer;
+pub mod bitvacuumer;
