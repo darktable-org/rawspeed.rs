@@ -3,7 +3,7 @@ use crate::coord_common::RowLength;
 use crate::coord_common::RowPitch;
 
 #[derive(Debug)]
-struct Array2DRef<'a, T> {
+pub struct Array2DRef<'a, T> {
     slice: &'a [T],
     pitch: RowPitch,
     row_length: RowLength,
@@ -55,6 +55,8 @@ impl<'a, T> Array2DRef<'a, T> {
         )
     }
 
+    #[inline]
+    #[must_use]
     pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
         let row = self.get_row(index.row())?;
         row.get(index.col())
@@ -64,6 +66,7 @@ impl<'a, T> Array2DRef<'a, T> {
 impl<T> core::ops::Index<Coord2D> for Array2DRef<'_, T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: Coord2D) -> &Self::Output {
         self.get_elt(index).unwrap()
     }
