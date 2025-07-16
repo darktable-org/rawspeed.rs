@@ -46,6 +46,7 @@ where
         + SwapBytes,
     u32: From<T::ChunkType>,
 {
+    #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         let mut cache: BitStreamCacheBase<_, u32> = {
             #[cfg(target_endian = "little")]
@@ -93,6 +94,7 @@ where
         + SwapBytes,
     u32: From<T::ChunkType>,
 {
+    #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         BitVacuumerDefaultDrainImpl::drain_impl(self)
     }
@@ -110,6 +112,7 @@ where
     u32: From<T::ChunkType>,
     <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
 {
+    #[inline]
     pub fn new(writer: &'a mut W) -> Self
     where
         T::StreamFlow: Default,
@@ -121,6 +124,7 @@ where
         }
     }
 
+    #[inline]
     pub fn flush(mut self) -> std::io::Result<()> {
         self.drain()?;
 
@@ -138,6 +142,7 @@ where
         Ok(())
     }
 
+    #[inline]
     pub fn drain(&mut self) -> std::io::Result<()> {
         if self.cache.fill_level() < u32::BITWIDTH {
             return Ok(()); // NOTE: does not mean the cache is empty!
@@ -149,6 +154,7 @@ where
         Ok(())
     }
 
+    #[inline]
     pub fn put(&mut self, bits: u64, count: usize) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;
@@ -163,6 +169,7 @@ where
     W: std::io::Write,
     T::StreamFlow: BitStreamCache,
 {
+    #[inline]
     fn drop(&mut self) {
         const ERR: &str = "Unrecoverable Error: trying to drop \
             non-empty BitVacuumer. Did you forget to call `flush()`?";

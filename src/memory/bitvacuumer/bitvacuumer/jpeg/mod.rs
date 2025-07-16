@@ -24,6 +24,7 @@ where
     <BitOrderJPEG as BitStreamTraits>::ChunkType:
         Bitwidth + SwapBytes + TryFrom<u64>,
 {
+    #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         type T = BitOrderJPEG;
 
