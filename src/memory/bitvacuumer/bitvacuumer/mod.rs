@@ -12,6 +12,8 @@ use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOut;
 #[cfg(not(target_endian = "little"))]
 use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
 
+pub trait BitVacuumer {}
+
 pub trait BitVacuumerDefaultDrainImpl {
     fn drain_impl(&mut self) -> std::io::Result<()>;
 }
