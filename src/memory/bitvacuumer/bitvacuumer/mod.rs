@@ -24,6 +24,7 @@ pub trait BitVacuumerDrainImpl {
 
 pub trait BitVacuumerUseDefaultDrainImpl {}
 
+#[derive(Debug)]
 pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
