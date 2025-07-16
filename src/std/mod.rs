@@ -1,3 +1,3 @@
-mod array2dref;
-mod array2drefmut;
-mod coord_common;
+pub mod array2dref;
+pub mod array2drefmut;
+pub mod coord_common;
