@@ -1,4 +1,5 @@
 use crate::coord_common::Coord2D;
+use crate::coord_common::RowIndex;
 use crate::coord_common::RowLength;
 use crate::coord_common::RowPitch;
 
@@ -48,14 +49,14 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     #[expect(clippy::unwrap_in_result)]
-    fn get_row(&self, row: usize) -> Option<&[T]> {
-        if row >= self.num_rows() {
+    fn get_row(&self, row: RowIndex) -> Option<&[T]> {
+        if *row >= self.num_rows() {
             return None;
         }
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(self.pitch()).nth(row)?;
+                    self.slice.chunks_exact(self.pitch()).nth(*row)?;
                 full_row.get(..self.row_length())
             }
             .unwrap(),
@@ -65,15 +66,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     #[expect(clippy::unwrap_in_result)]
-    fn get_row_mut(&mut self, row: usize) -> Option<&mut [T]> {
-        if row >= self.num_rows() {
+    fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
+        if *row >= self.num_rows() {
             return None;
         }
         Some(
             {
                 let row_len = self.row_length();
                 let full_row =
-                    self.slice.chunks_exact_mut(self.pitch()).nth(row)?;
+                    self.slice.chunks_exact_mut(self.pitch()).nth(*row)?;
                 full_row.get_mut(..row_len)
             }
             .unwrap(),
@@ -82,16 +83,32 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
-        let row = self.get_row(index.row())?;
+    fn get_elt(&self, index: Coord2D) -> Option<&T> {
+        let row = self.get_row(RowIndex::new(index.row()))?;
         row.get(index.col())
     }
 
     #[inline]
     #[must_use]
-    pub fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
-        let row = self.get_row_mut(index.row())?;
+    fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
+        let row = self.get_row_mut(RowIndex::new(index.row()))?;
         row.get_mut(index.col())
+    }
+}
+
+impl<T> core::ops::Index<RowIndex> for Array2DRefMut<'_, T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: RowIndex) -> &Self::Output {
+        self.get_row(index).unwrap()
+    }
+}
+
+impl<T> core::ops::IndexMut<RowIndex> for Array2DRefMut<'_, T> {
+    #[inline]
+    fn index_mut(&mut self, index: RowIndex) -> &mut Self::Output {
+        self.get_row_mut(index).unwrap()
     }
 }
 
