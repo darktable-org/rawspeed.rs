@@ -11,6 +11,7 @@ struct Array2DRefMut<'a, T> {
 
 #[cfg_attr(not(test), expect(dead_code))]
 impl<'a, T> Array2DRefMut<'a, T> {
+    #[inline]
     const fn new(
         slice: &'a mut [T],
         row_length: RowLength,
@@ -32,14 +33,20 @@ impl<'a, T> Array2DRefMut<'a, T> {
         self.pitch.val()
     }
 
+    #[inline]
+    #[must_use]
     const fn row_length(&self) -> usize {
         self.row_length.val()
     }
 
+    #[inline]
+    #[must_use]
     const fn num_rows(&self) -> usize {
         self.slice.len().checked_div(self.pitch()).unwrap()
     }
 
+    #[inline]
+    #[must_use]
     #[expect(clippy::unwrap_in_result)]
     fn get_row(&self, row: usize) -> Option<&[T]> {
         if row >= self.num_rows() {
@@ -55,6 +62,8 @@ impl<'a, T> Array2DRefMut<'a, T> {
         )
     }
 
+    #[inline]
+    #[must_use]
     #[expect(clippy::unwrap_in_result)]
     fn get_row_mut(&mut self, row: usize) -> Option<&mut [T]> {
         if row >= self.num_rows() {
@@ -71,11 +80,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
         )
     }
 
+    #[inline]
+    #[must_use]
     pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
         let row = self.get_row(index.row())?;
         row.get(index.col())
     }
 
+    #[inline]
+    #[must_use]
     pub fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
         let row = self.get_row_mut(index.row())?;
         row.get_mut(index.col())
@@ -85,12 +98,14 @@ impl<'a, T> Array2DRefMut<'a, T> {
 impl<T> core::ops::Index<Coord2D> for Array2DRefMut<'_, T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: Coord2D) -> &Self::Output {
         self.get_elt(index).unwrap()
     }
 }
 
 impl<T> core::ops::IndexMut<Coord2D> for Array2DRefMut<'_, T> {
+    #[inline]
     fn index_mut(&mut self, index: Coord2D) -> &mut Self::Output {
         self.get_elt_mut(index).unwrap()
     }
