@@ -36,9 +36,7 @@ where
         assert!(BS::FIXED_SIZE_CHUNKS);
     };
     let bitlen = item_bitlen.checked_mul(num_items).unwrap();
-    let bitlen = bitlen
-        .checked_next_multiple_of(BS::ChunkType::BITWIDTH)
-        .unwrap();
+    let bitlen = bitlen.checked_next_multiple_of(u32::BITWIDTH).unwrap();
     assert!(bitlen.is_multiple_of(8));
     bitlen / 8
 }
