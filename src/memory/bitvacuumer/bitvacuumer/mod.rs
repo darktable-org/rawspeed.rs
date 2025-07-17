@@ -177,8 +177,8 @@ where
     }
 }
 
-mod jpeg;
-mod lsb;
-mod msb;
-mod msb16;
-mod msb32;
+pub mod jpeg;
+pub mod lsb;
+pub mod msb;
+pub mod msb16;
+pub mod msb32;
