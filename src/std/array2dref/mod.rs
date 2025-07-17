@@ -2,16 +2,16 @@ use crate::coord_common::Coord2D;
 use crate::coord_common::RowLength;
 use crate::coord_common::RowPitch;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Array2DRef<'a, T> {
     slice: &'a [T],
     pitch: RowPitch,
     row_length: RowLength,
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 impl<'a, T> Array2DRef<'a, T> {
-    const fn new(
+    #[inline]
+    pub const fn new(
         slice: &'a [T],
         row_length: RowLength,
         pitch: RowPitch,
@@ -32,15 +32,21 @@ impl<'a, T> Array2DRef<'a, T> {
         self.pitch.val()
     }
 
-    const fn row_length(&self) -> usize {
+    #[inline]
+    #[must_use]
+    pub const fn row_length(&self) -> usize {
         self.row_length.val()
     }
 
-    const fn num_rows(&self) -> usize {
+    #[inline]
+    #[must_use]
+    pub const fn num_rows(&self) -> usize {
         self.slice.len().checked_div(self.pitch()).unwrap()
     }
 
     #[expect(clippy::unwrap_in_result)]
+    #[inline]
+    #[must_use]
     fn get_row(&self, row: usize) -> Option<&[T]> {
         if row >= self.num_rows() {
             return None;
