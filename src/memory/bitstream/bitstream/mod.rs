@@ -64,7 +64,8 @@ impl BitOrder {
                 num_items,
                 item_bitlen,
             ),
-            BitOrder::JPEG => unreachable!(),
+            #[expect(clippy::unimplemented)]
+            BitOrder::JPEG => unimplemented!(),
         }
     }
 }
