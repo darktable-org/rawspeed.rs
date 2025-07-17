@@ -12,6 +12,8 @@ use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOut;
 #[cfg(not(target_endian = "little"))]
 use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
 
+pub trait BitVacuumer {}
+
 pub trait BitVacuumerDefaultDrainImpl {
     fn drain_impl(&mut self) -> std::io::Result<()>;
 }
@@ -22,11 +24,12 @@ pub trait BitVacuumerDrainImpl {
 
 pub trait BitVacuumerUseDefaultDrainImpl {}
 
+#[derive(Debug)]
 pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
@@ -37,12 +40,13 @@ impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
     T::ChunkType: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
     u32: From<T::ChunkType>,
 {
+    #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         let mut cache: BitStreamCacheBase<_, u32> = {
             #[cfg(target_endian = "little")]
@@ -84,12 +88,13 @@ impl<T, W> BitVacuumerDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
     T::ChunkType: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
     u32: From<T::ChunkType>,
 {
+    #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         BitVacuumerDefaultDrainImpl::drain_impl(self)
     }
@@ -100,14 +105,14 @@ where
     T: BitOrderTrait + BitStreamTraits,
     Self: BitVacuumerDrainImpl,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
     T::ChunkType: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
     u32: From<T::ChunkType>,
     <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
 {
-    #[cfg_attr(not(test), expect(dead_code))]
+    #[inline]
     pub fn new(writer: &'a mut W) -> Self
     where
         T::StreamFlow: Default,
@@ -119,7 +124,7 @@ where
         }
     }
 
-    #[cfg_attr(not(test), expect(dead_code))]
+    #[inline]
     pub fn flush(mut self) -> std::io::Result<()> {
         self.drain()?;
 
@@ -134,9 +139,10 @@ where
         self.drain()?;
         assert!(self.cache.fill_level() == 0);
 
-        Ok(())
+        self.writer.flush()
     }
 
+    #[inline]
     pub fn drain(&mut self) -> std::io::Result<()> {
         if self.cache.fill_level() < u32::BITWIDTH {
             return Ok(()); // NOTE: does not mean the cache is empty!
@@ -148,6 +154,7 @@ where
         Ok(())
     }
 
+    #[inline]
     pub fn put(&mut self, bits: u64, count: usize) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;
@@ -160,8 +167,9 @@ impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
 {
+    #[inline]
     fn drop(&mut self) {
         const ERR: &str = "Unrecoverable Error: trying to drop \
             non-empty BitVacuumer. Did you forget to call `flush()`?";
@@ -169,8 +177,8 @@ where
     }
 }
 
-mod jpeg;
-mod lsb;
-mod msb;
-mod msb16;
-mod msb32;
+pub mod jpeg;
+pub mod lsb;
+pub mod msb;
+pub mod msb16;
+pub mod msb32;

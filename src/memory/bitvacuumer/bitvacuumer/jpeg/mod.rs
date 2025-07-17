@@ -1,13 +1,14 @@
 use super::{
-    BitOrderTrait, BitStreamCache, BitStreamTraits, BitVacuumerBase,
-    BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl, Bitwidth, SwapBytes,
-    get_host_endianness,
+    BitOrderTrait, BitStreamCache, BitStreamTraits, BitVacuumer,
+    BitVacuumerBase, BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl,
+    Bitwidth, SwapBytes, get_host_endianness,
 };
 
 use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
 
-#[cfg_attr(not(test), expect(dead_code))]
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
+
+impl<W> BitVacuumer for BitVacuumerJPEG<'_, W> where W: std::io::Write {}
 
 impl<W> BitVacuumerDrainImpl for BitVacuumerBase<'_, BitOrderJPEG, W>
 where
@@ -23,6 +24,7 @@ where
     <BitOrderJPEG as BitStreamTraits>::ChunkType:
         Bitwidth + SwapBytes + TryFrom<u64>,
 {
+    #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         type T = BitOrderJPEG;
 
