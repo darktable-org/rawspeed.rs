@@ -4,7 +4,7 @@ use crate::coord_common::RowLength;
 use crate::coord_common::RowPitch;
 
 #[derive(Debug)]
-struct Array2DRefMut<'a, T> {
+pub struct Array2DRefMut<'a, T> {
     slice: &'a mut [T],
     pitch: RowPitch,
     row_length: RowLength,
@@ -13,7 +13,7 @@ struct Array2DRefMut<'a, T> {
 #[cfg_attr(not(test), expect(dead_code))]
 impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
-    const fn new(
+    pub const fn new(
         slice: &'a mut [T],
         row_length: RowLength,
         pitch: RowPitch,
@@ -36,20 +36,20 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    const fn row_length(&self) -> usize {
+    pub const fn row_length(&self) -> usize {
         self.row_length.val()
     }
 
     #[inline]
     #[must_use]
-    const fn num_rows(&self) -> usize {
+    pub const fn num_rows(&self) -> usize {
         self.slice.len().checked_div(self.pitch()).unwrap()
     }
 
     #[inline]
     #[must_use]
     #[expect(clippy::unwrap_in_result)]
-    fn get_row(&self, row: RowIndex) -> Option<&[T]> {
+    pub fn get_row(&self, row: RowIndex) -> Option<&[T]> {
         if *row >= self.num_rows() {
             return None;
         }
@@ -66,7 +66,7 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     #[expect(clippy::unwrap_in_result)]
-    fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
+    pub fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
         if *row >= self.num_rows() {
             return None;
         }
@@ -83,14 +83,14 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    fn get_elt(&self, index: Coord2D) -> Option<&T> {
+    pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
         let row = self.get_row(RowIndex::new(index.row()))?;
         row.get(index.col())
     }
 
     #[inline]
     #[must_use]
-    fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
+    pub fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
         let row = self.get_row_mut(RowIndex::new(index.row()))?;
         row.get_mut(index.col())
     }
