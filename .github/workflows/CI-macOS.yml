@@ -45,7 +45,7 @@ jobs:
           path: 'rawspeed.rs'
           fetch-depth: 1
       - name: Remove unneeded brew formulas/casks
-        timeout-minutes: 3
+        timeout-minutes: 4
         run: |
           set -xe
           brew update --quiet

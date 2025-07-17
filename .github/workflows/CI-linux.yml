@@ -153,7 +153,7 @@ jobs:
           fi
           echo "ENDIANNESS=$(echo ${ENDIANNESS})" >> $GITHUB_ENV
       - name: Install necessary packages
-        timeout-minutes: 1
+        timeout-minutes: 2
         run: |
           set -xe
           eatmydata apt install \
@@ -192,7 +192,7 @@ jobs:
           exit 1
           fi
       - name: Install necessary packages for cross-compilation
-        timeout-minutes: 1
+        timeout-minutes: 2
         if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.builder-host != inputs.builder-target
         run: |
           set -xe
