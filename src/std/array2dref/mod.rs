@@ -1,4 +1,5 @@
 use crate::coord_common::Coord2D;
+use crate::coord_common::RowIndex;
 use crate::coord_common::RowLength;
 use crate::coord_common::RowPitch;
 
@@ -47,14 +48,14 @@ impl<'a, T> Array2DRef<'a, T> {
     #[expect(clippy::unwrap_in_result)]
     #[inline]
     #[must_use]
-    fn get_row(&self, row: usize) -> Option<&[T]> {
-        if row >= self.num_rows() {
+    fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
+        if *row >= self.num_rows() {
             return None;
         }
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(self.pitch()).nth(row)?;
+                    self.slice.chunks_exact(self.pitch()).nth(*row)?;
                 full_row.get(..self.row_length())
             }
             .unwrap(),
@@ -64,7 +65,7 @@ impl<'a, T> Array2DRef<'a, T> {
     #[inline]
     #[must_use]
     pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
-        let row = self.get_row(index.row())?;
+        let row = self.get_row(RowIndex::new(index.row()))?;
         row.get(index.col())
     }
 }
