@@ -201,6 +201,10 @@ where
     where
         F: FnOnce(MinimalOutputRowPitch) -> ExtraPadding,
     {
+        #[expect(clippy::unimplemented)]
+        if bit_order == BitOrder::JPEG {
+            unimplemented!("Bit order {:?} is not packable!", bit_order)
+        }
         let min_pitch = MinimalOutputRowPitch::new(NumBytes::new(
             bit_order.predict_exact_bitstream_bytelen(
                 input.row_length(),
@@ -271,7 +275,6 @@ where
     }
 
     #[inline]
-    #[expect(clippy::unimplemented)]
     pub fn pack(mut self) -> std::io::Result<OutputRowPitch> {
         match self.bit_order {
             BitOrder::LSB => {
@@ -287,7 +290,7 @@ where
                 self.pack_impl::<bitstream::BitOrderMSB32>()?;
             }
             BitOrder::JPEG => unreachable!(),
-            _ => unimplemented!(),
+            _ => unreachable!("TODO"),
         }
         Ok(self.pitch)
     }
