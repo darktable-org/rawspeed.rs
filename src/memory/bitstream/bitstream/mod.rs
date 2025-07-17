@@ -1,3 +1,4 @@
+use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::Endianness;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -20,6 +21,54 @@ pub trait BitStreamTraits {
     type ChunkByteArrayType;
     const CHUNK_ENDIANNESS: Endianness;
     const MIN_LOAD_STEP_BYTE_MULTIPLE: u32;
+}
+
+#[inline]
+const fn predict_bitstream_bytelen<BS>(
+    num_items: usize,
+    item_bitlen: usize,
+) -> usize
+where
+    BS: BitStreamTraits,
+    BS::ChunkType: Bitwidth,
+{
+    const {
+        assert!(BS::FIXED_SIZE_CHUNKS);
+    };
+    let bitlen = item_bitlen.checked_mul(num_items).unwrap();
+    let bitlen = bitlen
+        .checked_next_multiple_of(BS::ChunkType::BITWIDTH)
+        .unwrap();
+    assert!(bitlen.is_multiple_of(8));
+    bitlen / 8
+}
+
+impl BitOrder {
+    #[inline]
+    #[must_use]
+    pub const fn predict_exact_bitstream_bytelen(
+        self,
+        num_items: usize,
+        item_bitlen: usize,
+    ) -> usize {
+        match self {
+            BitOrder::LSB => {
+                predict_bitstream_bytelen::<BitOrderLSB>(num_items, item_bitlen)
+            }
+            BitOrder::MSB => {
+                predict_bitstream_bytelen::<BitOrderMSB>(num_items, item_bitlen)
+            }
+            BitOrder::MSB16 => predict_bitstream_bytelen::<BitOrderMSB16>(
+                num_items,
+                item_bitlen,
+            ),
+            BitOrder::MSB32 => predict_bitstream_bytelen::<BitOrderMSB32>(
+                num_items,
+                item_bitlen,
+            ),
+            BitOrder::JPEG => unreachable!(),
+        }
+    }
 }
 
 mod jpeg;
