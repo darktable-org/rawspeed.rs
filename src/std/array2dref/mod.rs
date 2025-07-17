@@ -48,7 +48,7 @@ impl<'a, T> Array2DRef<'a, T> {
     #[expect(clippy::unwrap_in_result)]
     #[inline]
     #[must_use]
-    fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
+    pub fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
         if *row >= self.num_rows() {
             return None;
         }
@@ -67,6 +67,15 @@ impl<'a, T> Array2DRef<'a, T> {
     pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
         let row = self.get_row(RowIndex::new(index.row()))?;
         row.get(index.col())
+    }
+}
+
+impl<'a, T> core::ops::Index<RowIndex> for Array2DRef<'a, T> {
+    type Output = [T];
+
+    #[inline]
+    fn index(&self, index: RowIndex) -> &'a Self::Output {
+        self.get_row(index).unwrap()
     }
 }
 
