@@ -280,8 +280,11 @@ where
             BitOrder::MSB => {
                 self.pack_impl::<bitstream::BitOrderMSB>()?;
             }
+            BitOrder::MSB32 => {
+                self.pack_impl::<bitstream::BitOrderMSB32>()?;
+            }
             BitOrder::JPEG => unreachable!(),
-            BitOrder::MSB16 | BitOrder::MSB32 => {
+            BitOrder::MSB16 => {
                 unimplemented!()
             }
             _ => unimplemented!(),
