@@ -29,7 +29,7 @@ pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
@@ -40,7 +40,7 @@ impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
     T::ChunkType: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
@@ -88,7 +88,7 @@ impl<T, W> BitVacuumerDrainImpl for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
     T::ChunkType: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
@@ -105,7 +105,7 @@ where
     T: BitOrderTrait + BitStreamTraits,
     Self: BitVacuumerDrainImpl,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
     T::ChunkType: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
@@ -167,7 +167,7 @@ impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache,
+    T::StreamFlow: BitStreamCache + Default,
 {
     #[inline]
     fn drop(&mut self) {
