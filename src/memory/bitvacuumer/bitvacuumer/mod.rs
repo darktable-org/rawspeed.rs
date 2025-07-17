@@ -139,7 +139,7 @@ where
         self.drain()?;
         assert!(self.cache.fill_level() == 0);
 
-        Ok(())
+        self.writer.flush()
     }
 
     #[inline]
