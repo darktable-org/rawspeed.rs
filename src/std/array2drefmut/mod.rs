@@ -10,7 +10,6 @@ pub struct Array2DRefMut<'a, T> {
     row_length: RowLength,
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     pub const fn new(

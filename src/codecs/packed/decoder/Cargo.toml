@@ -1,0 +1,25 @@
+[package]
+name = "rawspeed-codecs-packed-decoder"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-common = { path = "../../../common" }
+rawspeed-memory-bitstream = { path = "../../../memory/bitstream" }
+rawspeed-memory-bitstreamcache = { path = "../../../memory/bitstreamcache" }
+rawspeed-memory-bitstreamer = { path = "../../../memory/bitstreamer" }
+rawspeed-memory-endianness = { path = "../../../memory/endianness" }
+rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length_load" }
+rawspeed-std = { path = "../../../std" }
+
+[lib]
+path = "mod.rs"
