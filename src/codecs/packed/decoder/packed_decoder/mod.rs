@@ -35,12 +35,16 @@ where
 {
     #[inline]
     #[must_use]
-    pub const fn new(
+    pub fn new(
         input: Array2DRef<'a, u8>,
         bit_order: BitOrder,
         item_bitlen: usize,
         output: &'c mut Array2DRefMut<'b, T>,
     ) -> Self {
+        #[expect(clippy::unimplemented)]
+        if bit_order == BitOrder::JPEG {
+            unimplemented!("Bit order {:?} is not unpackable!", bit_order)
+        }
         assert!(item_bitlen > 0);
         assert!(item_bitlen <= T::BITWIDTH);
         Self {
@@ -124,8 +128,8 @@ where
             BitOrder::MSB => self.unpack_impl::<bitstream::BitOrderMSB>(),
             BitOrder::MSB16 => self.unpack_impl::<bitstream::BitOrderMSB16>(),
             BitOrder::MSB32 => self.unpack_impl::<bitstream::BitOrderMSB32>(),
-            #[expect(clippy::todo)]
-            BitOrder::JPEG | _ => todo!(),
+            BitOrder::JPEG => unreachable!(),
+            _ => unreachable!("TODO"),
         }
     }
 }

@@ -9,3 +9,6 @@ mod msb16;
 
 #[cfg(test)]
 mod msb32;
+
+#[cfg(test)]
+mod jpeg;
