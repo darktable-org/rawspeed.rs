@@ -15,6 +15,7 @@ members = [
     "src/misc/md5",
     "src/std",
     "src/codecs/packed/encoder",
+    "src/codecs/packed/decoder",
 ]
 
 [workspace.package]
