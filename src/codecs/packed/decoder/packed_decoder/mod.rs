@@ -121,12 +121,9 @@ where
     pub fn unpack(mut self) {
         match self.bit_order {
             BitOrder::LSB => self.unpack_impl::<bitstream::BitOrderLSB>(),
+            BitOrder::MSB => self.unpack_impl::<bitstream::BitOrderMSB>(),
             #[expect(clippy::todo)]
-            BitOrder::MSB
-            | BitOrder::MSB16
-            | BitOrder::MSB32
-            | BitOrder::JPEG
-            | _ => todo!(),
+            BitOrder::MSB16 | BitOrder::MSB32 | BitOrder::JPEG | _ => todo!(),
         }
     }
 }
