@@ -5,4 +5,7 @@ mod lsb;
 mod msb;
 
 #[cfg(test)]
+mod msb16;
+
+#[cfg(test)]
 mod msb32;
