@@ -122,11 +122,11 @@ where
         match self.bit_order {
             BitOrder::LSB => self.unpack_impl::<bitstream::BitOrderLSB>(),
             BitOrder::MSB => self.unpack_impl::<bitstream::BitOrderMSB>(),
+            BitOrder::MSB32 => self.unpack_impl::<bitstream::BitOrderMSB32>(),
             #[expect(clippy::todo)]
-            BitOrder::MSB16 | BitOrder::MSB32 | BitOrder::JPEG | _ => todo!(),
+            BitOrder::MSB16 | BitOrder::JPEG | _ => todo!(),
         }
     }
 }
 
-#[cfg(test)]
 mod tests;
