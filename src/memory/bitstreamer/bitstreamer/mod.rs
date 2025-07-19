@@ -1,8 +1,6 @@
 use core::marker::PhantomData;
 use core::ops::RangeFull;
-use rawspeed_common::bit_transmutation::CopyFromSlice;
 use rawspeed_common::bit_transmutation::FromNeBytes;
-use rawspeed_common::bit_transmutation::LoadFromSlice;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream::BitOrder;
 use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
@@ -10,6 +8,8 @@ use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
 use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
+use rawspeed_memory_fixed_length_load::fixed_length_load::CopyFromSlice;
+use rawspeed_memory_fixed_length_load::fixed_length_load::LoadFromSlice;
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
 
 pub trait BitStreamerTraits {
