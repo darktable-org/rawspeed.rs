@@ -10,6 +10,7 @@ members = [
     "src/memory/bitstreamcache",
     "src/memory/bitstreamer",
     "src/memory/variable_length_load",
+    "src/memory/fixed_length_load",
     "src/memory/bytevacuumer",
     "src/memory/bytestreamer",
     "src/misc/md5",

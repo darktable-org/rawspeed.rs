@@ -1,6 +1,4 @@
-use rawspeed_common::bit_transmutation::CopyFromSlice;
 use rawspeed_common::bit_transmutation::FromNeBytes;
-use rawspeed_common::bit_transmutation::LoadFromSlice;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_bitstream::bitstream;
 use rawspeed_memory_bitstream::bitstream::BitOrder;
@@ -11,6 +9,8 @@ use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerBase;
 use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerCacheFillImpl;
 use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerTraits;
 use rawspeed_memory_endianness::endianness::SwapBytes;
+use rawspeed_memory_fixed_length_load::fixed_length_load::CopyFromSlice;
+use rawspeed_memory_fixed_length_load::fixed_length_load::LoadFromSlice;
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;

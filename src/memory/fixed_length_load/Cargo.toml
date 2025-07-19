@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-memory-bytestreamer"
+name = "rawspeed-memory-fixed_length_load"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,9 +13,6 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-memory-endianness = { path = "../endianness" }
-rawspeed-memory-fixed_length_load = { path = "../fixed_length_load" }
-rawspeed-common = { path = "../../common" }
 
 [lib]
 path = "mod.rs"
