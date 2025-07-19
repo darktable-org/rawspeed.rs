@@ -1,7 +1,7 @@
-use crate::coord_common::Coord2D;
-use crate::coord_common::RowIndex;
-use crate::coord_common::RowLength;
-use crate::coord_common::RowPitch;
+use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std::coord_common::RowLength;
+use rawspeed_std::coord_common::RowPitch;
 
 #[derive(Debug)]
 pub struct Array2DRefMut<'a, T> {
@@ -92,6 +92,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
     pub fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
         let row = self.get_row_mut(RowIndex::new(index.row()))?;
         row.get_mut(index.col())
+    }
+}
+
+impl<'a, T> From<Array2DRefMut<'a, T>>
+    for crate::array2dref::Array2DRef<'a, T>
+{
+    #[inline]
+    fn from(val: Array2DRefMut<'a, T>) -> Self {
+        Self::new(val.slice, val.row_length, val.pitch)
     }
 }
 

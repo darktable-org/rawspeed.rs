@@ -2,9 +2,13 @@ use crate::packed_encoder::ExtraPadding;
 use crate::packed_encoder::NumBytes;
 use crate::packed_encoder::Packer;
 use rawspeed_memory_bitstream::bitstream::BitOrder;
-use rawspeed_std::array2dref::Array2DRef;
+use rawspeed_std::coord_common::ColIndex;
+use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
+use rawspeed_std_ndslice::array2dref::Array2DRef;
+use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 use std::io::Write as _;
 
 #[test]
@@ -51,32 +55,34 @@ fn flush_arr_overflow_test() {
 
 #[test]
 fn u8_enumeration_test() -> std::io::Result<()> {
+    const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u8;
+    const NUM_BITS: usize = 8;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
-            let mut storage: Vec<T> = vec![];
-            for row in 1..=num_rows {
-                for col in 1..=num_cols {
-                    storage.push((10 * row + col).try_into().unwrap());
-                }
-            }
-            let img = Array2DRef::new(
-                &storage,
+            let mut storage: Vec<T> = vec![0; num_rows * num_cols];
+            let mut img = Array2DRefMut::new(
+                &mut storage,
                 RowLength::new(num_cols),
                 RowPitch::new(num_cols),
             );
+            for row in 1..=num_rows {
+                for col in 1..=num_cols {
+                    img[Coord2D::new(
+                        RowIndex::new(row - 1),
+                        ColIndex::new(col - 1),
+                    )] = (10 * row + col).try_into().unwrap();
+                }
+            }
+            let img = img.into();
             for num_padding_bytes in 0..=1 {
                 use std::io::Cursor;
-                let bit_order = BitOrder::MSB16;
                 let mut buf = Cursor::new(vec![]);
-                let packer = Packer::new(
-                    &mut buf,
-                    bit_order,
-                    T::BITS.try_into().unwrap(),
-                    img,
-                    |_| ExtraPadding::new(NumBytes::new(num_padding_bytes)),
-                );
+                let packer =
+                    Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
+                        ExtraPadding::new(NumBytes::new(num_padding_bytes))
+                    });
                 packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
@@ -134,27 +140,32 @@ fn u8_enumeration_test() -> std::io::Result<()> {
 
 #[test]
 fn u4_enumeration_test() -> std::io::Result<()> {
+    const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u8;
+    const NUM_BITS: usize = 4;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=7 {
-            let mut storage: Vec<T> = vec![];
-            for e in 1..=(num_rows * num_cols) {
-                assert!(e <= 0xF);
-                storage.push(e.try_into().unwrap());
-            }
-            let img = Array2DRef::new(
-                &storage,
+            let mut storage: Vec<T> = vec![0; num_rows * num_cols];
+            let mut img = Array2DRefMut::new(
+                &mut storage,
                 RowLength::new(num_cols),
                 RowPitch::new(num_cols),
             );
+            for row in 0..num_rows {
+                for col in 0..num_cols {
+                    img[Coord2D::new(RowIndex::new(row), ColIndex::new(col))] =
+                        (1 + num_cols * row + col).try_into().unwrap();
+                }
+            }
+            let img = img.into();
             for num_padding_bytes in 0..=1 {
                 use std::io::Cursor;
-                let bit_order = BitOrder::MSB16;
                 let mut buf = Cursor::new(vec![]);
-                let packer = Packer::new(&mut buf, bit_order, 4, img, |_| {
-                    ExtraPadding::new(NumBytes::new(num_padding_bytes))
-                });
+                let packer =
+                    Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
+                        ExtraPadding::new(NumBytes::new(num_padding_bytes))
+                    });
                 packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
@@ -197,32 +208,34 @@ fn u4_enumeration_test() -> std::io::Result<()> {
 
 #[test]
 fn u16_enumeration_test() -> std::io::Result<()> {
+    const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u16;
+    const NUM_BITS: usize = 16;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
-            let mut storage: Vec<T> = vec![];
-            for row in 1..=num_rows {
-                for col in 1..=num_cols {
-                    storage.push((10 * row + col).try_into().unwrap());
-                }
-            }
-            let img = Array2DRef::new(
-                &storage,
+            let mut storage: Vec<T> = vec![0; num_rows * num_cols];
+            let mut img = Array2DRefMut::new(
+                &mut storage,
                 RowLength::new(num_cols),
                 RowPitch::new(num_cols),
             );
+            for row in 1..=num_rows {
+                for col in 1..=num_cols {
+                    img[Coord2D::new(
+                        RowIndex::new(row - 1),
+                        ColIndex::new(col - 1),
+                    )] = (10 * row + col).try_into().unwrap();
+                }
+            }
+            let img = img.into();
             for num_padding_bytes in 0..=1 {
                 use std::io::Cursor;
-                let bit_order = BitOrder::MSB16;
                 let mut buf = Cursor::new(vec![]);
-                let packer = Packer::new(
-                    &mut buf,
-                    bit_order,
-                    T::BITS.try_into().unwrap(),
-                    img,
-                    |_| ExtraPadding::new(NumBytes::new(num_padding_bytes)),
-                );
+                let packer =
+                    Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
+                        ExtraPadding::new(NumBytes::new(num_padding_bytes))
+                    });
                 packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
@@ -293,28 +306,34 @@ fn u16_enumeration_test() -> std::io::Result<()> {
 
 #[test]
 fn u12_enumeration_test() -> std::io::Result<()> {
+    const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u16;
+    const NUM_BITS: usize = 12;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
-            let mut storage: Vec<T> = vec![];
-            for row in 1..=num_rows {
-                for col in 1..=num_cols {
-                    storage.push((10 * row + col).try_into().unwrap());
-                }
-            }
-            let img = Array2DRef::new(
-                &storage,
+            let mut storage: Vec<T> = vec![0; num_rows * num_cols];
+            let mut img = Array2DRefMut::new(
+                &mut storage,
                 RowLength::new(num_cols),
                 RowPitch::new(num_cols),
             );
+            for row in 1..=num_rows {
+                for col in 1..=num_cols {
+                    img[Coord2D::new(
+                        RowIndex::new(row - 1),
+                        ColIndex::new(col - 1),
+                    )] = (10 * row + col).try_into().unwrap();
+                }
+            }
+            let img = img.into();
             for num_padding_bytes in 0..=1 {
                 use std::io::Cursor;
-                let bit_order = BitOrder::MSB16;
                 let mut buf = Cursor::new(vec![]);
-                let packer = Packer::new(&mut buf, bit_order, 12, img, |_| {
-                    ExtraPadding::new(NumBytes::new(num_padding_bytes))
-                });
+                let packer =
+                    Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
+                        ExtraPadding::new(NumBytes::new(num_padding_bytes))
+                    });
                 packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
@@ -388,32 +407,34 @@ fn u12_enumeration_test() -> std::io::Result<()> {
 #[test]
 #[expect(clippy::too_many_lines)]
 fn u32_enumeration_test() -> std::io::Result<()> {
+    const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u32;
+    const NUM_BITS: usize = 32;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
-            let mut storage: Vec<T> = vec![];
-            for row in 1..=num_rows {
-                for col in 1..=num_cols {
-                    storage.push((10 * row + col).try_into().unwrap());
-                }
-            }
-            let img = Array2DRef::new(
-                &storage,
+            let mut storage: Vec<T> = vec![0; num_rows * num_cols];
+            let mut img = Array2DRefMut::new(
+                &mut storage,
                 RowLength::new(num_cols),
                 RowPitch::new(num_cols),
             );
+            for row in 1..=num_rows {
+                for col in 1..=num_cols {
+                    img[Coord2D::new(
+                        RowIndex::new(row - 1),
+                        ColIndex::new(col - 1),
+                    )] = (10 * row + col).try_into().unwrap();
+                }
+            }
+            let img = img.into();
             for num_padding_bytes in 0..=1 {
                 use std::io::Cursor;
-                let bit_order = BitOrder::MSB16;
                 let mut buf = Cursor::new(vec![]);
-                let packer = Packer::new(
-                    &mut buf,
-                    bit_order,
-                    T::BITS.try_into().unwrap(),
-                    img,
-                    |_| ExtraPadding::new(NumBytes::new(num_padding_bytes)),
-                );
+                let packer =
+                    Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
+                        ExtraPadding::new(NumBytes::new(num_padding_bytes))
+                    });
                 packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
