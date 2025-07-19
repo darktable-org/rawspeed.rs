@@ -95,6 +95,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
     }
 }
 
+impl<'a, T> From<Array2DRefMut<'a, T>>
+    for crate::array2dref::Array2DRef<'a, T>
+{
+    #[inline]
+    fn from(val: Array2DRefMut<'a, T>) -> Self {
+        Self::new(val.slice, val.row_length, val.pitch)
+    }
+}
+
 impl<T> core::ops::Index<RowIndex> for Array2DRefMut<'_, T> {
     type Output = [T];
 
