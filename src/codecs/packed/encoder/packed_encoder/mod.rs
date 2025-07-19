@@ -7,8 +7,8 @@ use rawspeed_memory_bitstreamcache::bitstreamcache;
 use rawspeed_memory_bitvacuumer::bitvacuumer::BitVacuumerBase;
 use rawspeed_memory_bitvacuumer::bitvacuumer::BitVacuumerDrainImpl;
 use rawspeed_memory_endianness::endianness::SwapBytes;
-use rawspeed_std::array2dref::Array2DRef;
 use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std_ndslice::array2dref::Array2DRef;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NumBytes {

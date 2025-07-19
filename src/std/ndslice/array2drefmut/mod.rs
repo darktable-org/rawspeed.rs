@@ -1,7 +1,7 @@
-use crate::coord_common::Coord2D;
-use crate::coord_common::RowIndex;
-use crate::coord_common::RowLength;
-use crate::coord_common::RowPitch;
+use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std::coord_common::RowLength;
+use rawspeed_std::coord_common::RowPitch;
 
 #[derive(Debug)]
 pub struct Array2DRefMut<'a, T> {

@@ -20,6 +20,7 @@ rawspeed-memory-bitstreamer = { path = "../../../memory/bitstreamer" }
 rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length_load" }
 rawspeed-std = { path = "../../../std" }
+rawspeed-std-ndslice = { path = "../../../std/ndslice" }
 
 [lib]
 path = "mod.rs"

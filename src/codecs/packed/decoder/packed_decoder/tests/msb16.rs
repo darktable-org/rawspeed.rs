@@ -1,12 +1,12 @@
 use crate::packed_decoder::Unpacker;
 use rawspeed_memory_bitstream::bitstream::BitOrder;
-use rawspeed_std::array2dref::Array2DRef;
-use rawspeed_std::array2drefmut::Array2DRefMut;
 use rawspeed_std::coord_common::ColIndex;
 use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
+use rawspeed_std_ndslice::array2dref::Array2DRef;
+use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
 #[test]
 fn u8_enumeration_test() {

@@ -12,9 +12,9 @@ use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerCacheFillImpl;
 use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerTraits;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
-use rawspeed_std::array2dref::Array2DRef;
-use rawspeed_std::array2drefmut::Array2DRefMut;
 use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std_ndslice::array2dref::Array2DRef;
+use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
 #[derive(Debug)]
 pub struct Unpacker<'a, 'b, 'c, T>
