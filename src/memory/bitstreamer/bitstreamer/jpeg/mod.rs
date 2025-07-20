@@ -6,11 +6,11 @@ use super::FromNeBytes;
 use super::LoadFromSlice;
 
 use rawspeed_common::common::Bitwidth;
-use rawspeed_memory_bitstream::bitstream::BitOrder;
-use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
-use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
-use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
 use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_memory_bitstreams::bitstreams::BitOrder;
+use rawspeed_memory_bitstreams::bitstreams::BitOrderJPEG;
+use rawspeed_memory_bitstreams::bitstreams::BitOrderTrait;
+use rawspeed_memory_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;

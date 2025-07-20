@@ -13,8 +13,6 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-memory-bitstream = { path = "bitstream" }
-rawspeed-memory-endianness = { path = "endianness" }
 
 [lib]
 path = "mod.rs"

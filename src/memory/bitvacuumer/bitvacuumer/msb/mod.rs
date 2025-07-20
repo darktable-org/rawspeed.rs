@@ -1,6 +1,6 @@
 use super::{BitVacuumer, BitVacuumerBase, BitVacuumerUseDefaultDrainImpl};
 
-use rawspeed_memory_bitstream::bitstream::BitOrderMSB;
+use rawspeed_memory_bitstreams::bitstreams::BitOrderMSB;
 
 impl BitVacuumerUseDefaultDrainImpl for BitOrderMSB {}
 

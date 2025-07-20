@@ -2,8 +2,8 @@ use super::BitStreamerBase;
 use super::BitStreamerTraits;
 use super::BitStreamerUseDefaultCacheFillImpl;
 
-use rawspeed_memory_bitstream::bitstream::BitOrder;
-use rawspeed_memory_bitstream::bitstream::BitOrderLSB;
+use rawspeed_memory_bitstreams::bitstreams::BitOrder;
+use rawspeed_memory_bitstreams::bitstreams::BitOrderLSB;
 
 impl BitStreamerTraits for BitOrderLSB {
     const TAG: BitOrder = BitOrder::LSB;

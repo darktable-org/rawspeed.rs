@@ -4,7 +4,7 @@ use super::{
     Bitwidth, SwapBytes, get_host_endianness,
 };
 
-use rawspeed_memory_bitstream::bitstream::BitOrderJPEG;
+use rawspeed_memory_bitstreams::bitstreams::BitOrderJPEG;
 
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 
