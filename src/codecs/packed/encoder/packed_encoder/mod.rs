@@ -1,10 +1,10 @@
+use rawspeed_bitstream_bitstream_encoder::bitvacuumer::BitVacuumerBase;
+use rawspeed_bitstream_bitstream_encoder::bitvacuumer::BitVacuumerDrainImpl;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache;
 use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_bitstream_bitvacuumer::bitvacuumer::BitVacuumerBase;
-use rawspeed_bitstream_bitvacuumer::bitvacuumer::BitVacuumerDrainImpl;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_std::coord_common::RowIndex;

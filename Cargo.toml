@@ -2,10 +2,10 @@
 resolver = "3"
 members = [
     "src",
+    "src/bitstream/bitstream/decoder",
+    "src/bitstream/bitstream/encoder",
     "src/bitstream/bitstreamcache",
-    "src/bitstream/bitstreamer",
     "src/bitstream/bitstreams",
-    "src/bitstream/bitvacuumer",
     "src/bitstream/bytestream/decoder",
     "src/bitstream/bytestream/encoder",
     "src/codecs/packed/decoder",

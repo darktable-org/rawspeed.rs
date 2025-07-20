@@ -1,7 +1,7 @@
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerBase;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerCacheFillImpl;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_bitstream_bitstreamer::bitstreamer::BitStreamerBase;
-use rawspeed_bitstream_bitstreamer::bitstreamer::BitStreamerCacheFillImpl;
-use rawspeed_bitstream_bitstreamer::bitstreamer::BitStreamerTraits;
 use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;

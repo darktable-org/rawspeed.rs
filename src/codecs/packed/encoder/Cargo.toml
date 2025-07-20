@@ -13,9 +13,9 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+rawspeed-bitstream-bitstream-encoder= { path = "../../../bitstream/bitstream/encoder" }
 rawspeed-bitstream-bitstreamcache = { path = "../../../bitstream/bitstreamcache" }
 rawspeed-bitstream-bitstreams = { path = "../../../bitstream/bitstreams" }
-rawspeed-bitstream-bitvacuumer = { path = "../../../bitstream/bitvacuumer" }
 rawspeed-common = { path = "../../../common" }
 rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 rawspeed-std = { path = "../../../std" }
