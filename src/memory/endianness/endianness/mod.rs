@@ -6,17 +6,16 @@ pub enum Endianness {
 }
 
 #[inline]
-#[cfg(target_endian = "little")]
 #[must_use]
 pub const fn get_host_endianness() -> Endianness {
-    Endianness::Little
-}
-
-#[inline]
-#[cfg(target_endian = "big")]
-#[must_use]
-pub const fn get_host_endianness() -> Endianness {
-    Endianness::Big
+    #[cfg(target_endian = "little")]
+    {
+        Endianness::Little
+    }
+    #[cfg(target_endian = "big")]
+    {
+        Endianness::Big
+    }
 }
 
 pub trait SwapBytes {
