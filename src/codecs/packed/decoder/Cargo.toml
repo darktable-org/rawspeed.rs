@@ -18,8 +18,8 @@ rawspeed-memory-bitstream = { path = "../../../memory/bitstream" }
 rawspeed-memory-bitstreamcache = { path = "../../../memory/bitstreamcache" }
 rawspeed-memory-bitstreamer = { path = "../../../memory/bitstreamer" }
 rawspeed-memory-endianness = { path = "../../../memory/endianness" }
-rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length_load" }
 rawspeed-memory-fixed_length_load = { path = "../../../memory/fixed_length_load" }
+rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length_load" }
 rawspeed-std = { path = "../../../std" }
 rawspeed-std-ndslice = { path = "../../../std/ndslice" }
 

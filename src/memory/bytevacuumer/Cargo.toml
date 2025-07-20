@@ -13,8 +13,8 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-memory-endianness = { path = "../endianness" }
 rawspeed-common = { path = "../../common" }
+rawspeed-memory-endianness = { path = "../endianness" }
 
 [lib]
 path = "mod.rs"

@@ -2,22 +2,22 @@
 resolver = "3"
 members = [
     "src",
+    "src/codecs/packed/decoder",
+    "src/codecs/packed/encoder",
     "src/common",
     "src/memory",
-    "src/memory/endianness",
     "src/memory/bitstream",
-    "src/memory/bitvacuumer",
     "src/memory/bitstreamcache",
     "src/memory/bitstreamer",
-    "src/memory/variable_length_load",
-    "src/memory/fixed_length_load",
-    "src/memory/bytevacuumer",
+    "src/memory/bitvacuumer",
     "src/memory/bytestreamer",
+    "src/memory/bytevacuumer",
+    "src/memory/endianness",
+    "src/memory/fixed_length_load",
+    "src/memory/variable_length_load",
     "src/misc/md5",
     "src/std",
     "src/std/ndslice",
-    "src/codecs/packed/encoder",
-    "src/codecs/packed/decoder",
 ]
 
 [workspace.package]

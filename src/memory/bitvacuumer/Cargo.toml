@@ -15,8 +15,8 @@ workspace = true
 [dependencies]
 rawspeed-common = { path = "../../common" }
 rawspeed-memory-bitstream = { path = "../bitstream" }
-rawspeed-memory-endianness = { path = "../endianness" }
 rawspeed-memory-bitstreamcache = { path = "../bitstreamcache" }
+rawspeed-memory-endianness = { path = "../endianness" }
 
 [lib]
 path = "mod.rs"
