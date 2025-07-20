@@ -13,10 +13,10 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+rawspeed-bitstream-bitstreamcache = { path = "../../../bitstream/bitstreamcache" }
+rawspeed-bitstream-bitstreamer = { path = "../../../bitstream/bitstreamer" }
+rawspeed-bitstream-bitstreams = { path = "../../../bitstream/bitstreams" }
 rawspeed-common = { path = "../../../common" }
-rawspeed-memory-bitstreamcache = { path = "../../../memory/bitstreamcache" }
-rawspeed-memory-bitstreamer = { path = "../../../memory/bitstreamer" }
-rawspeed-memory-bitstreams = { path = "../../../memory/bitstreams" }
 rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 rawspeed-memory-fixed_length_load = { path = "../../../memory/fixed_length_load" }
 rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length_load" }

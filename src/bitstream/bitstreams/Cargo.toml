@@ -1,0 +1,21 @@
+[package]
+name = "rawspeed-bitstream-bitstreams"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-bitstream-bitstreamcache = { path = "../bitstreamcache" }
+rawspeed-common = { path = "../../common" }
+rawspeed-memory-endianness = { path = "../../memory/endianness" }
+
+[lib]
+path = "mod.rs"

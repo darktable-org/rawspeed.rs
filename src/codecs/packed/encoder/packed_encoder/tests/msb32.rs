@@ -1,7 +1,7 @@
 use crate::packed_encoder::ExtraPadding;
 use crate::packed_encoder::NumBytes;
 use crate::packed_encoder::Packer;
-use rawspeed_memory_bitstreams::bitstreams::BitOrder;
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_std::coord_common::ColIndex;
 use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std::coord_common::RowIndex;
