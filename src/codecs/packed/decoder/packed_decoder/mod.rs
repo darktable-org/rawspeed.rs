@@ -1,13 +1,13 @@
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerBase;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerCacheFillImpl;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreams::bitstreams;
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
+use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_common::bit_transmutation::FromNeBytes;
 use rawspeed_common::common::Bitwidth;
-use rawspeed_memory_bitstream::bitstream;
-use rawspeed_memory_bitstream::bitstream::BitOrder;
-use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
-use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
-use rawspeed_memory_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerBase;
-use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerCacheFillImpl;
-use rawspeed_memory_bitstreamer::bitstreamer::BitStreamerTraits;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_fixed_length_load::fixed_length_load::CopyFromSlice;
 use rawspeed_memory_fixed_length_load::fixed_length_load::LoadFromSlice;
@@ -124,10 +124,10 @@ where
     #[inline]
     pub fn unpack(mut self) {
         match self.bit_order {
-            BitOrder::LSB => self.unpack_impl::<bitstream::BitOrderLSB>(),
-            BitOrder::MSB => self.unpack_impl::<bitstream::BitOrderMSB>(),
-            BitOrder::MSB16 => self.unpack_impl::<bitstream::BitOrderMSB16>(),
-            BitOrder::MSB32 => self.unpack_impl::<bitstream::BitOrderMSB32>(),
+            BitOrder::LSB => self.unpack_impl::<bitstreams::BitOrderLSB>(),
+            BitOrder::MSB => self.unpack_impl::<bitstreams::BitOrderMSB>(),
+            BitOrder::MSB16 => self.unpack_impl::<bitstreams::BitOrderMSB16>(),
+            BitOrder::MSB32 => self.unpack_impl::<bitstreams::BitOrderMSB32>(),
             BitOrder::JPEG => unreachable!(),
             _ => unreachable!("TODO"),
         }

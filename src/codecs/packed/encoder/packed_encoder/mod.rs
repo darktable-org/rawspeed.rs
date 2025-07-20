@@ -1,11 +1,11 @@
+use rawspeed_bitstream_bitstream_encoder::bitvacuumer::BitVacuumerBase;
+use rawspeed_bitstream_bitstream_encoder::bitvacuumer::BitVacuumerDrainImpl;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache;
+use rawspeed_bitstream_bitstreams::bitstreams;
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
+use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_common::common::Bitwidth;
-use rawspeed_memory_bitstream::bitstream;
-use rawspeed_memory_bitstream::bitstream::BitOrder;
-use rawspeed_memory_bitstream::bitstream::BitOrderTrait;
-use rawspeed_memory_bitstream::bitstream::BitStreamTraits;
-use rawspeed_memory_bitstreamcache::bitstreamcache;
-use rawspeed_memory_bitvacuumer::bitvacuumer::BitVacuumerBase;
-use rawspeed_memory_bitvacuumer::bitvacuumer::BitVacuumerDrainImpl;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
@@ -278,16 +278,16 @@ where
     pub fn pack(mut self) -> std::io::Result<OutputRowPitch> {
         match self.bit_order {
             BitOrder::LSB => {
-                self.pack_impl::<bitstream::BitOrderLSB>()?;
+                self.pack_impl::<bitstreams::BitOrderLSB>()?;
             }
             BitOrder::MSB => {
-                self.pack_impl::<bitstream::BitOrderMSB>()?;
+                self.pack_impl::<bitstreams::BitOrderMSB>()?;
             }
             BitOrder::MSB16 => {
-                self.pack_impl::<bitstream::BitOrderMSB16>()?;
+                self.pack_impl::<bitstreams::BitOrderMSB16>()?;
             }
             BitOrder::MSB32 => {
-                self.pack_impl::<bitstream::BitOrderMSB32>()?;
+                self.pack_impl::<bitstreams::BitOrderMSB32>()?;
             }
             BitOrder::JPEG => unreachable!(),
             _ => unreachable!("TODO"),

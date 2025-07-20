@@ -1,5 +1,5 @@
 use crate::packed_decoder::Unpacker;
-use rawspeed_memory_bitstream::bitstream::BitOrder;
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
 use rawspeed_std_ndslice::array2dref::Array2DRef;

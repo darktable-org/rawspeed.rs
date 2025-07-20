@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-codecs-packed-decoder"
+name = "rawspeed-bitstream-bitstream-decoder"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,15 +13,12 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstream-decoder = { path = "../../../bitstream/bitstream/decoder" }
-rawspeed-bitstream-bitstreamcache = { path = "../../../bitstream/bitstreamcache" }
-rawspeed-bitstream-bitstreams = { path = "../../../bitstream/bitstreams" }
+rawspeed-bitstream-bitstreamcache = { path = "../../bitstreamcache" }
+rawspeed-bitstream-bitstreams = { path = "../../bitstreams" }
 rawspeed-common = { path = "../../../common" }
 rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 rawspeed-memory-fixed_length_load = { path = "../../../memory/fixed_length_load" }
 rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length_load" }
-rawspeed-std = { path = "../../../std" }
-rawspeed-std-ndslice = { path = "../../../std/ndslice" }
 
 [lib]
 path = "mod.rs"
