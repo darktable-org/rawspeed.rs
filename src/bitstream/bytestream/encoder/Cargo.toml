@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-bitstream-bytestreamer"
+name = "rawspeed-bitstream-bytestream-encoder"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,9 +13,8 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common = { path = "../../common" }
-rawspeed-memory-endianness = { path = "../../memory/endianness" }
-rawspeed-memory-fixed_length_load = { path = "../../memory/fixed_length_load" }
+rawspeed-common = { path = "../../../common" }
+rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 
 [lib]
 path = "mod.rs"

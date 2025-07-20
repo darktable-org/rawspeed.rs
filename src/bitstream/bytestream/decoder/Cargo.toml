@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-bitstream-bytevacuumer"
+name = "rawspeed-bitstream-bytestream-decoder"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,8 +13,9 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common = { path = "../../common" }
-rawspeed-memory-endianness = { path = "../../memory/endianness" }
+rawspeed-common = { path = "../../../common" }
+rawspeed-memory-endianness = { path = "../../../memory/endianness" }
+rawspeed-memory-fixed_length_load = { path = "../../../memory/fixed_length_load" }
 
 [lib]
 path = "mod.rs"
