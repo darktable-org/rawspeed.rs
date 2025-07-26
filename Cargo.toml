@@ -17,6 +17,7 @@ members = [
     "src/memory/variable_length_load",
     "src/metadata/xmltokendesparsifier",
     "src/metadata/xmltokenizer",
+    "src/metadata/xmlparser",
     "src/misc/md5",
     "src/std",
     "src/std/ndslice",

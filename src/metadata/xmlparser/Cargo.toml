@@ -1,0 +1,19 @@
+[package]
+name = "rawspeed-metadata-xmlparser"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-metadata-xmltokendesparsifier = { path = "../xmltokendesparsifier" }
+
+[lib]
+path = "mod.rs"
