@@ -4,6 +4,15 @@ codecov:
     after_n_builds: 1
     wait_for_ci: no
     notify_error: true
+component_management:
+  individual_components:
+    - component_id: src
+      name: source code
+    - component_id: tests
+      name: tests
+      paths:
+        - .*/tests.rs$
+        - .*/tests/**
 coverage:
   status:
     project:
