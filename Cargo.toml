@@ -15,6 +15,7 @@ members = [
     "src/memory/endianness",
     "src/memory/fixed_length_load",
     "src/memory/variable_length_load",
+    "src/metadata/xmltokendesparsifier",
     "src/metadata/xmltokenizer",
     "src/misc/md5",
     "src/std",
