@@ -1,0 +1,20 @@
+[package]
+name = "rawspeed-camerasxml-xmllint"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-metadata-camerasxml_parser = { path = "../../../src/metadata/camerasxml_parser" }
+rawspeed-utils-librstest = { path = "../../../src/utils/librstest" }
+
+[lib]
+path = "xmllint.rs"

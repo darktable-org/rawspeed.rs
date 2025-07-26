@@ -50,6 +50,16 @@ jobs:
         with:
           path: 'rawspeed.rs'
           fetch-depth: 1
+      - name: Fetch/Checkout RawSpeed.cpp git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          repository: 'darktable-org/rawspeed'
+          path: 'rawspeed'
+          sparse-checkout: |
+            data/cameras.xml
+          fetch-depth: 1
+          set-safe-directory: ${{ github.workspace }}
       - name: Remove unneeded brew formulas/casks
         timeout-minutes: 4
         run: |
