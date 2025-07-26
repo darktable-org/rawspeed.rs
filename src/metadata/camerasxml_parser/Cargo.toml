@@ -19,3 +19,7 @@ rawspeed-metadata-xmlparser = { path = "../xmlparser" }
 
 [lib]
 path = "mod.rs"
+
+[[bin]]
+name = "xmllint"
+path = "xmllint.rs"
