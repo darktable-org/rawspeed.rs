@@ -4,21 +4,24 @@ codecov:
     after_n_builds: 1
     wait_for_ci: no
     notify_error: true
+comment:
+  layout: "header, files, diff, components, flags, footer"  # show component info in the PR comment
 component_management:
+  default_rules:
+    statuses:
+      - type: project
+          target: auto
+          informational: false
+      - type: patch
+          informational: false
   individual_components:
     - component_id: src
       name: source code
+      ignore:
+        - "**/tests.rs$"
+        - "**/tests/**"
     - component_id: tests
       name: tests
       paths:
-        - .*/tests.rs$
-        - .*/tests/**
-coverage:
-  status:
-    project:
-      default:
-        target: auto
-        informational: false
-    patch:
-      default:
-        informational: false
+        - "**/tests.rs$"
+        - "**/tests/**"
