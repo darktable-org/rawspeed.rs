@@ -10,18 +10,24 @@ component_management:
   default_rules:
     statuses:
       - type: project
-          target: auto
-          informational: false
+        target: auto
+        informational: false
       - type: patch
-          informational: false
+        informational: false
   individual_components:
     - component_id: src
       name: source code
-      ignore:
-        - "**/tests.rs$"
-        - "**/tests/**"
+      paths:
+        - "!**/tests.rs"
+        - "!**/tests/**"
     - component_id: tests
       name: tests
       paths:
-        - "**/tests.rs$"
+        - "**/tests.rs"
         - "**/tests/**"
+coverage:
+  status:
+    project:
+      default: false
+    patch:
+      default: false
