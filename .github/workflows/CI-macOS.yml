@@ -62,7 +62,7 @@ jobs:
           rustup default ${{ inputs.rust-toolchain-name }}
           rustup component add clippy
       - name: Install necessary packages for code coverage
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
         timeout-minutes: 3
         run: |
           set -xe
@@ -99,7 +99,7 @@ jobs:
           cargo test --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 1
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
         env:
           RUSTFLAGS: "-C instrument-coverage"
         run: |
@@ -110,7 +110,7 @@ jobs:
           cargo llvm-cov --no-report --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -118,7 +118,7 @@ jobs:
           cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true
+        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ inputs.os }}

@@ -71,7 +71,7 @@ jobs:
           rustup default ${{ env.RUST_TOOLCHAIN_NAME }}
           rustup component add clippy
       - name: Install necessary packages for code coverage
-        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true) && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
+        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true') && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
         timeout-minutes: 3
         run: |
           set -xe
@@ -108,7 +108,7 @@ jobs:
           cargo test --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 1
-        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true) && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
+        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true') && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
         env:
           RUSTFLAGS: "-C instrument-coverage"
         run: |
@@ -119,7 +119,7 @@ jobs:
           cargo llvm-cov --no-report --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
-        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true) && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
+        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true') && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
         run: |
           set -xe
           export PATH=$PATH:"$(cygpath $USERPROFILE)/.cargo/bin"
@@ -127,7 +127,7 @@ jobs:
           cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
-        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true) && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
+        if: (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true') && inputs.builder-host == 'x86_64' && inputs.rust-toolchain-abi == 'msvc'
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ inputs.os }}

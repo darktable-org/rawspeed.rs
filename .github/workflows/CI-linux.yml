@@ -219,7 +219,7 @@ jobs:
           runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-linux-${{ env.ABI }}"
           EOT
       - name: Install necessary packages for code coverage
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         timeout-minutes: 2
         run: |
           set -xe
@@ -299,7 +299,7 @@ jobs:
           cargo test --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 2
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         env:
           RUSTFLAGS: "-C instrument-coverage"
         run: |
@@ -310,7 +310,7 @@ jobs:
           cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -318,7 +318,7 @@ jobs:
           cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == true)
+        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ inputs.os }}
