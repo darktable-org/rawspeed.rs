@@ -6,6 +6,15 @@ pub struct IndividualHints<'a> {
     pub values: Vec<hint::Hint<'a>>,
 }
 
+impl<'a> core::ops::Deref for IndividualHints<'a> {
+    type Target = [hint::Hint<'a>];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.values
+    }
+}
+
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for IndividualHints<'a> {
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
@@ -27,6 +36,15 @@ impl_elt_with_body_matcher!(
         value: IndividualHints<'a>,
     }
 );
+
+impl<'a> core::ops::Deref for Hints<'a> {
+    type Target = [hint::Hint<'a>];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
 
 #[cfg(test)]
 mod tests;

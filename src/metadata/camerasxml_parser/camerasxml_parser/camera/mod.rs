@@ -54,6 +54,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Sensors {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub struct Camera<'a> {
     pub make: make::Make<'a>,
     pub model: model::Model<'a>,
@@ -71,6 +72,7 @@ pub struct Camera<'a> {
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for Camera<'a> {
+    #[cfg_attr(not(test), expect(clippy::missing_inline_in_public_items))]
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {

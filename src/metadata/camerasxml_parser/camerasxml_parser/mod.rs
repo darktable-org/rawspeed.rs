@@ -1,6 +1,7 @@
 use rawspeed_metadata_xmlparser::xmlparser;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
 pub struct Int {
     val: i32,
 }
@@ -28,6 +29,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Int {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
 pub struct Str<'a> {
     val: &'a str,
 }
@@ -53,6 +55,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Str<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
 pub struct BodyStr<'a> {
     val: &'a str,
 }
@@ -93,8 +96,8 @@ macro_rules! impl_attr_matcher {
                 $trait
             ),+
         )]
-        #[non_exhaustive]
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub val: $val_type_ident,
         }
@@ -226,6 +229,7 @@ macro_rules! impl_elt_matcher {
                 $trait
             ),+
         )]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -253,6 +257,7 @@ macro_rules! impl_elt_matcher {
                 $trait
             ),+
         )]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -283,6 +288,7 @@ macro_rules! impl_elt_matcher {
                 $trait
             ),+
         )]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -315,8 +321,8 @@ macro_rules! impl_elt_with_body_matcher {
                 $trait
             ),+
         )]
-        #[non_exhaustive]
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $body_ident: $body_type_ident,
         }
@@ -341,8 +347,8 @@ macro_rules! impl_elt_with_body_matcher {
                 $trait
             ),+
         )]
-        #[non_exhaustive]
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $body_ident: $body_type_ident,
@@ -370,8 +376,8 @@ macro_rules! impl_elt_with_body_matcher {
                 $trait
             ),+
         )]
-        #[non_exhaustive]
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
+        #[non_exhaustive]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -387,10 +393,10 @@ macro_rules! impl_elt_with_body_matcher {
 }
 
 #[inline]
-pub fn parse_str(str: &str) -> Result<cameras::Cameras<'_>, String> {
+pub fn parse_str(str: &str) -> Result<Cameras<'_>, String> {
     let preambule_end = str.find("<Cameras").unwrap_or(0);
     let (_, str) = str.split_at(preambule_end);
-    xmlparser::ParseStream::new(str).parse::<cameras::Cameras<'_>>()
+    xmlparser::ParseStream::new(str).parse::<Cameras<'_>>()
 }
 
 #[cfg(test)]
@@ -434,3 +440,8 @@ mod white;
 mod width;
 mod x;
 mod y;
+
+pub use camera::Camera;
+pub use cameras::Cameras;
+pub use hint::Hint;
+pub use hints::Hints;

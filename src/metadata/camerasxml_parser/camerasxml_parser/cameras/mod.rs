@@ -7,6 +7,15 @@ pub struct IndividualCameras<'a> {
     pub values: Vec<camera::Camera<'a>>,
 }
 
+impl<'a> core::ops::Deref for IndividualCameras<'a> {
+    type Target = [camera::Camera<'a>];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        self.values.as_slice()
+    }
+}
+
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for IndividualCameras<'a> {
     #[inline]
     fn parse(
@@ -32,6 +41,15 @@ impl_elt_with_body_matcher!(
         cameras: IndividualCameras<'a>,
     }
 );
+
+impl<'a> core::ops::Deref for Cameras<'a> {
+    type Target = [camera::Camera<'a>];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.cameras
+    }
+}
 
 #[cfg(test)]
 mod tests;
