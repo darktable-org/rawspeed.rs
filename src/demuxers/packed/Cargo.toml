@@ -1,0 +1,26 @@
+[package]
+name = "rawspeed-demuxers-naked"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-bitstream-bitstreams = { path = "../../bitstream/bitstreams" }
+rawspeed-codecs-packed-decoder = { path = "../../codecs/packed/decoder" }
+rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
+rawspeed-std = { path = "../../std" }
+rawspeed-std-ndslice = { path = "../../std/ndslice" }
+
+[dev-dependencies]
+rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
+
+[lib]
+path = "mod.rs"
