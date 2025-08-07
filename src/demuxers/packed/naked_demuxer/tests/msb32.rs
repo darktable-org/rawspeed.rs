@@ -1,3 +1,5 @@
+use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
+
 impl_generic_tests!("jpeg32");
 
 #[test]
@@ -15,7 +17,12 @@ fn unpack_8bytes_into_2_rows_of_4_elts_at_8bpc_test() {
     </Cameras>";
     let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
     let input = vec![14, 13, 12, 11, 24, 23, 22, 21];
-    let res = NakedDemuxer::new(&input, &cameras).unwrap();
+    let res = NakedDemuxer::new(
+        &input,
+        &cameras,
+        DecodeableCamera::new_unless_unsupported,
+    )
+    .unwrap();
     let mut output_storage = vec![0_u16; 8];
     let mut output = Array2DRefMut::new(
         &mut output_storage,
@@ -51,7 +58,12 @@ fn unpack_8bytes_into_2_rows_of_2_elts_at_16bpc_test() {
     </Cameras>";
     let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
     let input = vec![12, 0, 11, 0, 22, 0, 21, 0];
-    let res = NakedDemuxer::new(&input, &cameras).unwrap();
+    let res = NakedDemuxer::new(
+        &input,
+        &cameras,
+        DecodeableCamera::new_unless_unsupported,
+    )
+    .unwrap();
     let mut output_storage = vec![0_u16; 4];
     let mut output = Array2DRefMut::new(
         &mut output_storage,

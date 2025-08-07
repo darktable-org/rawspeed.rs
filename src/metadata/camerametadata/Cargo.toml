@@ -1,0 +1,21 @@
+[package]
+name = "rawspeed-metadata-camerametadata"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-metadata-camerasxml_parser = { path = "../camerasxml_parser" }
+
+[dev-dependencies]
+
+[lib]
+path = "mod.rs"
