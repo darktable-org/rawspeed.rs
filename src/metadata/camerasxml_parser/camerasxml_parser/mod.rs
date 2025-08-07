@@ -445,3 +445,4 @@ pub use camera::Camera;
 pub use cameras::Cameras;
 pub use hint::Hint;
 pub use hints::Hints;
+pub use supported::Supported;

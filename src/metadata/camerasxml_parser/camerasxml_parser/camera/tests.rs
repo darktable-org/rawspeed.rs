@@ -92,13 +92,25 @@ fn parse_outer_test() {
         </Camera>",
         "<Camera make=\"Make\" model=\"Model\" decoder_version=\"0\">
         </Camera>",
-        "<Camera make=\"Make\" model=\"Model\" supported=\"Supported\">
+        "<Camera make=\"Make\" model=\"Model\" supported=\"yes\">
         </Camera>",
-        "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" supported=\"Supported\">
+        "<Camera make=\"Make\" model=\"Model\" supported=\"no-samples\">
         </Camera>",
-        "<Camera make=\"Make\" model=\"Model\" decoder_version=\"0\" supported=\"Supported\">
+        "<Camera make=\"Make\" model=\"Model\" supported=\"no\">
         </Camera>",
-        "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" decoder_version=\"0\" supported=\"Supported\">
+        "<Camera make=\"Make\" model=\"Model\" supported=\"no-no-samples\">
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\" supported=\"unknown\">
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\" supported=\"unknown-no-samples\">
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\" supported=\"garbage\">
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" supported=\"yes\">
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\" decoder_version=\"0\" supported=\"yes\">
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" decoder_version=\"0\" supported=\"yes\">
         </Camera>",
     ];
     let expected: Vec<(&str, xmlparser::Result<T<'_>>)> = vec![
@@ -215,7 +227,7 @@ fn parse_outer_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -239,7 +251,7 @@ fn parse_outer_test() {
                     val: Str { val: "Mode" },
                 }),
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -263,7 +275,7 @@ fn parse_outer_test() {
                 decoder_version: Some(DecoderVersion {
                     val: Int { val: 0 },
                 }),
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -275,7 +287,7 @@ fn parse_outer_test() {
             }),
         ),
         (
-            "<Camera make=\"Make\" model=\"Model\" supported=\"Supported\">\n        </Camera>",
+            "<Camera make=\"Make\" model=\"Model\" supported=\"yes\">\n        </Camera>",
             Ok(Camera {
                 make: Make {
                     val: Str { val: "Make" },
@@ -285,9 +297,7 @@ fn parse_outer_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: Some(Supported {
-                    val: Str { val: "Supported" },
-                }),
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -299,7 +309,121 @@ fn parse_outer_test() {
             }),
         ),
         (
-            "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" supported=\"Supported\">\n        </Camera>",
+            "<Camera make=\"Make\" model=\"Model\" supported=\"no-samples\">\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
+                },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::SupportedNoSamples,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: None,
+            }),
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\" supported=\"no\">\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
+                },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::Unsupported,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: None,
+            }),
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\" supported=\"no-no-samples\">\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
+                },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::UnsupportedNoSamples,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: None,
+            }),
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\" supported=\"unknown\">\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
+                },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::Unknown,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: None,
+            }),
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\" supported=\"unknown-no-samples\">\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
+                },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::UnknownNoSamples,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: None,
+            }),
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\" supported=\"garbage\">\n        </Camera>",
+            Err("Invalid support enum: garbage"),
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" supported=\"yes\">\n        </Camera>",
             Ok(Camera {
                 make: Make {
                     val: Str { val: "Make" },
@@ -311,9 +435,7 @@ fn parse_outer_test() {
                     val: Str { val: "Mode" },
                 }),
                 decoder_version: None,
-                supported: Some(Supported {
-                    val: Str { val: "Supported" },
-                }),
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -325,7 +447,7 @@ fn parse_outer_test() {
             }),
         ),
         (
-            "<Camera make=\"Make\" model=\"Model\" decoder_version=\"0\" supported=\"Supported\">\n        </Camera>",
+            "<Camera make=\"Make\" model=\"Model\" decoder_version=\"0\" supported=\"yes\">\n        </Camera>",
             Ok(Camera {
                 make: Make {
                     val: Str { val: "Make" },
@@ -337,9 +459,7 @@ fn parse_outer_test() {
                 decoder_version: Some(DecoderVersion {
                     val: Int { val: 0 },
                 }),
-                supported: Some(Supported {
-                    val: Str { val: "Supported" },
-                }),
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -351,7 +471,7 @@ fn parse_outer_test() {
             }),
         ),
         (
-            "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" decoder_version=\"0\" supported=\"Supported\">\n        </Camera>",
+            "<Camera make=\"Make\" model=\"Model\" mode=\"Mode\" decoder_version=\"0\" supported=\"yes\">\n        </Camera>",
             Ok(Camera {
                 make: Make {
                     val: Str { val: "Make" },
@@ -365,9 +485,7 @@ fn parse_outer_test() {
                 decoder_version: Some(DecoderVersion {
                     val: Int { val: 0 },
                 }),
-                supported: Some(Supported {
-                    val: Str { val: "Supported" },
-                }),
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -404,7 +522,7 @@ fn parse_id_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: Some(ID {
                 make: Make {
                     val: Str {
@@ -454,7 +572,7 @@ fn parse_cfa_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::CFA(CFA {
                 width: Width {
@@ -510,7 +628,7 @@ fn parse_cfa2_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::CFA2(CFA2 {
                 width: Width {
@@ -563,7 +681,7 @@ fn parse_crop_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::None,
             crop: Some(Crop {
@@ -631,7 +749,7 @@ fn parse_sensors_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -663,7 +781,7 @@ fn parse_sensors_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -697,7 +815,7 @@ fn parse_sensors_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -731,7 +849,7 @@ fn parse_sensors_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -770,7 +888,7 @@ fn parse_sensors_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -804,7 +922,7 @@ fn parse_sensors_test() {
                 },
                 mode: None,
                 decoder_version: None,
-                supported: None,
+                supported: Supported::Supported,
                 id: None,
                 cfa: MaybeCFA::None,
                 crop: None,
@@ -879,7 +997,7 @@ fn parse_blackareas_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::None,
             crop: None,
@@ -929,7 +1047,7 @@ fn parse_aliases_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::None,
             crop: None,
@@ -974,7 +1092,7 @@ fn parse_hints_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::None,
             crop: None,
@@ -1025,7 +1143,7 @@ fn parse_colormatrices_test() {
             },
             mode: None,
             decoder_version: None,
-            supported: None,
+            supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::None,
             crop: None,
