@@ -1,8 +1,10 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_codecs_packed_decoder::packed_decoder::Unpacker;
+use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
@@ -87,10 +89,14 @@ type T = u16;
 
 impl<'a, 'b> NakedDemuxer<'a> {
     #![expect(clippy::unwrap_in_result)]
-    pub fn new(
+    pub fn new<F>(
         input: &'a [u8],
         cameras: &'b Cameras<'a>,
-    ) -> Result<Self, String> {
+        check_camera_support_fn: F,
+    ) -> Result<Self, String>
+    where
+        F: FnOnce(Supported) -> Result<DecodeableCamera, String>,
+    {
         if input.is_empty() {
             return Err("Input buffer must be non-empty".to_owned());
         }
@@ -105,6 +111,8 @@ impl<'a, 'b> NakedDemuxer<'a> {
                 "No known cameras match the given input size".to_owned()
             );
         };
+
+        check_camera_support_fn(camera.supported)?;
 
         let hints = camera.hints.as_ref().unwrap();
 

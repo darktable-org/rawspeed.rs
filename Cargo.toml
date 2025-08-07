@@ -16,6 +16,7 @@ members = [
     "src/memory/endianness",
     "src/memory/fixed_length_load",
     "src/memory/variable_length_load",
+    "src/metadata/camerametadata",
     "src/metadata/camerasxml_parser",
     "src/metadata/xmlparser",
     "src/metadata/xmltokendesparsifier",
@@ -104,10 +105,12 @@ cargo_common_metadata = { level = "allow", priority = 0 }
 missing_panics_doc = { level = "allow", priority = 0 }
 missing_errors_doc = { level = "allow", priority = 0 }
 cognitive_complexity = { level = "warn", priority = 0 }
-large_stack_frames = { level = "warn", priority = 0 }
 get_unwrap = { level = "allow", priority = 0 }
 type_repetition_in_bounds = { level = "warn", priority = 0 }
 missing_const_for_fn = { level = "warn", priority = 0 }
+
+# FIXME: reenable after https://github.com/rust-lang/rust-clippy/issues/15099
+large_stack_frames = { level = "allow", priority = 1 }
 
 blanket_clippy_restriction_lints = { level = "allow", priority = 0 }
 let_underscore_must_use = { level = "allow", priority = 0 }

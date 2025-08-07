@@ -12,6 +12,23 @@ pub enum Supported {
     UnknownNoSamples,
 }
 
+impl Supported {
+    #[inline]
+    #[must_use]
+    pub const fn is_explicitly_supported(&self) -> bool {
+        matches!(*self, Supported::Supported | Supported::SupportedNoSamples)
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn is_explicitly_unsupported(&self) -> bool {
+        matches!(
+            *self,
+            Supported::Unsupported | Supported::UnsupportedNoSamples
+        )
+    }
+}
+
 impl Default for Supported {
     #[inline]
     fn default() -> Self {

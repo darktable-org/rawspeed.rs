@@ -15,6 +15,7 @@ workspace = true
 [dependencies]
 rawspeed-bitstream-bitstreams = { path = "../../bitstream/bitstreams" }
 rawspeed-codecs-packed-decoder = { path = "../../codecs/packed/decoder" }
+rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
 rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }

@@ -61,7 +61,6 @@ fn Err(str: &'static str) -> Result<T<'static>, String> {
 
 #[test]
 #[expect(clippy::too_many_lines)]
-#[allow(clippy::allow_attributes, clippy::large_stack_frames)]
 fn parse_outer_test() {
     let inputs: Vec<&'static str> = vec![
         "",

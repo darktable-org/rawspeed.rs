@@ -15,7 +15,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 0];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "Input buffer must be non-empty");
         }
 
@@ -28,7 +28,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 1];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(
                 res.unwrap_err(),
                 "No known cameras match the given input size"
@@ -47,7 +47,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(
                 res.unwrap_err(),
                 "No known cameras match the given input size"
@@ -66,7 +66,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The width/height is invalid");
         }
 
@@ -83,7 +83,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The width/height is invalid");
         }
 
@@ -100,7 +100,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The width/height is invalid");
         }
 
@@ -118,7 +118,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The bit order is invalid");
         }
 
@@ -137,7 +137,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The bit order is invalid");
         }
 
@@ -160,7 +160,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             res.unwrap();
         }
 
@@ -184,7 +184,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             res.unwrap();
         }
 
@@ -208,7 +208,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The bitwidth is invalid");
         }
 
@@ -232,7 +232,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The bitwidth is must be in [1..16]");
         }
 
@@ -256,7 +256,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 68];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The bitwidth is must be in [1..16]");
         }
 
@@ -273,7 +273,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(
                 res.unwrap_err(),
                 "No known cameras match the given input size"
@@ -293,7 +293,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The specified offset is invalid");
         }
 
@@ -310,7 +310,7 @@ macro_rules! impl_generic_tests {
                 </Cameras>";
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 9];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(res.unwrap_err(), "The width/height is invalid");
         }
 
@@ -334,7 +334,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 9];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             res.unwrap();
         }
 
@@ -357,7 +357,8 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![11, 12, 13, 14, 21, 22, 23, 24];
-            let res = NakedDemuxer::new(&input, &cameras).unwrap();
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported)
+            .unwrap();
             let width = 4;
             let height = 2;
             for test_width in 1..(2 * width * height) {
@@ -401,7 +402,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 9];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(
                 res.unwrap_err(),
                 "Input size is not multiple of the row count"
@@ -427,7 +428,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(
                 res.unwrap_err(),
                 "Input size is not multiple of the column count"
@@ -453,11 +454,198 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
-            let res = NakedDemuxer::new(&input, &cameras);
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
             assert_eq!(
                 res.unwrap_err(),
                 "Input size is not multiple of the column count"
             );
+        }
+
+        #[test]
+        fn implicit_camera_support_if_supported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_if_supported);
+            res.unwrap();
+        }
+
+        #[test]
+        fn implicit_camera_support_unless_unsupported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
+            res.unwrap();
+        }
+
+        #[test]
+        fn explicit_camera_support_if_supported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\" supported=\"yes\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_if_supported);
+            res.unwrap();
+        }
+
+        #[test]
+        fn explicit_camera_support_unless_unsupported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\" supported=\"yes\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
+            res.unwrap();
+        }
+
+        #[test]
+        fn missing_camera_support_if_supported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\" supported=\"no\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_if_supported);
+            assert_eq!("This camera is not supported", res.unwrap_err());
+        }
+
+        #[test]
+        fn missing_camera_support_unless_unsupported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\" supported=\"no\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
+            assert_eq!(
+                "This camera is not supported (explicit)",
+                res.unwrap_err()
+            );
+        }
+
+        #[test]
+        fn unknown_camera_support_if_supported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\" supported=\"unknown\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_if_supported);
+            assert_eq!("This camera is not supported", res.unwrap_err());
+        }
+
+        #[test]
+        fn unknown_camera_support_unless_unsupported_test() {
+            let cameras = concat!(
+                "
+                <Cameras>
+                    <Camera make=\"Make\" model=\"Model\" supported=\"unknown\">
+                    <Hints>
+                        <Hint name=\"filesize\" value=\"8\"/>
+                        <Hint name=\"full_width\" value=\"4\"/>
+                        <Hint name=\"full_height\" value=\"2\"/>
+                        <Hint name=\"order\" value=\"",
+                $bitorder,
+                "\"/>
+                    </Hints>
+                    </Camera>
+                </Cameras>"
+            );
+            let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
+            let input = vec![0_u8; 8];
+            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
+            res.unwrap();
         }
     };
 }
