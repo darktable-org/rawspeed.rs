@@ -60,7 +60,7 @@ pub struct Camera<'a> {
     pub model: model::Model<'a>,
     pub mode: Option<mode::Mode<'a>>,
     pub decoder_version: Option<decoder_version::DecoderVersion>,
-    pub supported: Option<supported::Supported<'a>>,
+    pub supported: supported::Supported,
     pub id: Option<id::ID<'a>>,
     pub cfa: MaybeCFA,
     pub crop: Option<crop::Crop>,

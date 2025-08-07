@@ -6,6 +6,7 @@ use super::super::cameras::Cameras;
 use super::super::cameras::IndividualCameras;
 use super::super::make::Make;
 use super::super::model::Model;
+use super::super::supported::Supported;
 use super::xmlparser;
 
 type T<'a> = Cameras<'a>;
@@ -106,7 +107,7 @@ fn parse_test() {
                         },
                         mode: None,
                         decoder_version: None,
-                        supported: None,
+                        supported: Supported::Supported,
                         id: None,
                         cfa: MaybeCFA::None,
                         crop: None,
@@ -133,7 +134,7 @@ fn parse_test() {
                             },
                             mode: None,
                             decoder_version: None,
-                            supported: None,
+                            supported: Supported::Supported,
                             id: None,
                             cfa: MaybeCFA::None,
                             crop: None,
@@ -152,7 +153,7 @@ fn parse_test() {
                             },
                             mode: None,
                             decoder_version: None,
-                            supported: None,
+                            supported: Supported::Supported,
                             id: None,
                             cfa: MaybeCFA::None,
                             crop: None,
