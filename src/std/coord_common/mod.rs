@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RowLength {
     val: usize,
 }
@@ -26,7 +26,61 @@ impl core::ops::Deref for RowLength {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RowCount {
+    val: usize,
+}
+
+impl RowCount {
+    #[inline]
+    #[must_use]
+    pub const fn new(len: usize) -> Self {
+        Self { val: len }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn val(&self) -> usize {
+        self.val
+    }
+}
+
+impl core::ops::Deref for RowCount {
+    type Target = usize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Dimensions2D {
+    row_len: RowLength,
+    row_count: RowCount,
+}
+
+impl Dimensions2D {
+    #[inline]
+    #[must_use]
+    pub const fn new(row_len: RowLength, row_count: RowCount) -> Self {
+        Self { row_len, row_count }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn row_len(&self) -> RowLength {
+        self.row_len
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn row_count(&self) -> RowCount {
+        self.row_count
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RowPitch {
     val: usize,
 }
