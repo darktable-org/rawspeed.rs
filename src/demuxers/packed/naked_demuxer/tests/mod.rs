@@ -357,7 +357,7 @@ macro_rules! impl_generic_tests {
             );
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![11, 12, 13, 14, 21, 22, 23, 24];
-            let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported)
+            let (res, _) = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported)
             .unwrap();
             let width = 4;
             let height = 2;
