@@ -100,7 +100,14 @@ fn usable_0xu8_test() {
 }
 
 #[test]
-#[cfg_attr(miri, ignore)]
+#[cfg_attr(
+    miri,
+    ignore = "miri fails with: miri resource exhaustion: tried to allocate more memory than available to compiler"
+)]
+#[cfg_attr(
+    not(target_pointer_width = "64"),
+    ignore = "iff isize === i32, allocation of isize::MAX can succeed, we don't want that"
+)]
 fn usable_max_test() {
     assert_eq!(
         Err(LayoutfulBoxError::OutOfMemory),

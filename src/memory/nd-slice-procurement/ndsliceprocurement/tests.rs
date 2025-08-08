@@ -216,6 +216,10 @@ fn basic_u8_test() {
 
 #[test]
 #[cfg_attr(miri, ignore)]
+#[cfg_attr(
+    not(target_pointer_width = "64"),
+    ignore = "iff isize === i32, allocation of isize::MAX can succeed, we don't want that"
+)]
 fn usable_max_test() {
     assert_eq!(
         Err(NDSliceProcurementRequestError::OutOfMemory),
