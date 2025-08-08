@@ -15,6 +15,7 @@ members = [
     "src/memory",
     "src/memory/endianness",
     "src/memory/fixed_length_load",
+    "src/memory/layoutfulbox",
     "src/memory/variable_length_load",
     "src/metadata/camerametadata",
     "src/metadata/camerasxml_parser",
