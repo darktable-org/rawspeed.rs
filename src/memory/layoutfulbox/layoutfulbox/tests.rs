@@ -1,4 +1,13 @@
 use crate::layoutfulbox::{LayoutfulBox, LayoutfulBoxError};
+use rawspeed_std::coord_common::{Align, ByteMultiple};
+
+fn runtime_align_of<T>(x: &T) -> Align {
+    let ptr: *const T = x;
+    let addr = ptr as usize;
+    let num_tz = addr.trailing_zeros();
+    let align = 1_usize.checked_shl(num_tz).unwrap();
+    Align::new(ByteMultiple::new(align)).unwrap()
+}
 
 #[test]
 fn basic_1xu8_align_1_as_u8_test() {
@@ -118,32 +127,40 @@ fn usable_max_test() {
     );
 }
 
-#[test]
-fn slice_len_u8_test() {
-    for len in 1..=64 {
-        let mut buf = LayoutfulBox::<u8>::new(
-            core::alloc::Layout::array::<u8>(len).unwrap(),
-        )
-        .unwrap();
-        let slice = buf.get_slice_mut();
-        assert_eq!(slice.len(), len);
-        for (i, e) in slice.iter_mut().enumerate() {
-            *e = i.try_into().unwrap();
+fn slice_test<T>()
+where
+    T: TryFrom<usize>,
+    <T as TryFrom<usize>>::Error: core::fmt::Debug,
+{
+    for align in 0..=20 {
+        for len in 1..=64 {
+            let align = 1_usize.checked_shl(align).unwrap();
+            let mut buf = LayoutfulBox::<T>::new(
+                core::alloc::Layout::array::<T>(len)
+                    .unwrap()
+                    .align_to(align)
+                    .unwrap(),
+            )
+            .unwrap();
+            let slice = buf.get_slice_mut();
+            assert_eq!(slice.len(), len);
+            assert!(
+                runtime_align_of(slice.first().unwrap())
+                    >= Align::new(ByteMultiple::new(align)).unwrap()
+            );
+            for (i, e) in slice.iter_mut().enumerate() {
+                *e = i.try_into().unwrap();
+            }
         }
     }
 }
 
 #[test]
+fn slice_len_8_test() {
+    slice_test::<u8>();
+}
+
+#[test]
 fn slice_len_u64_test() {
-    for len in 1..=64 {
-        let mut buf = LayoutfulBox::<u64>::new(
-            core::alloc::Layout::array::<u64>(len).unwrap(),
-        )
-        .unwrap();
-        let slice = buf.get_slice_mut();
-        assert_eq!(slice.len(), len);
-        for (i, e) in slice.iter_mut().enumerate() {
-            *e = i.try_into().unwrap();
-        }
-    }
+    slice_test::<u64>();
 }
