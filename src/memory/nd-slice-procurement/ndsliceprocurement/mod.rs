@@ -1,7 +1,9 @@
 use rawspeed_memory_layoutfulbox::layoutfulbox::{
     LayoutfulBox, LayoutfulBoxError,
 };
-use rawspeed_std::coord_common::{Dimensions2D, RowLength, RowPitch};
+use rawspeed_std::coord_common::{
+    Align, ByteMultiple, Dimensions2D, RowLength, RowPitch,
+};
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
 macro_rules! impl_strict_type {
@@ -31,31 +33,6 @@ macro_rules! impl_strict_type {
 }
 
 impl_strict_type!(EltCount of usize);
-impl_strict_type!(ByteCount of usize);
-
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub struct Align {
-    val: ByteCount,
-}
-
-impl Align {
-    #[inline]
-    pub fn new(val: ByteCount) -> Result<Self, String> {
-        if val > ByteCount::new(0) && val.is_power_of_two() {
-            return Ok(Self { val });
-        }
-        Err("Invalid alignment".to_owned())
-    }
-}
-
-impl core::ops::Deref for Align {
-    type Target = ByteCount;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.val
-    }
-}
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
@@ -117,8 +94,8 @@ impl<T> NDSliceProcurementRequest<T> {
         Self {
             dims,
             extra_row_padding: EltCount::new(0),
-            row_alignment: Align::new(ByteCount::new(1)).unwrap(),
-            base_alignment: Align::new(ByteCount::new(1)).unwrap(),
+            row_alignment: Align::new(ByteMultiple::new(1)).unwrap(),
+            base_alignment: Align::new(ByteMultiple::new(1)).unwrap(),
             _phantom: core::marker::PhantomData,
         }
     }

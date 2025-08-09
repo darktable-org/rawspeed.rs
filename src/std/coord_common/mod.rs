@@ -189,3 +189,55 @@ impl Coord2D {
         self.col.val()
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct ByteMultiple {
+    val: usize,
+}
+
+impl ByteMultiple {
+    #[inline]
+    #[must_use]
+    pub const fn new(len: usize) -> Self {
+        Self { val: len }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn val(&self) -> usize {
+        self.val
+    }
+}
+
+impl core::ops::Deref for ByteMultiple {
+    type Target = usize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Align {
+    val: ByteMultiple,
+}
+
+impl Align {
+    #[inline]
+    pub fn new(val: ByteMultiple) -> Result<Self, String> {
+        if val > ByteMultiple::new(0) && val.is_power_of_two() {
+            return Ok(Self { val });
+        }
+        Err("Invalid alignment".to_owned())
+    }
+}
+
+impl core::ops::Deref for Align {
+    type Target = ByteMultiple;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
