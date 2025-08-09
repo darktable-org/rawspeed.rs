@@ -1,5 +1,6 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_codecs_packed_decoder::packed_decoder::Unpacker;
+use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
@@ -80,7 +81,7 @@ fn guess_bits(bytes_per_row: usize, num_cols: u64) -> Result<u64, String> {
 }
 
 #[derive(Debug)]
-struct NakedDemuxer<'a> {
+pub struct NakedDemuxer<'a> {
     input: Array2DRef<'a, u8>,
     dims: Dimensions2D,
     order: BitOrder,
@@ -89,10 +90,11 @@ struct NakedDemuxer<'a> {
 
 type T = u16;
 
-impl<'a, 'b> NakedDemuxer<'a> {
+impl<'a, 'b, 'c> NakedDemuxer<'c> {
     #![expect(clippy::unwrap_in_result)]
+    #[inline(never)]
     pub fn new<F>(
-        input: &'a [u8],
+        input: &'c [u8],
         cameras: &'b Cameras<'a>,
         check_camera_support_fn: F,
     ) -> Result<(Self, NDSliceProcurementRequest<T>), String>
@@ -175,10 +177,14 @@ impl<'a, 'b> NakedDemuxer<'a> {
             NDSliceProcurementRequest::new(dims),
         ))
     }
+}
 
-    pub fn decode(
+impl RawDemuxer for NakedDemuxer<'_> {
+    #![expect(clippy::unwrap_in_result)]
+    #[inline(never)]
+    fn decode(
         &self,
-        output: &mut Array2DRefMut<'a, T>,
+        output: &mut Array2DRefMut<'_, u16>,
     ) -> Result<(), String> {
         if output.dims() != self.dims {
             return Err(

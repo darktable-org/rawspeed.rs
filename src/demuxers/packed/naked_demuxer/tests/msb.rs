@@ -1,5 +1,3 @@
-use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
-
 impl_generic_tests!("jpeg");
 
 #[test]

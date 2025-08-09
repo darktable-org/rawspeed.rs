@@ -15,11 +15,12 @@ workspace = true
 [dependencies]
 rawspeed-bitstream-bitstreams = { path = "../../bitstream/bitstreams" }
 rawspeed-codecs-packed-decoder = { path = "../../codecs/packed/decoder" }
+rawspeed-demuxers-rawdemuxer = { path = "../rawdemuxer" }
+rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
 rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
 rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
-rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
 
 [dev-dependencies]
 rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }

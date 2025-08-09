@@ -12,6 +12,7 @@ members = [
     "src/codecs/packed/encoder",
     "src/common",
     "src/demuxers/packed",
+    "src/demuxers/rawdemuxer",
     "src/memory",
     "src/memory/endianness",
     "src/memory/fixed_length_load",
