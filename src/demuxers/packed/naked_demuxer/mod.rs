@@ -1,10 +1,13 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_codecs_packed_decoder::packed_decoder::Unpacker;
+use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
+use rawspeed_std::coord_common::Dimensions2D;
+use rawspeed_std::coord_common::RowCount;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
@@ -79,8 +82,7 @@ fn guess_bits(bytes_per_row: usize, num_cols: u64) -> Result<u64, String> {
 #[derive(Debug)]
 struct NakedDemuxer<'a> {
     input: Array2DRef<'a, u8>,
-    col_count: u64,
-    row_count: u64,
+    dims: Dimensions2D,
     order: BitOrder,
     bits: u64,
 }
@@ -93,7 +95,7 @@ impl<'a, 'b> NakedDemuxer<'a> {
         input: &'a [u8],
         cameras: &'b Cameras<'a>,
         check_camera_support_fn: F,
-    ) -> Result<Self, String>
+    ) -> Result<(Self, NDSliceProcurementRequest<T>), String>
     where
         F: FnOnce(Supported) -> Result<DecodeableCamera, String>,
     {
@@ -159,25 +161,26 @@ impl<'a, 'b> NakedDemuxer<'a> {
             ));
         }
 
-        Ok(Self {
-            input: src,
-            col_count,
-            row_count,
-            order,
-            bits,
-        })
+        let dims = Dimensions2D::new(
+            RowLength::new(col_count.try_into().unwrap()),
+            RowCount::new(row_count.try_into().unwrap()),
+        );
+        Ok((
+            Self {
+                input: src,
+                dims,
+                order,
+                bits,
+            },
+            NDSliceProcurementRequest::new(dims),
+        ))
     }
 
     pub fn decode(
         &self,
         output: &mut Array2DRefMut<'a, T>,
     ) -> Result<(), String> {
-        if (output.row_length(), output.num_rows())
-            != (
-                self.col_count.try_into().unwrap(),
-                self.row_count.try_into().unwrap(),
-            )
-        {
+        if output.dims() != self.dims {
             return Err(
                 "Output buffer dimensions differ from expected".to_owned()
             );

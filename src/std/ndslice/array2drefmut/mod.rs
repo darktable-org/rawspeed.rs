@@ -1,4 +1,6 @@
 use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::Dimensions2D;
+use rawspeed_std::coord_common::RowCount;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
@@ -43,6 +45,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[must_use]
     pub const fn num_rows(&self) -> usize {
         self.slice.len().checked_div(self.pitch()).unwrap()
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn dims(&self) -> Dimensions2D {
+        Dimensions2D::new(
+            RowLength::new(self.row_length()),
+            RowCount::new(self.num_rows()),
+        )
     }
 
     #[inline]

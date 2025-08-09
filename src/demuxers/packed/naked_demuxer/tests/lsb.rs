@@ -17,18 +17,14 @@ fn unpack_8bytes_into_2_rows_of_4_elts_at_8bpc_test() {
     </Cameras>";
     let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
     let input = vec![11, 12, 13, 14, 21, 22, 23, 24];
-    let res = NakedDemuxer::new(
+    let (res, out_buf_request) = NakedDemuxer::new(
         &input,
         &cameras,
         DecodeableCamera::new_unless_unsupported,
     )
     .unwrap();
-    let mut output_storage = vec![0_u16; 8];
-    let mut output = Array2DRefMut::new(
-        &mut output_storage,
-        RowLength::new(4),
-        RowPitch::new(4),
-    );
+    let mut output_buf = out_buf_request.fulfill().unwrap();
+    let mut output = output_buf.get_mut();
     res.decode(&mut output).unwrap();
     for row in 1..=2 {
         for col in 1..=4 {
@@ -58,18 +54,14 @@ fn unpack_8bytes_into_2_rows_of_2_elts_at_16bpc_test() {
     </Cameras>";
     let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
     let input = vec![11, 0, 12, 0, 21, 0, 22, 0];
-    let res = NakedDemuxer::new(
+    let (res, out_buf_request) = NakedDemuxer::new(
         &input,
         &cameras,
         DecodeableCamera::new_unless_unsupported,
     )
     .unwrap();
-    let mut output_storage = vec![0_u16; 4];
-    let mut output = Array2DRefMut::new(
-        &mut output_storage,
-        RowLength::new(2),
-        RowPitch::new(2),
-    );
+    let mut output_buf = out_buf_request.fulfill().unwrap();
+    let mut output = output_buf.get_mut();
     res.decode(&mut output).unwrap();
     for row in 1..=2 {
         for col in 1..=2 {
