@@ -5,6 +5,8 @@ macro_rules! impl_generic_tests {
         use rawspeed_metadata_xmlparser::xmlparser;
         use rawspeed_std::coord_common::*;
         use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
+        use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer as _;
+        use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 
         #[test]
         fn empty_input_test() {

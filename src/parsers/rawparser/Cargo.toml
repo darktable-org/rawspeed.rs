@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-demuxers-naked"
+name = "rawspeed-parsers-rawparser"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,16 +13,14 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstreams = { path = "../../bitstream/bitstreams" }
-rawspeed-codecs-packed-decoder = { path = "../../codecs/packed/decoder" }
-rawspeed-demuxers-rawdemuxer = { path = "../rawdemuxer" }
+rawspeed-demuxers-naked = { path = "../../demuxers/packed" }
+rawspeed-demuxers-rawdemuxer = { path = "../../demuxers/rawdemuxer" }
 rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
 rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
 rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
-rawspeed-std = { path = "../../std" }
-rawspeed-std-ndslice = { path = "../../std/ndslice" }
 
 [dev-dependencies]
+rawspeed-std = { path = "../../std" }
 rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
 
 [lib]

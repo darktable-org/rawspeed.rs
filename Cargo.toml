@@ -12,6 +12,7 @@ members = [
     "src/codecs/packed/encoder",
     "src/common",
     "src/demuxers/packed",
+    "src/demuxers/rawdemuxer",
     "src/memory",
     "src/memory/endianness",
     "src/memory/fixed_length_load",
@@ -24,6 +25,8 @@ members = [
     "src/metadata/xmltokendesparsifier",
     "src/metadata/xmltokenizer",
     "src/misc/md5",
+    "src/parsers",
+    "src/parsers/rawparser",
     "src/std",
     "src/std/ndslice",
 ]
