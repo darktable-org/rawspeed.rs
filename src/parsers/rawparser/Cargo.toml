@@ -1,0 +1,27 @@
+[package]
+name = "rawspeed-parsers-rawparser"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-demuxers-naked = { path = "../../demuxers/packed" }
+rawspeed-demuxers-rawdemuxer = { path = "../../demuxers/rawdemuxer" }
+rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
+rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
+rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
+
+[dev-dependencies]
+rawspeed-std = { path = "../../std" }
+rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
+
+[lib]
+path = "mod.rs"
