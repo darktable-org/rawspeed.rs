@@ -20,6 +20,7 @@ jobs:
       builder-host: x86_64
       builder-target: x86_64
       target-vendor: "unknown"
+      target-os: "linux"
       rust-toolchain-abi: "gnu"
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19

@@ -16,6 +16,9 @@ on:
       target-vendor:
         required: true
         type: string
+      target-os:
+        required: true
+        type: string
       rust-toolchain-abi:
         required: true
         type: string
@@ -197,24 +200,24 @@ jobs:
           . "$HOME/.cargo/env"
 
           eatmydata apt install \
-            gcc-${{ env.GCC_ARCH }}-linux-${{ inputs.rust-toolchain-abi }} \
+            gcc-${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} \
             libc6-dev-${{ env.LIBC6_ARCH }}-cross \
             qemu-user \
             qemu-user-binfmt \
             ;
-          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }}-clang
-          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }}-clang++
-          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }}-ld
-          rustup target add ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }}
-          LINKER="${{ inputs.builder-target }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }}-clang"
+          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-clang
+          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-clang++
+          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-ld
+          rustup target add ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}
+          LINKER="${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-clang"
           if [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
           # LLD/clang does not support powerpc64 ELFv1 ABI
-          LINKER="${{ env.GCC_ARCH }}-linux-${{ inputs.rust-toolchain-abi }}-gcc"
+          LINKER="${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-gcc"
           fi
           tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
-          [target.${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }}]
+          [target.${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}]
           linker = "${LINKER}"
-          runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-linux-${{ inputs.rust-toolchain-abi }}"
+          runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}"
           EOT
       - name: Install necessary packages for code coverage
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
@@ -270,7 +273,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo check --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo check --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Run Clippy
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -278,7 +281,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo clippy --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo clippy --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Build
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -286,7 +289,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo build --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
+          cargo build --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 2
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -294,7 +297,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo test --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
+          cargo test --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 2
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
@@ -305,7 +308,7 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
@@ -313,7 +316,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-linux-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
+          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')

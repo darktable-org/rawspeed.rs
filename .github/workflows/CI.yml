@@ -42,13 +42,13 @@ jobs:
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", abi: "gnu"       }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", abi: "gnueabi"   }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", abi: "gnueabihf" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
@@ -60,6 +60,7 @@ jobs:
       builder-host: ${{ matrix.stack.host }}
       builder-target: ${{ matrix.stack.target }}
       target-vendor: ${{ matrix.stack.vendor }}
+      target-os: ${{ matrix.stack.os }}
       rust-toolchain-abi: ${{ matrix.stack.abi }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
