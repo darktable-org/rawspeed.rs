@@ -17,8 +17,8 @@ jobs:
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64"  }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "unknown", os: "linux", abi: "gnu"  }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "unknown", os: "linux", abi: "gnu" }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
@@ -29,6 +29,9 @@ jobs:
       runs-on: ${{ matrix.stack.runs-on }}
       builder-host: ${{ matrix.stack.host }}
       builder-target: ${{ matrix.stack.target }}
+      target-vendor: ${{ matrix.stack.vendor }}
+      target-os: ${{ matrix.stack.os }}
+      rust-toolchain-abi: ${{ matrix.stack.abi }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
@@ -122,6 +125,9 @@ jobs:
       runs-on: ubuntu-latest
       builder-host: x86_64
       builder-target: x86_64
+      target-vendor: "unknown"
+      target-os: "linux"
+      rust-toolchain-abi: "gnu"
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
       rust-toolchain-name: stable
