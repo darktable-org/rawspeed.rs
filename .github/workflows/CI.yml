@@ -17,8 +17,8 @@ jobs:
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64"  }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "unknown", os: "linux", abi: "gnu"  }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "unknown", os: "linux", abi: "gnu" }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
@@ -29,6 +29,37 @@ jobs:
       runs-on: ${{ matrix.stack.runs-on }}
       builder-host: ${{ matrix.stack.host }}
       builder-target: ${{ matrix.stack.target }}
+      target-vendor: ${{ matrix.stack.vendor }}
+      target-os: ${{ matrix.stack.os }}
+      rust-toolchain-abi: ${{ matrix.stack.abi }}
+      distro-image: ${{ matrix.distro.image }}
+      distro-LLVM: ${{ matrix.distro.LLVM }}
+      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+      flavor: ${{ matrix.flavor }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  windows-cross:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ linux ]
+        stack:
+          - { runs-on: "ubuntu-latest", host: "x86_64", target: "x86_64", vendor: "pc", os: "windows" }
+          - { runs-on: "ubuntu-latest", host: "x86_64", target: "i686",   vendor: "pc", os: "windows" }
+        distro:
+          - { image: "debian:trixie-slim", LLVM: 19 }
+        abi: [ gnu ]
+        rust-toolchain-name: [ stable, nightly ]
+        flavor: [ dev, release ]
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      os: ${{ matrix.os }}
+      runs-on: ${{ matrix.stack.runs-on }}
+      builder-host: ${{ matrix.stack.host }}
+      builder-target: ${{ matrix.stack.target }}
+      target-vendor: ${{ matrix.stack.vendor }}
+      target-os: ${{ matrix.stack.os }}
+      rust-toolchain-abi: ${{ matrix.abi }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
@@ -36,19 +67,19 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-cross:
-    needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
+    needs: [ linux-fast, windows-cross, windows-msys2-fast, macOS-fast ]
     strategy:
       fail-fast: false
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686"        }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6"       }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64"   }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64"     }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
@@ -59,6 +90,9 @@ jobs:
       runs-on: ${{ matrix.stack.runs-on }}
       builder-host: ${{ matrix.stack.host }}
       builder-target: ${{ matrix.stack.target }}
+      target-vendor: ${{ matrix.stack.vendor }}
+      target-os: ${{ matrix.stack.os }}
+      rust-toolchain-abi: ${{ matrix.stack.abi }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
@@ -73,11 +107,8 @@ jobs:
           - { os: windows, os-ver: latest, host: "x86_64",  target: "x86_64",  msystem: CLANG64 }
           - { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
         rust-toolchain-version: [ stable, nightly ]
-        rust-toolchain-abi: [ gnu, msvc ]
+        rust-toolchain-abi: [ msvc ]
         flavor: [ dev, release ]
-        exclude:
-          - stack: { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
-            rust-toolchain-abi: gnu
     uses: ./.github/workflows/CI-windows-msys2.yml
     with:
       os: ${{ matrix.stack.os }}
@@ -112,13 +143,16 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-docs:
-    needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
+    needs: [ linux-fast, windows-cross, linux-cross, windows-msys2-fast, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: linux
       runs-on: ubuntu-latest
       builder-host: x86_64
       builder-target: x86_64
+      target-vendor: "unknown"
+      target-os: "linux"
+      rust-toolchain-abi: "gnu"
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
       rust-toolchain-name: stable
