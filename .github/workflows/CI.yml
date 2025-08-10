@@ -11,18 +11,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  linux-fast:
+  # linux-fast:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "unknown", os: "linux", abi: "gnu"  }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "unknown", os: "linux", abi: "gnu" }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       rust-toolchain-name: [ stable, nightly ]
+  #       flavor: [ dev, release ]
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.stack.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     flavor: ${{ matrix.flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  windows-cross:
     strategy:
       fail-fast: false
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "unknown", os: "linux", abi: "gnu"  }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "unknown", os: "linux", abi: "gnu" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "pc", os: "windows" }
+          # - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+          # - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
-        rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
+        abi: [ gnu, msvc ]
+        # abi: [ gnu ]
+        # rust-toolchain-name: [ stable, nightly ]
+        # flavor: [ dev, release ]
+        rust-toolchain-name: [ stable ]
+        flavor: [ dev ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}
@@ -31,131 +63,131 @@ jobs:
       builder-target: ${{ matrix.stack.target }}
       target-vendor: ${{ matrix.stack.vendor }}
       target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.stack.abi }}
+      rust-toolchain-abi: ${{ matrix.abi }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
       flavor: ${{ matrix.flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  linux-cross:
-    needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ linux ]
-        stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
-        distro:
-          - { image: "debian:trixie-slim", LLVM: 19 }
-        rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: ${{ matrix.os }}
-      runs-on: ${{ matrix.stack.runs-on }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      target-vendor: ${{ matrix.stack.vendor }}
-      target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.stack.abi }}
-      distro-image: ${{ matrix.distro.image }}
-      distro-LLVM: ${{ matrix.distro.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  windows-msys2-fast:
-    strategy:
-      fail-fast: false
-      matrix:
-        stack:
-          - { os: windows, os-ver: latest, host: "x86_64",  target: "x86_64",  msystem: CLANG64 }
-          - { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
-        rust-toolchain-version: [ stable, nightly ]
-        rust-toolchain-abi: [ gnu, msvc ]
-        flavor: [ dev, release ]
-        exclude:
-          - stack: { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
-            rust-toolchain-abi: gnu
-    uses: ./.github/workflows/CI-windows-msys2.yml
-    with:
-      os: ${{ matrix.stack.os }}
-      runs-on: ${{ matrix.stack.os }}-${{ matrix.stack.os-ver }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      msys2-msystem: ${{ matrix.stack.msystem }}
-      rust-toolchain-version: ${{ matrix.rust-toolchain-version }}
-      rust-toolchain-abi: ${{ matrix.rust-toolchain-abi }}
-      flavor: ${{ matrix.flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  macOS-fast:
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler:
-          - { os: macos, os-ver: 15, host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
-          - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
-        rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
-    uses: ./.github/workflows/CI-macOS.yml
-    with:
-      os: ${{ matrix.compiler.os }}
-      runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
-      builder-host: ${{ matrix.compiler.host }}
-      builder-target: ${{ matrix.compiler.target }}
-      xcode-version: ${{ matrix.compiler.XCode }}
-      LLVM_VER: ${{ matrix.compiler.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  build-docs:
-    needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: linux
-      runs-on: ubuntu-latest
-      builder-host: x86_64
-      builder-target: x86_64
-      target-vendor: "unknown"
-      target-os: "linux"
-      rust-toolchain-abi: "gnu"
-      distro-image: "debian:trixie-slim"
-      distro-LLVM: 19
-      rust-toolchain-name: stable
-      flavor: doc
-  publish-pages:
-    if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
-    needs: build-docs
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Setup Pages
-        timeout-minutes: 1
-        id: pages
-        uses: actions/configure-pages@v2
-      - name: Deploy to GitHub Pages
-        timeout-minutes: 1
-        id: deployment
-        uses: actions/deploy-pages@v4
-      - name: Purge Cloudflare cache
-        timeout-minutes: 1
-        id: cache-purge
-        if: github.repository == 'darktable-org/rawspeed.rs' && github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
-        uses: NathanVaughn/actions-cloudflare-purge@v3.1.0
-        with:
-            cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
-            cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
+  # linux-cross:
+  #   needs: [ linux-fast, windows-msys2-fast, macOS-fast ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       rust-toolchain-name: [ stable, nightly ]
+  #       flavor: [ dev, release ]
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.stack.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     flavor: ${{ matrix.flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # windows-msys2-fast:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       stack:
+  #         - { os: windows, os-ver: latest, host: "x86_64",  target: "x86_64",  msystem: CLANG64 }
+  #         - { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
+  #       rust-toolchain-version: [ stable, nightly ]
+  #       rust-toolchain-abi: [ gnu, msvc ]
+  #       flavor: [ dev, release ]
+  #       exclude:
+  #         - stack: { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
+  #           rust-toolchain-abi: gnu
+  #   uses: ./.github/workflows/CI-windows-msys2.yml
+  #   with:
+  #     os: ${{ matrix.stack.os }}
+  #     runs-on: ${{ matrix.stack.os }}-${{ matrix.stack.os-ver }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     msys2-msystem: ${{ matrix.stack.msystem }}
+  #     rust-toolchain-version: ${{ matrix.rust-toolchain-version }}
+  #     rust-toolchain-abi: ${{ matrix.rust-toolchain-abi }}
+  #     flavor: ${{ matrix.flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # macOS-fast:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       compiler:
+  #         - { os: macos, os-ver: 15, host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
+  #         - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
+  #       rust-toolchain-name: [ stable, nightly ]
+  #       flavor: [ dev, release ]
+  #   uses: ./.github/workflows/CI-macOS.yml
+  #   with:
+  #     os: ${{ matrix.compiler.os }}
+  #     runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
+  #     builder-host: ${{ matrix.compiler.host }}
+  #     builder-target: ${{ matrix.compiler.target }}
+  #     xcode-version: ${{ matrix.compiler.XCode }}
+  #     LLVM_VER: ${{ matrix.compiler.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     flavor: ${{ matrix.flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # build-docs:
+  #   needs: [ linux-fast, linux-cross, windows-msys2-fast, macOS-fast ]
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: linux
+  #     runs-on: ubuntu-latest
+  #     builder-host: x86_64
+  #     builder-target: x86_64
+  #     target-vendor: "unknown"
+  #     target-os: "linux"
+  #     rust-toolchain-abi: "gnu"
+  #     distro-image: "debian:trixie-slim"
+  #     distro-LLVM: 19
+  #     rust-toolchain-name: stable
+  #     flavor: doc
+  # publish-pages:
+  #   if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
+  #   needs: build-docs
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - name: Setup Pages
+  #       timeout-minutes: 1
+  #       id: pages
+  #       uses: actions/configure-pages@v2
+  #     - name: Deploy to GitHub Pages
+  #       timeout-minutes: 1
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
+  #     - name: Purge Cloudflare cache
+  #       timeout-minutes: 1
+  #       id: cache-purge
+  #       if: github.repository == 'darktable-org/rawspeed.rs' && github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
+  #       uses: NathanVaughn/actions-cloudflare-purge@v3.1.0
+  #       with:
+  #           cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
+  #           cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
