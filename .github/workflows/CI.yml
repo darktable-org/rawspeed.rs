@@ -42,13 +42,13 @@ jobs:
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686"        }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6"       }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64"   }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64"     }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        abi: "gnu"       }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       abi: "gnueabi"   }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       abi: "gnueabihf" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       abi: "gnu"       }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     abi: "gnu"       }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
@@ -59,6 +59,7 @@ jobs:
       runs-on: ${{ matrix.stack.runs-on }}
       builder-host: ${{ matrix.stack.host }}
       builder-target: ${{ matrix.stack.target }}
+      rust-toolchain-abi: ${{ matrix.stack.abi }}
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
