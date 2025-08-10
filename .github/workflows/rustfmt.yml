@@ -19,6 +19,7 @@ jobs:
       runs-on: "ubuntu-latest"
       builder-host: x86_64
       builder-target: x86_64
+      target-vendor: "unknown"
       rust-toolchain-abi: "gnu"
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
