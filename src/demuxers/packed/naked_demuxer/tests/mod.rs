@@ -121,7 +121,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            assert_eq!(res.unwrap_err(), "The bit order is invalid");
+            res.unwrap();
         }
 
         #[test]

@@ -144,8 +144,8 @@ impl<'a, 'b, 'c> NakedDemuxer<'c> {
             RowPitch::new(input_bytes_per_row),
         );
 
-        let Some(order) =
-            get_hint_with_name(hints, "order").and_then(parse_as_bitorder)
+        let Some(order) = get_hint_with_name(hints, "order")
+            .map_or(Some(BitOrder::MSB16), parse_as_bitorder)
         else {
             return Err("The bit order is invalid".to_owned());
         };
