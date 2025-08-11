@@ -3,12 +3,32 @@ use crate::svec::SVec;
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct MD5State([u32; 4]);
 
+impl<'a> IntoIterator for &'a MD5State {
+    type Item = &'a u32;
+    type IntoIter = core::slice::Iter<'a, u32>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut MD5State {
+    type Item = &'a mut u32;
+    type IntoIter = core::slice::IterMut<'a, u32>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
+    }
+}
+
 impl From<MD5State> for String {
     #[inline(never)]
     fn from(val: MD5State) -> Self {
         let mut str = String::with_capacity(2 * (4 * 32) / 8);
         assert_eq!(str.capacity(), 32);
-        for b in val.0.iter().flat_map(|&e| e.to_le_bytes()) {
+        for b in val.iter().flat_map(|&e| e.to_le_bytes()) {
             use core::fmt::Write as _;
             write!(str, "{b:0>2x}").unwrap();
         }
@@ -126,6 +146,16 @@ impl MD5Round {
 
 impl MD5State {
     #[inline]
+    pub fn iter(&self) -> core::slice::Iter<'_, u32> {
+        self.0.iter()
+    }
+
+    #[inline]
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, u32> {
+        self.0.iter_mut()
+    }
+
+    #[inline]
     #[must_use]
     pub const fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
         Self([a, b, c, d])
@@ -164,7 +194,7 @@ impl MD5State {
             }
         }
 
-        for (x, t) in self.0.iter_mut().zip(tmp.0.iter()) {
+        for (x, t) in self.iter_mut().zip(tmp.iter()) {
             *x = x.wrapping_add(*t);
         }
     }
