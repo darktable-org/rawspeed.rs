@@ -3,6 +3,21 @@ use crate::svec::SVec;
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct MD5State([u32; 4]);
 
+impl From<MD5State> for String {
+    #[inline(never)]
+    fn from(val: MD5State) -> Self {
+        let mut str = String::with_capacity(2 * (4 * 32) / 8);
+        assert_eq!(str.capacity(), 32);
+        for b in val.0.iter().flat_map(|&e| e.to_le_bytes()) {
+            use core::fmt::Write as _;
+            write!(str, "{b:0>2x}").unwrap();
+        }
+        assert_eq!(str.len(), 32);
+        str
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct MD5Block([u8; 64]);
 
 struct MD5Round(usize);
