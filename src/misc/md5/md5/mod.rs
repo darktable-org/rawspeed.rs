@@ -274,16 +274,11 @@ impl MD5 {
             }
         }
 
-        let mut magic1: [u8; 8] = Default::default();
         let bits_total = u64::try_from(self.bytes_total)
             .unwrap()
             .checked_mul(8)
             .unwrap();
-        for (magic1_elt, byte) in
-            magic1.iter_mut().zip(bits_total.to_le_bytes().iter())
-        {
-            *magic1_elt = *byte;
-        }
+        let magic1: [u8; 8] = bits_total.to_le_bytes();
         self.buf.extend(&magic1);
         let full_block = MD5Block(self.buf[..].try_into().unwrap());
         self.state.md5_compress(&full_block);
