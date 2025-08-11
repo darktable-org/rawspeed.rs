@@ -222,8 +222,19 @@ jobs:
           tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
           [target.${{ env.RUST_TARGET }}]
           linker = "${LINKER}"
+          EOT
+          if [ "${{ inputs.builder-target }}" != "i686" ]; then
+          tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
           runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}"
           EOT
+          fi
+          if [ "${{ inputs.builder-target }}" = "i686" ]; then
+          eatmydata dpkg --add-architecture i386
+          eatmydata apt update
+          eatmydata apt install \
+            libc6:i386 \
+            ;
+          fi
       - name: Install necessary packages for cross-os same-arch compilation
         timeout-minutes: 2
         if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.target-os == 'windows'
