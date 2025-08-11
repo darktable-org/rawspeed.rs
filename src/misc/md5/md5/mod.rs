@@ -3,7 +3,42 @@ use crate::svec::SVec;
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct MD5State([u32; 4]);
 
-pub struct MD5Block([u8; 64]);
+impl<'a> IntoIterator for &'a MD5State {
+    type Item = &'a u32;
+    type IntoIter = core::slice::Iter<'a, u32>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut MD5State {
+    type Item = &'a mut u32;
+    type IntoIter = core::slice::IterMut<'a, u32>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
+    }
+}
+
+impl From<MD5State> for String {
+    #[inline(never)]
+    fn from(val: MD5State) -> Self {
+        let mut str = String::with_capacity(2 * (4 * 32) / 8);
+        assert_eq!(str.capacity(), 32);
+        for b in val.iter().flat_map(|&e| e.to_le_bytes()) {
+            use core::fmt::Write as _;
+            write!(str, "{b:0>2x}").unwrap();
+        }
+        assert_eq!(str.len(), 32);
+        str
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct MD5Block([u8; 64]);
 
 struct MD5Round(usize);
 
@@ -13,6 +48,8 @@ struct StepParams {
     t: u32,
 }
 impl StepParams {
+    #[inline]
+    #[must_use]
     const fn new(k: usize, s: u32, t: u32) -> Self {
         Self { k, s, t }
     }
@@ -94,6 +131,7 @@ const STAGES: [[StepParams; 16]; 4] = [
 
 impl MD5Round {
     #[inline]
+    #[must_use]
     const fn get_expr(self, tmp: MD5State) -> u32 {
         let [_a, b, c, d] = tmp.0;
         match self.0 {
@@ -107,15 +145,30 @@ impl MD5Round {
 }
 
 impl MD5State {
+    #[inline]
+    pub fn iter(&self) -> core::slice::Iter<'_, u32> {
+        self.0.iter()
+    }
+
+    #[inline]
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, u32> {
+        self.0.iter_mut()
+    }
+
+    #[inline]
+    #[must_use]
     pub const fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
         Self([a, b, c, d])
     }
 
+    #[inline]
+    #[must_use]
     pub const fn init() -> Self {
         Self::new(0x6745_2301, 0xEFCD_AB89, 0x98BA_DCFE, 0x1032_5476)
     }
 
-    pub fn md5_compress(&mut self, block: &MD5Block) {
+    #[inline]
+    fn md5_compress(&mut self, block: &MD5Block) {
         let mut schedule: [u32; 16] = Default::default();
 
         for (s, bytes) in schedule.iter_mut().zip(block.0.chunks_exact(32 / 8))
@@ -141,23 +194,24 @@ impl MD5State {
             }
         }
 
-        for (x, t) in self.0.iter_mut().zip(tmp.0.iter()) {
+        for (x, t) in self.iter_mut().zip(tmp.iter()) {
             *x = x.wrapping_add(*t);
         }
     }
 }
 
-struct MD5 {
+#[derive(Debug)]
+pub struct MD5 {
     buf: SVec<u8, 64>,
     state: MD5State,
     bytes_total: usize,
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 impl MD5 {
     const MAGIC0: [u8; 1] = [0x80];
     const ZERO_PADDING: [u8; 64] = [0_u8; 64];
 
+    #[inline]
     pub fn extend(&mut self, mut msg: &[u8]) {
         assert!(!self.buf.is_full());
 
@@ -198,6 +252,8 @@ impl MD5 {
         assert!(!self.buf.is_full());
     }
 
+    #[inline]
+    #[must_use]
     pub fn flush(mut self) -> MD5State {
         assert!(!self.buf.is_full());
 
@@ -217,16 +273,11 @@ impl MD5 {
             }
         }
 
-        let mut magic1: [u8; 8] = Default::default();
         let bits_total = u64::try_from(self.bytes_total)
             .unwrap()
             .checked_mul(8)
             .unwrap();
-        for (magic1_elt, byte) in
-            magic1.iter_mut().zip(bits_total.to_le_bytes().iter())
-        {
-            *magic1_elt = *byte;
-        }
+        let magic1: [u8; 8] = bits_total.to_le_bytes();
         self.buf.extend(&magic1);
         let full_block = MD5Block(self.buf[..].try_into().unwrap());
         self.state.md5_compress(&full_block);
@@ -235,6 +286,7 @@ impl MD5 {
 }
 
 impl Default for MD5 {
+    #[inline]
     fn default() -> Self {
         Self {
             buf: SVec::default(),

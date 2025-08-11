@@ -1,0 +1,29 @@
+[package]
+name = "rawspeed-utils-rstest"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-common = { path = "../../common" }
+rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
+rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
+rawspeed-misc-md5 = { path = "../../misc/md5" }
+rawspeed-parsers-rawparser = { path = "../../parsers/rawparser" }
+rawspeed-std = { path = "../../std" }
+rawspeed-std-ndslice = { path = "../../std/ndslice" }
+
+[dev-dependencies]
+rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
+
+[[bin]]
+name = "rstest"
+path = "mod.rs"

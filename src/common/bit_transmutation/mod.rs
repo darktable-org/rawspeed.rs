@@ -76,23 +76,35 @@ pub trait ToNeBytes {
     fn to_ne_bytes(self) -> Self::Output;
 }
 
-macro_rules! impl_to_ne_bytes {
-    ($src:ty) => {
-        impl ToNeBytes for $src {
+pub trait ToLeBytes {
+    type Output;
+    fn to_le_bytes(self) -> Self::Output;
+}
+
+macro_rules! impl_to_X_bytes {
+    ($trait:ident, $method:ident, $src:ty) => {
+        impl $trait for $src {
             type Output = [u8; core::mem::size_of::<$src>()];
 
             #[inline]
-            fn to_ne_bytes(self) -> Self::Output {
-                self.to_ne_bytes()
+            fn $method(self) -> Self::Output {
+                self.$method()
             }
         }
     };
 }
 
-impl_to_ne_bytes!(u8);
-impl_to_ne_bytes!(u16);
-impl_to_ne_bytes!(u32);
-impl_to_ne_bytes!(u64);
+macro_rules! impl_to_bytes {
+    ($src:ty) => {
+        impl_to_X_bytes!(ToNeBytes, to_ne_bytes, $src);
+        impl_to_X_bytes!(ToLeBytes, to_le_bytes, $src);
+    };
+}
+
+impl_to_bytes!(u8);
+impl_to_bytes!(u16);
+impl_to_bytes!(u32);
+impl_to_bytes!(u64);
 
 pub trait FromNeBytes {
     type Output;
@@ -101,20 +113,26 @@ pub trait FromNeBytes {
     fn from_ne_bytes(self) -> Self::Output;
 }
 
-macro_rules! impl_from_ne_bytes {
-    ($tgt:ty) => {
-        impl FromNeBytes for [u8; core::mem::size_of::<$tgt>()] {
+macro_rules! impl_from_X_bytes {
+    ($trait:ident, $method:ident, $tgt:ty) => {
+        impl $trait for [u8; core::mem::size_of::<$tgt>()] {
             type Output = $tgt;
 
             #[inline]
-            fn from_ne_bytes(self) -> Self::Output {
-                Self::Output::from_ne_bytes(self)
+            fn $method(self) -> Self::Output {
+                Self::Output::$method(self)
             }
         }
     };
 }
 
-impl_from_ne_bytes!(u8);
-impl_from_ne_bytes!(u16);
-impl_from_ne_bytes!(u32);
-impl_from_ne_bytes!(u64);
+macro_rules! impl_from_bytes {
+    ($src:ty) => {
+        impl_from_X_bytes!(FromNeBytes, from_ne_bytes, $src);
+    };
+}
+
+impl_from_bytes!(u8);
+impl_from_bytes!(u16);
+impl_from_bytes!(u32);
+impl_from_bytes!(u64);

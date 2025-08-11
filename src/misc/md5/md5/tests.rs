@@ -308,3 +308,12 @@ fn in_parts_test() {
         }
     }
 }
+
+#[test]
+fn to_string_test() {
+    let mut hasher = MD5::default();
+    hasher.extend(c"Hello, World!".to_bytes());
+    let hash = hasher.flush();
+    let str: String = hash.into();
+    assert_eq!(str, "65a8e27d8879283831b664bd8b7f0ad4");
+}
