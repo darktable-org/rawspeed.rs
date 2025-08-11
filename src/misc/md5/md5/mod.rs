@@ -207,7 +207,6 @@ pub struct MD5 {
     bytes_total: usize,
 }
 
-#[cfg_attr(not(test), expect(dead_code))]
 impl MD5 {
     const MAGIC0: [u8; 1] = [0x80];
     const ZERO_PADDING: [u8; 64] = [0_u8; 64];

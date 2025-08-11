@@ -29,6 +29,7 @@ members = [
     "src/parsers/rawparser",
     "src/std",
     "src/std/ndslice",
+    "src/utils/rstest",
 ]
 
 [workspace.package]

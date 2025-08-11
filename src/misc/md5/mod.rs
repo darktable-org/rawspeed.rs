@@ -1,3 +1,3 @@
 mod svec;
 
-mod md5;
+pub mod md5;
