@@ -113,20 +113,26 @@ pub trait FromNeBytes {
     fn from_ne_bytes(self) -> Self::Output;
 }
 
-macro_rules! impl_from_ne_bytes {
-    ($tgt:ty) => {
-        impl FromNeBytes for [u8; core::mem::size_of::<$tgt>()] {
+macro_rules! impl_from_X_bytes {
+    ($trait:ident, $method:ident, $tgt:ty) => {
+        impl $trait for [u8; core::mem::size_of::<$tgt>()] {
             type Output = $tgt;
 
             #[inline]
-            fn from_ne_bytes(self) -> Self::Output {
-                Self::Output::from_ne_bytes(self)
+            fn $method(self) -> Self::Output {
+                Self::Output::$method(self)
             }
         }
     };
 }
 
-impl_from_ne_bytes!(u8);
-impl_from_ne_bytes!(u16);
-impl_from_ne_bytes!(u32);
-impl_from_ne_bytes!(u64);
+macro_rules! impl_from_bytes {
+    ($src:ty) => {
+        impl_from_X_bytes!(FromNeBytes, from_ne_bytes, $src);
+    };
+}
+
+impl_from_bytes!(u8);
+impl_from_bytes!(u16);
+impl_from_bytes!(u32);
+impl_from_bytes!(u64);
