@@ -18,7 +18,7 @@ impl From<MD5State> for String {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct MD5Block([u8; 64]);
+struct MD5Block([u8; 64]);
 
 struct MD5Round(usize);
 
@@ -28,6 +28,8 @@ struct StepParams {
     t: u32,
 }
 impl StepParams {
+    #[inline]
+    #[must_use]
     const fn new(k: usize, s: u32, t: u32) -> Self {
         Self { k, s, t }
     }
@@ -109,6 +111,7 @@ const STAGES: [[StepParams; 16]; 4] = [
 
 impl MD5Round {
     #[inline]
+    #[must_use]
     const fn get_expr(self, tmp: MD5State) -> u32 {
         let [_a, b, c, d] = tmp.0;
         match self.0 {
@@ -122,15 +125,20 @@ impl MD5Round {
 }
 
 impl MD5State {
+    #[inline]
+    #[must_use]
     pub const fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
         Self([a, b, c, d])
     }
 
+    #[inline]
+    #[must_use]
     pub const fn init() -> Self {
         Self::new(0x6745_2301, 0xEFCD_AB89, 0x98BA_DCFE, 0x1032_5476)
     }
 
-    pub fn md5_compress(&mut self, block: &MD5Block) {
+    #[inline]
+    fn md5_compress(&mut self, block: &MD5Block) {
         let mut schedule: [u32; 16] = Default::default();
 
         for (s, bytes) in schedule.iter_mut().zip(block.0.chunks_exact(32 / 8))
@@ -162,7 +170,8 @@ impl MD5State {
     }
 }
 
-struct MD5 {
+#[derive(Debug)]
+pub struct MD5 {
     buf: SVec<u8, 64>,
     state: MD5State,
     bytes_total: usize,
@@ -173,6 +182,7 @@ impl MD5 {
     const MAGIC0: [u8; 1] = [0x80];
     const ZERO_PADDING: [u8; 64] = [0_u8; 64];
 
+    #[inline]
     pub fn extend(&mut self, mut msg: &[u8]) {
         assert!(!self.buf.is_full());
 
@@ -213,6 +223,8 @@ impl MD5 {
         assert!(!self.buf.is_full());
     }
 
+    #[inline]
+    #[must_use]
     pub fn flush(mut self) -> MD5State {
         assert!(!self.buf.is_full());
 
@@ -250,6 +262,7 @@ impl MD5 {
 }
 
 impl Default for MD5 {
+    #[inline]
     fn default() -> Self {
         Self {
             buf: SVec::default(),
