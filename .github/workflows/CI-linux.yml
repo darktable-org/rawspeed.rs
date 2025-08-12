@@ -45,7 +45,7 @@ env:
   RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
-  CODE_COVERAGE_SUPPORTED: ${{ inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.target-os != 'windows' }}
+  CODE_COVERAGE_SUPPORTED: ${{ inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
 
 jobs:
   linux:
@@ -180,6 +180,7 @@ jobs:
           ln -s /usr/bin/clang-${{ inputs.distro-LLVM }} /usr/local/bin/clang
           ln -s /usr/bin/clang++-${{ inputs.distro-LLVM }} /usr/local/bin/clang++
           ln -s /usr/bin/ld.lld-${{ inputs.distro-LLVM }} /usr/local/bin/ld.lld
+          ln -s /usr/bin/lld-link-${{ inputs.distro-LLVM }} /usr/local/bin/lld-link
           ln -s /usr/local/bin/clang /usr/local/bin/cc
           ln -s /usr/local/bin/clang /usr/local/bin/gcc
           ln -s /usr/local/bin/clang++ /usr/local/bin/c++
@@ -232,8 +233,12 @@ jobs:
           if [ "${{ inputs.builder-target }}" = "i686" ]; then
           eatmydata dpkg --add-architecture i386
           fi
+          if [ "${{ inputs.rust-toolchain-abi }}" = "gnu" ]; then
           PACKAGES="${PACKAGES} \
             mingw-w64 \
+          "
+          fi
+          PACKAGES="${PACKAGES} \
             wine \
           "
           if [ "${{ inputs.builder-target }}" = "i686" ]; then
@@ -241,13 +246,23 @@ jobs:
             wine32:i386 \
           "
           fi
+          if [ "${{ inputs.rust-toolchain-abi }}" = "msvc" ]; then
+          PACKAGES="${PACKAGES} \
+            python3 msitools \
+          "
+          fi
           mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
           [target.${{ env.RUST_TARGET }}]
           runner = "wine"
           EOT
+          if [ "${{ inputs.rust-toolchain-abi }}" = "msvc" ]; then
+          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          linker = "lld-link"
+          EOT
+          fi
           echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
       - name: Install the packages
-        timeout-minutes: 1
+        timeout-minutes: 2
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
@@ -282,6 +297,36 @@ jobs:
           . "$HOME/.cargo/env"
           eatmydata rustup component add llvm-tools-preview
           eatmydata cargo install cargo-llvm-cov
+      - name: Fetch/Checkout msvc-wine git repo
+        timeout-minutes: 1
+        if: inputs.target-os == 'windows' && inputs.rust-toolchain-abi == 'msvc'
+        uses: actions/checkout@v4
+        with:
+          repository: 'mstorsjo/msvc-wine'
+          path: 'msvc-wine'
+          fetch-depth: 1
+          set-safe-directory: ${{ github.workspace }}
+      - name: Perform msvc-wine stuff
+        timeout-minutes: 2
+        if: inputs.target-os == 'windows' && inputs.rust-toolchain-abi == 'msvc'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd msvc-wine
+          if [ "${{ inputs.builder-target }}" = "x86_64" ]; then
+          MSVC_ARCH=x64
+          elif [ "${{ inputs.builder-target }}" = "i686" ]; then
+          MSVC_ARCH=x86
+          elif [ "${{ inputs.builder-target }}" = "aarch64" ]; then
+          MSVC_ARCH=arm64
+          else
+          exit 1
+          fi
+          PYTHONUNBUFFERED=1 ./vsdownload.py --accept-license --dest /opt/msvc
+          ./install.sh /opt/msvc
+          tee -a "$HOME/.cargo/env" > /dev/null <<EOT
+          BIN=/opt/msvc/bin/${MSVC_ARCH} . $(pwd)/msvcenv-native.sh
+          EOT
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
         uses: actions/checkout@v4

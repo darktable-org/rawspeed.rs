@@ -44,13 +44,19 @@ jobs:
       matrix:
         os: [ linux ]
         stack:
-          - { runs-on: "ubuntu-latest", host: "x86_64", target: "x86_64", vendor: "pc", os: "windows" }
-          - { runs-on: "ubuntu-latest", host: "x86_64", target: "i686",   vendor: "pc", os: "windows" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "pc", os: "windows" }
+          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
-        abi: [ gnu ]
+        abi: [ gnu, msvc ]
         rust-toolchain-name: [ stable, nightly ]
         flavor: [ dev, release ]
+        exclude:
+          - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
+            abi: gnu
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+            abi: msvc
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}
@@ -67,7 +73,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-cross:
-    needs: [ linux-fast, windows-cross, windows-msys2-fast, macOS-fast ]
+    needs: [ linux-fast, windows-cross, macOS-fast ]
     strategy:
       fail-fast: false
       matrix:
@@ -99,28 +105,6 @@ jobs:
       flavor: ${{ matrix.flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  windows-msys2-fast:
-    strategy:
-      fail-fast: false
-      matrix:
-        stack:
-          - { os: windows, os-ver: latest, host: "x86_64",  target: "x86_64",  msystem: CLANG64 }
-          - { os: windows, os-ver: 11-arm, host: "aarch64", target: "aarch64", msystem: CLANGARM64 }
-        rust-toolchain-version: [ stable, nightly ]
-        rust-toolchain-abi: [ msvc ]
-        flavor: [ dev, release ]
-    uses: ./.github/workflows/CI-windows-msys2.yml
-    with:
-      os: ${{ matrix.stack.os }}
-      runs-on: ${{ matrix.stack.os }}-${{ matrix.stack.os-ver }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      msys2-msystem: ${{ matrix.stack.msystem }}
-      rust-toolchain-version: ${{ matrix.rust-toolchain-version }}
-      rust-toolchain-abi: ${{ matrix.rust-toolchain-abi }}
-      flavor: ${{ matrix.flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   macOS-fast:
     strategy:
       fail-fast: false
@@ -143,7 +127,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-docs:
-    needs: [ linux-fast, windows-cross, linux-cross, windows-msys2-fast, macOS-fast ]
+    needs: [ linux-fast, windows-cross, linux-cross, macOS-fast ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: linux
