@@ -13,6 +13,15 @@ on:
       builder-target:
         required: true
         type: string
+      target-vendor:
+        required: true
+        type: string
+      target-os:
+        required: true
+        type: string
+      rust-toolchain-abi:
+        required: true
+        type: string
       distro-image:
         required: true
         type: string
@@ -36,6 +45,7 @@ env:
   RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
+  CODE_COVERAGE_SUPPORTED: ${{ inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && inputs.target-os != 'windows' }}
 
 jobs:
   linux:
@@ -47,6 +57,60 @@ jobs:
     outputs:
       rustfmt-artifact-url: ${{ steps.rustfmt-upload.outputs.artifact-url }}
     steps:
+      - name: Configure necessary env variables
+        timeout-minutes: 1
+        run: |
+          set -xe
+          if    [ "${{ inputs.builder-target }}" = "x86_64" ]      \
+             || [ "${{ inputs.builder-target }}" = "aarch64" ]     \
+             || [ "${{ inputs.builder-target }}" = "i686" ]        \
+             || [ "${{ inputs.builder-target }}" = "powerpc64" ]   \
+             || [ "${{ inputs.builder-target }}" = "powerpc64le" ] \
+             || [ "${{ inputs.builder-target }}" = "s390x" ]       \
+             || [ "${{ inputs.builder-target }}" = "armv7" ];
+          then
+          RUST_TARGET_ARCH=${{ inputs.builder-target }}
+          elif [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          RUST_TARGET_ARCH=arm
+          elif [ "${{ inputs.builder-target }}" = "riscv64" ]; then
+          RUST_TARGET_ARCH=riscv64gc
+          else
+          exit 1
+          fi
+          echo "RUST_TARGET_ARCH=$(echo ${RUST_TARGET_ARCH})" >> $GITHUB_ENV
+          RUST_TARGET=${RUST_TARGET_ARCH}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}
+          echo "RUST_TARGET=$(echo ${RUST_TARGET})" >> $GITHUB_ENV
+          if [ "${{ inputs.builder-target }}" = "i686" ]; then
+          LIBC6_ARCH=i386
+          elif [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
+          LIBC6_ARCH=ppc64
+          elif [ "${{ inputs.builder-target }}" = "powerpc64le" ]; then
+          LIBC6_ARCH=ppc64el
+          elif [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          LIBC6_ARCH=armel
+          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
+          LIBC6_ARCH=armhf
+          else
+          LIBC6_ARCH=${{ inputs.builder-target }}
+          fi
+          echo "LIBC6_ARCH=$(echo ${LIBC6_ARCH})" >> $GITHUB_ENV
+          if [ "${{ inputs.builder-target }}" = "armv6" ]; then
+          GCC_ARCH=arm
+          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
+          GCC_ARCH=arm
+          else
+          GCC_ARCH=${{ inputs.builder-target }}
+          fi
+          echo "GCC_ARCH=$(echo ${GCC_ARCH})" >> $GITHUB_ENV
+          if    [ "${{ inputs.builder-target }}" = "s390x" ]      \
+             || [ "${{ inputs.builder-target }}" = "powerpc64" ];
+          then
+          ENDIANNESS=big
+          else
+          ENDIANNESS=little
+          fi
+          echo "ENDIANNESS=$(echo ${ENDIANNESS})" >> $GITHUB_ENV
+          echo HOME=/root >> "$GITHUB_ENV"
       - name: Configure APT
         timeout-minutes: 1
         run: |
@@ -77,105 +141,38 @@ jobs:
           rm -rf /etc/apt/sources.list*
           if [ "${{ inputs.distro-image }}" = "debian:trixie-slim" ]; then
           tee /etc/apt/sources.list > /dev/null <<EOT
-          deb http://debian-archive.trafficmanager.net/debian trixie main
-          deb http://debian-archive.trafficmanager.net/debian trixie-updates main
-          deb http://debian-archive.trafficmanager.net/debian-security trixie-security main
-          deb http://debian-archive.trafficmanager.net/debian trixie-backports main
+          deb http://deb.debian.org/debian trixie main
+          deb http://deb.debian.org/debian trixie-updates main
+          deb http://deb.debian.org/debian-security trixie-security main
+          deb http://deb.debian.org/debian trixie-backports main
           EOT
           else
             exit 1
           fi
-      - name: Update base packages
+      - name: Install eatmydata
         timeout-minutes: 1
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
           apt update
           apt install eatmydata
-          eatmydata apt upgrade
-      - name: Configure necessary env variables
+          rm -rf /var/lib/apt/lists/*
+      - name: Configure for native compilation
         timeout-minutes: 1
         run: |
           set -xe
-          if    [ "${{ inputs.builder-target }}" = "x86_64" ]      \
-             || [ "${{ inputs.builder-target }}" = "aarch64" ]     \
-             || [ "${{ inputs.builder-target }}" = "i686" ]        \
-             || [ "${{ inputs.builder-target }}" = "powerpc64" ]   \
-             || [ "${{ inputs.builder-target }}" = "powerpc64le" ] \
-             || [ "${{ inputs.builder-target }}" = "s390x" ]       \
-             || [ "${{ inputs.builder-target }}" = "armv7" ];
-          then
-          RUST_TARGET=${{ inputs.builder-target }}
-          elif [ "${{ inputs.builder-target }}" = "armv6" ]; then
-          RUST_TARGET=arm
-          elif [ "${{ inputs.builder-target }}" = "riscv64" ]; then
-          RUST_TARGET=riscv64gc
-          else
-          exit 1
-          fi
-          echo "RUST_TARGET=$(echo ${RUST_TARGET})" >> $GITHUB_ENV
-          if [ "${{ inputs.builder-target }}" = "i686" ]; then
-          LIBC6_ARCH=i386
-          elif [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
-          LIBC6_ARCH=ppc64
-          elif [ "${{ inputs.builder-target }}" = "powerpc64le" ]; then
-          LIBC6_ARCH=ppc64el
-          elif [ "${{ inputs.builder-target }}" = "armv6" ]; then
-          LIBC6_ARCH=armel
-          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
-          LIBC6_ARCH=armhf
-          else
-          LIBC6_ARCH=${{ inputs.builder-target }}
-          fi
-          echo "LIBC6_ARCH=$(echo ${LIBC6_ARCH})" >> $GITHUB_ENV
-          if [ "${{ inputs.builder-target }}" = "armv6" ]; then
-          GCC_ARCH=arm
-          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
-          GCC_ARCH=arm
-          else
-          GCC_ARCH=${{ inputs.builder-target }}
-          fi
-          echo "GCC_ARCH=$(echo ${GCC_ARCH})" >> $GITHUB_ENV
-          if [ "${{ inputs.builder-target }}" = "armv6" ]; then
-          ABI=gnueabi
-          elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
-          ABI=gnueabihf
-          else
-          ABI=gnu
-          fi
-          echo "ABI=$(echo ${ABI})" >> $GITHUB_ENV
-          if    [ "${{ inputs.builder-target }}" = "s390x" ]      \
-             || [ "${{ inputs.builder-target }}" = "powerpc64" ];
-          then
-          ENDIANNESS=big
-          else
-          ENDIANNESS=little
-          fi
-          echo "ENDIANNESS=$(echo ${ENDIANNESS})" >> $GITHUB_ENV
-      - name: Install necessary packages
-        timeout-minutes: 2
-        run: |
-          set -xe
-          eatmydata apt install \
+          PACKAGES="${{ env.PACKAGES }}"
+          PACKAGES="${PACKAGES} \
             ca-certificates \
             curl \
             git \
             gpg \
-          ;
-          eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
-          . "$HOME/.cargo/env"
-          eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
-          eatmydata rustup default ${{ inputs.rust-toolchain-name }}
-          if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
-          eatmydata rustup component add rustfmt
-          elif [ "${{ inputs.flavor }}" = "doc" ]; then
-          /bin/true
-          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
-          eatmydata rustup component add clippy
-          eatmydata apt install \
+          "
+          if [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          PACKAGES="${PACKAGES} \
             clang-${{ inputs.distro-LLVM }} \
             lld-${{ inputs.distro-LLVM }} \
-          ;
+          "
           dpkg-divert --add --rename --divert /usr/bin/cc.original /usr/bin/cc
           dpkg-divert --add --rename --divert /usr/bin/gcc.original /usr/bin/gcc
           dpkg-divert --add --rename --divert /usr/bin/g++.original /usr/bin/g++
@@ -188,38 +185,97 @@ jobs:
           ln -s /usr/local/bin/clang++ /usr/local/bin/c++
           ln -s /usr/local/bin/clang++ /usr/local/bin/g++
           ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
-          else
-          exit 1
           fi
-      - name: Install necessary packages for cross-compilation
-        timeout-minutes: 2
-        if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.builder-host != inputs.builder-target
+          echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
+      - name: Configure for same-os cross-arch compilation
+        timeout-minutes: 1
+        if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
         run: |
           set -xe
-          . "$HOME/.cargo/env"
-
-          eatmydata apt install \
-            gcc-${{ env.GCC_ARCH }}-linux-${{ env.ABI }} \
+          PACKAGES="${{ env.PACKAGES }}"
+          PACKAGES="${PACKAGES} \
+            gcc-${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} \
             libc6-dev-${{ env.LIBC6_ARCH }}-cross \
             qemu-user \
             qemu-user-binfmt \
-            ;
-          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-${{ env.ABI }}-clang
-          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-${{ env.ABI }}-clang++
-          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-unknown-linux-${{ env.ABI }}-ld
-          rustup target add ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }}
-          LINKER="${{ inputs.builder-target }}-unknown-linux-${{ env.ABI }}-clang"
+          "
+          ln -s /usr/local/bin/clang /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-clang
+          ln -s /usr/local/bin/clang++ /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-clang++
+          ln -s /usr/local/bin/ld /usr/local/bin/${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-ld
+          LINKER="${{ inputs.builder-target }}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-clang"
           if [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
           # LLD/clang does not support powerpc64 ELFv1 ABI
-          LINKER="${{ env.GCC_ARCH }}-linux-${{ env.ABI }}-gcc"
+          LINKER="${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-gcc"
           fi
-          tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
-          [target.${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }}]
+          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          [target.${{ env.RUST_TARGET }}]
           linker = "${LINKER}"
-          runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-linux-${{ env.ABI }}"
           EOT
-      - name: Install necessary packages for code coverage
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+          if [ "${{ inputs.builder-target }}" != "i686" ]; then
+          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}"
+          EOT
+          fi
+          if [ "${{ inputs.builder-target }}" = "i686" ]; then
+          eatmydata dpkg --add-architecture i386
+          PACKAGES="${PACKAGES} \
+            libc6:i386 \
+          "
+          fi
+          echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
+      - name: Configure for cross-os same-arch compilation
+        timeout-minutes: 1
+        if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.target-os == 'windows'
+        run: |
+          set -xe
+          PACKAGES="${{ env.PACKAGES }}"
+          if [ "${{ inputs.builder-target }}" = "i686" ]; then
+          eatmydata dpkg --add-architecture i386
+          fi
+          PACKAGES="${PACKAGES} \
+            mingw-w64 \
+            wine \
+          "
+          if [ "${{ inputs.builder-target }}" = "i686" ]; then
+          PACKAGES="${PACKAGES} \
+            wine32:i386 \
+          "
+          fi
+          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          [target.${{ env.RUST_TARGET }}]
+          runner = "wine"
+          EOT
+          echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
+      - name: Install the packages
+        timeout-minutes: 1
+        run: |
+          set -xe
+          rm -rf /var/lib/apt/lists/*
+          apt update
+          eatmydata apt upgrade
+          eatmydata apt install ${{ env.PACKAGES }}
+          eatmydata apt clean
+          rm -rf /var/lib/apt/lists/*
+      - name: Install Rust toolchain and targets
+        timeout-minutes: 1
+        run: |
+          set -xe
+          eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+          . "$HOME/.cargo/env"
+          eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
+          eatmydata rustup default ${{ inputs.rust-toolchain-name }}
+          eatmydata rustup target add ${{ env.RUST_TARGET }}
+          if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
+          eatmydata rustup component add rustfmt
+          elif [ "${{ inputs.flavor }}" = "doc" ]; then
+          /bin/true
+          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          eatmydata rustup component add clippy
+          else
+          exit 1
+          fi
+      - name: Install necessary Rust packages for code coverage
+        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         timeout-minutes: 2
         run: |
           set -xe
@@ -272,7 +328,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo check --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo check --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Run Clippy
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -280,7 +336,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo clippy --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }} --all-targets --all-features
       - name: Build
         timeout-minutes: 1
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -288,7 +344,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo build --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
+          cargo build --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Run tests
         timeout-minutes: 2
         if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
@@ -296,10 +352,10 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo test --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
+          cargo test --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 2
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         env:
           RUSTFLAGS: "-C instrument-coverage"
         run: |
@@ -307,24 +363,24 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }}-unknown-linux-${{ env.ABI }} --profile ${{ inputs.flavor }}
+          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ inputs.os }}
           BUILDER_HOST: ${{ inputs.builder-host }}
           BUILDER_TARGET: ${{ inputs.builder-target }}
-          RUST_TOOLCHAIN: ${{ inputs.rust-toolchain-name }}
+          RUST_TOOLCHAIN: ${{ env.RUST_TARGET }}
           LLVM_VER: ${{ inputs.distro-LLVM }}
           RUST_PROFILE: ${{ inputs.flavor }}
         with:
