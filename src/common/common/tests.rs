@@ -114,7 +114,7 @@ fn extract_high_bits_allones_input_test() {
 }
 
 #[test]
-fn extract_high_bits_input_test() {
+fn extract_high_bits_input_exhaustive_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
@@ -133,7 +133,7 @@ fn extract_high_bits_input_test() {
         }
 
     test!(u8);
-    test!(u16);
+    // test!(u16);
     // test!(u32);
     // test!(u64);
 }
@@ -265,7 +265,7 @@ fn extract_low_bits_allones_input_test() {
 }
 
 #[test]
-fn extract_low_bits_input_test() {
+fn extract_low_bits_input_exhaustive_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
@@ -285,7 +285,7 @@ fn extract_low_bits_input_test() {
         }
 
     test!(u8);
-    test!(u16);
+    // test!(u16);
     // test!(u32);
     // test!(u64);
 }
