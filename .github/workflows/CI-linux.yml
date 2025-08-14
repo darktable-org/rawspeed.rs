@@ -31,7 +31,10 @@ on:
       rust-toolchain-name:
         required: true
         type: string
-      flavor:
+      build-profile:
+        required: true
+        type: string
+      job-flavor:
         required: true
         type: string
     secrets:
@@ -43,15 +46,14 @@ on:
 env:
   DEBIAN_FRONTEND: noninteractive
   RUSTFLAGS: "-Dwarnings"
-  WITH_MIRI: ${{ inputs.rust-toolchain-name == 'nightly' && inputs.flavor == 'dev' && inputs.builder-target != 'riscv64' }}
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
-  CODE_COVERAGE_SUPPORTED: ${{ inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
+  CODE_COVERAGE_SUPPORTED: ${{ inputs.job-flavor == 'plain' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
 
 jobs:
   linux:
     runs-on: ${{ inputs.runs-on }}
-    name: ${{ inputs.runs-on }} (${{ inputs.builder-host }}, for ${{ inputs.builder-target}}) // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    name: ${{ inputs.runs-on }} (${{ inputs.builder-host }}, for ${{ inputs.builder-target}}) // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.build-profile }}
     container:
       image: ${{ inputs.distro-image }}
       options: --tmpfs /tmp:exec --tmpfs /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}:exec
@@ -171,7 +173,8 @@ jobs:
             git \
             gpg \
           "
-          if [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          if    [ "${{ inputs.job-flavor }}" != "RustFmt" ] \
+             && [ "${{ inputs.job-flavor }}" != "doc" ]; then
           PACKAGES="${PACKAGES} \
             clang-${{ inputs.distro-LLVM }} \
             lld-${{ inputs.distro-LLVM }} \
@@ -193,7 +196,7 @@ jobs:
           echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
       - name: Configure for same-os cross-arch compilation
         timeout-minutes: 1
-        if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
+        if: inputs.job-flavor == 'plain' && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
         run: |
           set -xe
           PACKAGES="${{ env.PACKAGES }}"
@@ -229,7 +232,7 @@ jobs:
           echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
       - name: Configure for cross-os same-arch compilation
         timeout-minutes: 1
-        if: (inputs.flavor == 'dev' || inputs.flavor == 'release') && inputs.target-os == 'windows'
+        if: inputs.target-os == 'windows'
         run: |
           set -xe
           PACKAGES="${{ env.PACKAGES }}"
@@ -280,20 +283,28 @@ jobs:
           set -xe
           RUST_COMPONENTS=""
           RUST_CRATES=""
-          eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+          eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none --profile minimal -y
           . "$HOME/.cargo/env"
           eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           eatmydata rustup default ${{ inputs.rust-toolchain-name }}
           eatmydata rustup target add ${{ env.RUST_TARGET }}
-          if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
+          if [ "${{ inputs.inputs.job-flavor }}" = "RustFmt" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
             rustfmt \
           "
-          elif [ "${{ inputs.flavor }}" = "doc" ]; then
+          elif [ "${{ inputs.job-flavor }}" = "doc" ]; then
           /bin/true
-          elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
+          elif [ "${{ inputs.job-flavor }}" = "plain" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
             clippy \
+          "
+          elif [ "${{ inputs.job-flavor }}" = "Miri" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            rust-src \
+            miri \
+          "
+          RUST_CRATES="${RUST_CRATES} \
+            cargo-nextest \
           "
           else
           exit 1
@@ -304,15 +315,6 @@ jobs:
           "
           RUST_CRATES="${RUST_CRATES} \
             cargo-llvm-cov \
-          "
-          fi
-          if [ "${{ env.WITH_MIRI }}" = "true" ]; then
-          RUST_COMPONENTS="${RUST_COMPONENTS} \
-            rust-src \
-            miri \
-          "
-          RUST_CRATES="${RUST_CRATES} \
-            cargo-nextest \
           "
           fi
           if [ "${RUST_COMPONENTS}" != "" ]; then
@@ -371,7 +373,7 @@ jobs:
       - name: Verify that the source code is properly formatted
         id: rustfmt
         timeout-minutes: 1
-        if: inputs.flavor == 'RustFmt'
+        if: inputs.job-flavor == 'RustFmt'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -382,7 +384,7 @@ jobs:
       - name: Upload rustfmt patch
         id: rustfmt-upload
         timeout-minutes: 1
-        if: inputs.flavor == 'RustFmt' && failure() && steps.rustfmt.conclusion == 'failure'
+        if: inputs.job-flavor == 'RustFmt' && failure() && steps.rustfmt.conclusion == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: rustfmt.patch
@@ -392,36 +394,36 @@ jobs:
           overwrite: true
       - name: Run cargo check
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
+        if: inputs.job-flavor == 'plain'
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo check --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo check --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-targets --all-features
       - name: Run Clippy
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
+        if: inputs.job-flavor == 'plain'
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-targets --all-features
       - name: Build
         timeout-minutes: 1
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
+        if: inputs.job-flavor == 'plain'
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo build --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
+          cargo build --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}
       - name: Run tests
         timeout-minutes: 2
-        if: inputs.flavor != 'RustFmt' && inputs.flavor != 'doc'
+        if: inputs.job-flavor == 'plain'
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo test --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
+          cargo test --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}
       - name: Run tests to collect code coverage
         timeout-minutes: 2
         if: env.WITH_CODE_COVERAGE == 'true'
@@ -432,7 +434,7 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: env.WITH_CODE_COVERAGE == 'true'
@@ -440,7 +442,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
+          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
         if: env.WITH_CODE_COVERAGE == 'true'
@@ -451,7 +453,7 @@ jobs:
           BUILDER_TARGET: ${{ inputs.builder-target }}
           RUST_TOOLCHAIN: ${{ env.RUST_TARGET }}
           LLVM_VER: ${{ inputs.distro-LLVM }}
-          RUST_PROFILE: ${{ inputs.flavor }}
+          RUST_PROFILE: ${{ inputs.build-profile }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,BUILDER_HOST,BUILDER_TARGET,ENDIANNESS,RUST_TOOLCHAIN,LLVM_VER,RUST_PROFILE
@@ -461,7 +463,7 @@ jobs:
           fail_ci_if_error: true
       - name: Run tests under Miri
         timeout-minutes: 10
-        if: env.WITH_MIRI == 'true'
+        if: inputs.job-flavor == 'Miri'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -469,7 +471,7 @@ jobs:
           cargo miri nextest run --target ${{ env.RUST_TARGET }}
       - name: Build docs
         timeout-minutes: 1
-        if: inputs.flavor == 'doc'
+        if: inputs.job-flavor == 'doc'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -484,7 +486,7 @@ jobs:
           fi
       - name: Upload docs artifact
         timeout-minutes: 1
-        if: inputs.flavor == 'doc'
+        if: inputs.job-flavor == 'doc'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ github.workspace }}/rawspeed.rs/target/doc

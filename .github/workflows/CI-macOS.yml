@@ -22,7 +22,7 @@ on:
       rust-toolchain-name:
         required: true
         type: string
-      flavor:
+      build-profile:
         required: true
         type: string
     secrets:
@@ -35,7 +35,7 @@ env:
 
 jobs:
   macOS:
-    name: ${{ inputs.runs-on }}, XCode ${{ inputs.xcode-version }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
+    name: ${{ inputs.runs-on }}, XCode ${{ inputs.xcode-version }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.build-profile }}
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Configure necessary env variables
@@ -63,7 +63,7 @@ jobs:
         timeout-minutes: 4
         run: |
           set -xe
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none --profile minimal -y
           rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           rustup default ${{ inputs.rust-toolchain-name }}
           RUST_COMPONENTS="${RUST_COMPONENTS} \
@@ -89,28 +89,28 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo check --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo check --profile ${{ inputs.build-profile }} --all-targets --all-features
       - name: Run Clippy
         timeout-minutes: 1
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo clippy --profile ${{ inputs.flavor }} --all-targets --all-features
+          cargo clippy --profile ${{ inputs.build-profile }} --all-targets --all-features
       - name: Build
         timeout-minutes: 1
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo build --profile ${{ inputs.flavor }}
+          cargo build --profile ${{ inputs.build-profile }}
       - name: Run tests
         timeout-minutes: 1
         run: |
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo test --profile ${{ inputs.flavor }}
+          cargo test --profile ${{ inputs.build-profile }}
       - name: Run tests to collect code coverage
         timeout-minutes: 1
         if: env.WITH_CODE_COVERAGE == 'true'
@@ -121,7 +121,7 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo clean
-          cargo llvm-cov --no-report --profile ${{ inputs.flavor }}
+          cargo llvm-cov --no-report --profile ${{ inputs.build-profile }}
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: env.WITH_CODE_COVERAGE == 'true'
@@ -129,7 +129,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --profile ${{ inputs.flavor }}
+          cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --profile ${{ inputs.build-profile }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
         if: env.WITH_CODE_COVERAGE == 'true'
@@ -141,7 +141,7 @@ jobs:
           ENDIANNESS: ${{ ((inputs.builder-target == 's390x' || inputs.builder-target == 'powerpc64') && 'big') || 'little' }}
           RUST_TOOLCHAIN: ${{ inputs.rust-toolchain-name }}
           LLVM_VER: ${{ inputs.LLVM_VER }}
-          RUST_PROFILE: ${{ inputs.flavor }}
+          RUST_PROFILE: ${{ inputs.build-profile }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,BUILDER_HOST,BUILDER_TARGET,RUST_TOOLCHAIN,LLVM_VER,RUST_PROFILE
