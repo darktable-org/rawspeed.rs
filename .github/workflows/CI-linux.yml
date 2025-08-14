@@ -43,6 +43,7 @@ on:
 env:
   DEBIAN_FRONTEND: noninteractive
   RUSTFLAGS: "-Dwarnings"
+  WITH_MIRI: ${{ inputs.rust-toolchain-name == 'nightly' && inputs.flavor == 'dev' && inputs.builder-target != 'riscv64' }}
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
@@ -274,7 +275,7 @@ jobs:
           eatmydata apt clean
           rm -rf /var/lib/apt/lists/*
       - name: Install Rust toolchain and targets and crates
-        timeout-minutes: 3
+        timeout-minutes: 4
         run: |
           set -xe
           RUST_COMPONENTS=""
@@ -458,6 +459,14 @@ jobs:
           files: ${{ env.SRC_DIR }}/codecov.json
           root_dir: ${{ env.SRC_DIR }}
           fail_ci_if_error: true
+      - name: Run tests under Miri
+        timeout-minutes: 10
+        if: env.WITH_MIRI == 'true'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo miri nextest run --target ${{ env.RUST_TARGET }}
       - name: Build docs
         timeout-minutes: 1
         if: inputs.flavor == 'doc'
