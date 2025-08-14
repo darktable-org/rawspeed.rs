@@ -43,6 +43,7 @@ on:
 env:
   DEBIAN_FRONTEND: noninteractive
   RUSTFLAGS: "-Dwarnings"
+  WITH_MIRI: ${{ inputs.rust-toolchain-name == 'nightly' && inputs.flavor == 'dev' && inputs.builder-target != 'riscv64' }}
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.flavor != 'RustFmt' && inputs.flavor != 'doc' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
@@ -61,6 +62,8 @@ jobs:
         timeout-minutes: 1
         run: |
           set -xe
+          WITH_CODE_COVERAGE=${{ env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true') }}
+          echo "WITH_CODE_COVERAGE=$(echo ${WITH_CODE_COVERAGE})" >> $GITHUB_ENV
           if    [ "${{ inputs.builder-target }}" = "x86_64" ]      \
              || [ "${{ inputs.builder-target }}" = "aarch64" ]     \
              || [ "${{ inputs.builder-target }}" = "i686" ]        \
@@ -271,32 +274,53 @@ jobs:
           eatmydata apt install ${{ env.PACKAGES }}
           eatmydata apt clean
           rm -rf /var/lib/apt/lists/*
-      - name: Install Rust toolchain and targets
-        timeout-minutes: 1
+      - name: Install Rust toolchain and targets and crates
+        timeout-minutes: 4
         run: |
           set -xe
+          RUST_COMPONENTS=""
+          RUST_CRATES=""
           eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
           . "$HOME/.cargo/env"
           eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           eatmydata rustup default ${{ inputs.rust-toolchain-name }}
           eatmydata rustup target add ${{ env.RUST_TARGET }}
           if [ "${{ inputs.flavor }}" = "RustFmt" ]; then
-          eatmydata rustup component add rustfmt
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            rustfmt \
+          "
           elif [ "${{ inputs.flavor }}" = "doc" ]; then
           /bin/true
           elif [ "${{ inputs.flavor }}" = "dev" ] || [ "${{ inputs.flavor }}" = "release" ]; then
-          eatmydata rustup component add clippy
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            clippy \
+          "
           else
           exit 1
           fi
-      - name: Install necessary Rust packages for code coverage
-        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
-        timeout-minutes: 2
-        run: |
-          set -xe
-          . "$HOME/.cargo/env"
-          eatmydata rustup component add llvm-tools-preview
-          eatmydata cargo install cargo-llvm-cov
+          if [ "${{ env.WITH_CODE_COVERAGE }}" = "true" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            llvm-tools-preview \
+          "
+          RUST_CRATES="${RUST_CRATES} \
+            cargo-llvm-cov \
+          "
+          fi
+          if [ "${{ env.WITH_MIRI }}" = "true" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            rust-src \
+            miri \
+          "
+          RUST_CRATES="${RUST_CRATES} \
+            cargo-nextest \
+          "
+          fi
+          if [ "${RUST_COMPONENTS}" != "" ]; then
+          eatmydata rustup component add ${RUST_COMPONENTS}
+          fi
+          if [ "${RUST_CRATES}" != "" ]; then
+          eatmydata cargo install ${RUST_CRATES}
+          fi
       - name: Fetch/Checkout msvc-wine git repo
         timeout-minutes: 1
         if: inputs.target-os == 'windows' && inputs.rust-toolchain-abi == 'msvc'
@@ -400,7 +424,7 @@ jobs:
           cargo test --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 2
-        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+        if: env.WITH_CODE_COVERAGE == 'true'
         env:
           RUSTFLAGS: "-C instrument-coverage"
         run: |
@@ -411,7 +435,7 @@ jobs:
           cargo llvm-cov --no-report --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
-        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+        if: env.WITH_CODE_COVERAGE == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -419,7 +443,7 @@ jobs:
           cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --target ${{ env.RUST_TARGET }} --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
-        if: env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true')
+        if: env.WITH_CODE_COVERAGE == 'true'
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ inputs.os }}
@@ -435,6 +459,14 @@ jobs:
           files: ${{ env.SRC_DIR }}/codecov.json
           root_dir: ${{ env.SRC_DIR }}
           fail_ci_if_error: true
+      - name: Run tests under Miri
+        timeout-minutes: 10
+        if: env.WITH_MIRI == 'true'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo miri nextest run --target ${{ env.RUST_TARGET }}
       - name: Build docs
         timeout-minutes: 1
         if: inputs.flavor == 'doc'

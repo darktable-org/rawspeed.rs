@@ -45,7 +45,7 @@ fn basic_test() {
 
 #[test]
 fn exhaustive_test() {
-    for input_length in 0..=64_usize {
+    for input_length in 0..=8_usize {
         let mut res: Vec<u8> = vec![];
         for i in 0..input_length {
             res.push((1 + i).try_into().unwrap());

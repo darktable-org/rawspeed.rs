@@ -110,12 +110,8 @@ fn usable_0xu8_test() {
 
 #[test]
 #[cfg_attr(
-    miri,
-    ignore = "miri fails with: miri resource exhaustion: tried to allocate more memory than available to compiler"
-)]
-#[cfg_attr(
-    not(target_pointer_width = "64"),
-    ignore = "iff isize === i32, allocation of isize::MAX can succeed, we don't want that"
+    any(not(target_pointer_width = "64"), miri),
+    ignore = "this test only makes sense for ridiculous allocations sizes (1PB+?), but at the same time requires native compilation (i.e. no interpreters/sanitizers)"
 )]
 fn usable_max_test() {
     assert_eq!(
