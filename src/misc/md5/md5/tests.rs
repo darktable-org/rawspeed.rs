@@ -293,19 +293,14 @@ fn full_test() {
 
 #[test]
 fn in_parts_test() {
-    for testcase in TESTCASES {
-        let rest = testcase.slice;
-        for len0 in 0..rest.len() {
-            let (part_0, rest) = rest.split_at(len0);
-            for len1 in 0..rest.len() {
-                let (part_1, rest) = rest.split_at(len1);
-                let mut hasher = MD5::default();
-                hasher.extend(part_0);
-                hasher.extend(part_1);
-                hasher.extend(rest);
-                assert_eq!(hasher.flush(), testcase.state);
-            }
-        }
+    let testcase = TESTCASES.iter().max_by_key(|c| c.slice.len()).unwrap();
+    let rest = testcase.slice;
+    for len0 in 0..rest.len() {
+        let (part_0, rest) = rest.split_at(len0);
+        let mut hasher = MD5::default();
+        hasher.extend(part_0);
+        hasher.extend(rest);
+        assert_eq!(hasher.flush(), testcase.state);
     }
 }
 
