@@ -38,6 +38,12 @@ jobs:
     name: ${{ inputs.runs-on }}, XCode ${{ inputs.xcode-version }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.flavor }}
     runs-on: ${{ inputs.runs-on }}
     steps:
+      - name: Configure necessary env variables
+        timeout-minutes: 1
+        run: |
+          set -xe
+          WITH_CODE_COVERAGE=${{ github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true' }}
+          echo "WITH_CODE_COVERAGE=$(echo ${WITH_CODE_COVERAGE})" >> $GITHUB_ENV
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
         uses: actions/checkout@v4
@@ -54,21 +60,38 @@ jobs:
           brew autoremove --quiet
           brew cleanup --quiet --prune=all
       - name: Install Rust
-        timeout-minutes: 1
+        timeout-minutes: 4
         run: |
           set -xe
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
           rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           rustup default ${{ inputs.rust-toolchain-name }}
-          rustup component add clippy
-      - name: Install necessary packages for code coverage
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
-        timeout-minutes: 3
-        run: |
-          set -xe
-          . "$HOME/.cargo/env"
-          rustup component add llvm-tools-preview
-          cargo install cargo-llvm-cov
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            clippy \
+          "
+          if [ "${{ env.WITH_CODE_COVERAGE }}" = "true" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            llvm-tools-preview \
+          "
+          RUST_CRATES="${RUST_CRATES} \
+            cargo-llvm-cov \
+          "
+          fi
+          if [ "${{ env.WITH_MIRI }}" = "true" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            rust-src \
+            miri \
+          "
+          RUST_CRATES="${RUST_CRATES} \
+            cargo-nextest \
+          "
+          fi
+          if [ "${RUST_COMPONENTS}" != "" ]; then
+          rustup component add ${RUST_COMPONENTS}
+          fi
+          if [ "${RUST_CRATES}" != "" ]; then
+          cargo install ${RUST_CRATES}
+          fi
       - name: Run cargo check
         timeout-minutes: 1
         run: |
@@ -99,7 +122,7 @@ jobs:
           cargo test --profile ${{ inputs.flavor }}
       - name: Run tests to collect code coverage
         timeout-minutes: 1
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
+        if: env.WITH_CODE_COVERAGE == 'true'
         env:
           RUSTFLAGS: "-C instrument-coverage"
         run: |
@@ -110,7 +133,7 @@ jobs:
           cargo llvm-cov --no-report --profile ${{ inputs.flavor }}
       - name: Aggregate code coverage
         timeout-minutes: 1
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
+        if: env.WITH_CODE_COVERAGE == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -118,7 +141,7 @@ jobs:
           cargo llvm-cov report --codecov --output-path $SRC_DIR/codecov.json --profile ${{ inputs.flavor }}
       - name: Upload coverage reports to Codecov
         timeout-minutes: 1
-        if: github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true'
+        if: env.WITH_CODE_COVERAGE == 'true'
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ inputs.os }}
