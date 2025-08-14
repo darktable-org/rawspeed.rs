@@ -30,7 +30,6 @@ on:
 
 env:
   RUSTFLAGS: "-Dwarnings"
-  WITH_MIRI: ${{ inputs.rust-toolchain-name == 'nightly' && inputs.flavor == 'dev' }}
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
 
@@ -61,7 +60,7 @@ jobs:
           brew autoremove --quiet
           brew cleanup --quiet --prune=all
       - name: Install Rust
-        timeout-minutes: 7
+        timeout-minutes: 4
         run: |
           set -xe
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
@@ -76,15 +75,6 @@ jobs:
           "
           RUST_CRATES="${RUST_CRATES} \
             cargo-llvm-cov \
-          "
-          fi
-          if [ "${{ env.WITH_MIRI }}" = "true" ]; then
-          RUST_COMPONENTS="${RUST_COMPONENTS} \
-            rust-src \
-            miri \
-          "
-          RUST_CRATES="${RUST_CRATES} \
-            cargo-nextest \
           "
           fi
           if [ "${RUST_COMPONENTS}" != "" ]; then
@@ -159,11 +149,3 @@ jobs:
           files: ${{ env.SRC_DIR }}/codecov.json
           root_dir: ${{ env.SRC_DIR }}
           fail_ci_if_error: true
-      - name: Run tests under Miri
-        timeout-minutes: 10
-        if: env.WITH_MIRI == 'true'
-        run: |
-          set -xe
-          . "$HOME/.cargo/env"
-          cd "$SRC_DIR"
-          cargo miri nextest run

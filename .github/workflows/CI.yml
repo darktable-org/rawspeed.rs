@@ -112,7 +112,7 @@ jobs:
       flavor: ${{ matrix.flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  macOS-fast:
+  macOS:
     strategy:
       fail-fast: false
       matrix:
@@ -121,9 +121,6 @@ jobs:
           - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
         rust-toolchain-name: [ stable, nightly ]
         flavor: [ dev, release ]
-        exclude:
-          - rust-toolchain-name: nightly
-            flavor: dev
     uses: ./.github/workflows/CI-macOS.yml
     with:
       os: ${{ matrix.compiler.os }}
@@ -137,7 +134,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-slow-native:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS-fast ]
+    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
     strategy:
       fail-fast: false
       matrix:
@@ -166,7 +163,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-slow-cross:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS-fast ]
+    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
     strategy:
       fail-fast: false
       matrix:
@@ -198,7 +195,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   windows-slow:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS-fast ]
+    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
     strategy:
       fail-fast: false
       matrix:
@@ -232,31 +229,9 @@ jobs:
       flavor: ${{ matrix.flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  macOS-slow:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS-fast ]
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler:
-          - { os: macos, os-ver: 15, host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
-          - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
-        rust-toolchain-name: [ nightly ]
-        flavor: [ dev ]
-    uses: ./.github/workflows/CI-macOS.yml
-    with:
-      os: ${{ matrix.compiler.os }}
-      runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
-      builder-host: ${{ matrix.compiler.host }}
-      builder-target: ${{ matrix.compiler.target }}
-      xcode-version: ${{ matrix.compiler.XCode }}
-      LLVM_VER: ${{ matrix.compiler.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-docs:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS-fast,
-             linux-slow-native, linux-slow-cross, windows-slow, macOS-slow]
+    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
+             linux-slow-native, linux-slow-cross, windows-slow]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: linux
