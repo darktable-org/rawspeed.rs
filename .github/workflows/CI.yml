@@ -145,8 +145,17 @@ jobs:
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ nightly ]
-        build-profile: [ dev ]
-        job-flavor: [ Miri ]
+        build-profile: [ dev, release ]
+        job-flavor: [ Miri, ASAN, MSAN, TSAN ]
+        exclude:
+          - build-profile: release
+            job-flavor: Miri
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+            job-flavor: ASan
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+            job-flavor: MSan
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+            job-flavor: TSan
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}

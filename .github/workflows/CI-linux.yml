@@ -53,7 +53,7 @@ env:
 jobs:
   linux:
     runs-on: ${{ inputs.runs-on }}
-    name: ${{ inputs.runs-on }} (${{ inputs.builder-host }}, for ${{ inputs.builder-target}}) // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.build-profile }}
+    name: ${{ inputs.runs-on }} (${{ inputs.builder-host }}, for ${{ inputs.builder-target}}) // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.build-profile }}, job flavor ${{ inputs.job-flavor }}
     container:
       image: ${{ inputs.distro-image }}
       options: --tmpfs /tmp:exec --tmpfs /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}:exec
@@ -306,6 +306,12 @@ jobs:
           RUST_CRATES="${RUST_CRATES} \
             cargo-nextest \
           "
+          elif    [ "${{ inputs.job-flavor }}" = "ASAN" ] \
+               || [ "${{ inputs.job-flavor }}" = "MSAN" ] \
+               || [ "${{ inputs.job-flavor }}" = "TSAN" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
+            rust-src \
+          "
           else
           exit 1
           fi
@@ -469,6 +475,27 @@ jobs:
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
           cargo miri nextest run --target ${{ env.RUST_TARGET }}
+      - name: Run tests under Sanitizer
+        timeout-minutes: 2
+        if: inputs.job-flavor == 'ASAN' || inputs.job-flavor == 'MSAN' || inputs.job-flavor == 'TSAN'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          BUILD_ARGS="${BUILD_ARGS} -Z build-std"
+          if [ "${{ inputs.job-flavor }}" = "ASAN" ]; then
+          FLAGS="${FLAGS} -Zsanitizer=address"
+          elif [ "${{ inputs.job-flavor }}" = "MSAN" ]; then
+          FLAGS="${FLAGS} -Zsanitizer=memory -Zsanitizer-memory-track-origins"
+          elif [ "${{ inputs.job-flavor }}" = "TSAN" ]; then
+          FLAGS="${FLAGS} -Zsanitizer=thread"
+          else
+          exit 1
+          fi
+          export RUSTFLAGS="$RUSTFLAGS $FLAGS"
+          export RUSTDOCFLAGS="$RUSTDOCFLAGS $FLAGS"
+          export ${{ inputs.job-flavor }}_OPTIONS="allocator_may_return_null=1"
+          cd "$SRC_DIR"
+          cargo test --all-targets $BUILD_ARGS --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}-sanitized
       - name: Build docs
         timeout-minutes: 1
         if: inputs.job-flavor == 'doc'
