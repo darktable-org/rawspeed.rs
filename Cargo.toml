@@ -155,3 +155,11 @@ trivially_copy_pass_by_ref = { level = "allow", priority = 0 }
 
 [profile.release]
 panic = 'abort'
+
+[profile.dev-sanitized]
+inherits = "dev"
+panic = 'unwind'
+
+[profile.release-sanitized]
+inherits = "release"
+panic = 'unwind'

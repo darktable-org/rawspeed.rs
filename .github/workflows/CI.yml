@@ -23,10 +23,8 @@ jobs:
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
-        exclude:
-          - rust-toolchain-name: nightly
-            flavor: dev
+        build-profile: [ dev, release ]
+        job-flavor: [ plain ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}
@@ -39,7 +37,8 @@ jobs:
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
+      job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-fast-cross:
@@ -57,10 +56,8 @@ jobs:
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
-        exclude:
-          - rust-toolchain-name: nightly
-            flavor: dev
+        build-profile: [ dev, release ]
+        job-flavor: [ plain ]
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}
@@ -73,7 +70,8 @@ jobs:
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
+      job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   windows-fast:
@@ -89,10 +87,9 @@ jobs:
           - { image: "debian:trixie-slim", LLVM: 19 }
         abi: [ gnu, msvc ]
         rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
+        build-profile: [ dev, release ]
+        job-flavor: [ plain ]
         exclude:
-          - rust-toolchain-name: nightly
-            flavor: dev
           - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
             abi: gnu
           - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
@@ -109,7 +106,8 @@ jobs:
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
+      job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   macOS:
@@ -120,7 +118,8 @@ jobs:
           - { os: macos, os-ver: 15, host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
           - { os: macos, os-ver: 13, host: "x86_64",  target: "x86_64",  XCode: 15.2, LLVM: 16 }
         rust-toolchain-name: [ stable, nightly ]
-        flavor: [ dev, release ]
+        build-profile: [ dev, release ]
+        job-flavor: [ plain ]
     uses: ./.github/workflows/CI-macOS.yml
     with:
       os: ${{ matrix.compiler.os }}
@@ -130,7 +129,7 @@ jobs:
       xcode-version: ${{ matrix.compiler.XCode }}
       LLVM_VER: ${{ matrix.compiler.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-slow-native:
@@ -146,7 +145,17 @@ jobs:
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ nightly ]
-        flavor: [ dev ]
+        build-profile: [ dev, release ]
+        job-flavor: [ Miri, ASAN, MSAN, TSAN ]
+        exclude:
+          - build-profile: release
+            job-flavor: Miri
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+            job-flavor: ASan
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+            job-flavor: MSan
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+            job-flavor: TSan
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}
@@ -159,7 +168,8 @@ jobs:
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
+      job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   linux-slow-cross:
@@ -178,7 +188,10 @@ jobs:
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name: [ nightly ]
-        flavor: [ dev ]
+        build-profile: [ dev ]
+        job-flavor: [ Miri ]
+        exclude:
+          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
     uses: ./.github/workflows/CI-linux.yml
     with:
       os: ${{ matrix.os }}
@@ -191,7 +204,8 @@ jobs:
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
+      job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   windows-slow:
@@ -208,7 +222,8 @@ jobs:
           - { image: "debian:trixie-slim", LLVM: 19 }
         abi: [ gnu, msvc ]
         rust-toolchain-name: [ nightly ]
-        flavor: [ dev ]
+        build-profile: [ dev ]
+        job-flavor: [ Miri ]
         exclude:
           - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
             abi: gnu
@@ -226,7 +241,8 @@ jobs:
       distro-image: ${{ matrix.distro.image }}
       distro-LLVM: ${{ matrix.distro.LLVM }}
       rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      flavor: ${{ matrix.flavor }}
+      build-profile: ${{ matrix.build-profile }}
+      job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-docs:
@@ -244,7 +260,8 @@ jobs:
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
       rust-toolchain-name: stable
-      flavor: doc
+      build-profile: dev
+      job-flavor: doc
   publish-pages:
     if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
     needs: build-docs

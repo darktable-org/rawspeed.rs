@@ -25,7 +25,8 @@ jobs:
       distro-image: "debian:trixie-slim"
       distro-LLVM: 19
       rust-toolchain-name: stable
-      flavor: RustFmt
+      build-profile: dev
+      job-flavor: RustFmt
   rustfmt-complain:
     needs: [ rustfmt-check ]
     if: always() && github.event_name == 'pull_request_target' && needs.rustfmt-check.outputs.rustfmt-artifact-url != ''
