@@ -288,7 +288,7 @@ jobs:
           eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           eatmydata rustup default ${{ inputs.rust-toolchain-name }}
           eatmydata rustup target add ${{ env.RUST_TARGET }}
-          if [ "${{ inputs.inputs.job-flavor }}" = "RustFmt" ]; then
+          if [ "${{ inputs.job-flavor }}" = "RustFmt" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
             rustfmt \
           "
