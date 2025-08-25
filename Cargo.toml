@@ -29,6 +29,7 @@ members = [
     "src/parsers/rawparser",
     "src/std",
     "src/std/ndslice",
+    "src/utils/librstest",
     "src/utils/rstest",
 ]
 

@@ -1,10 +1,20 @@
-use super::{AsSlice, img_data_hash};
+use super::{AsSlice, Hash, img_data_hash, img_hash};
+use crate::rstest::camerasxml_parser::Cameras;
 use rawspeed_common::bit_transmutation::ToLeBytes;
 use rawspeed_common::common::Bitwidth;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
+use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
+use rawspeed_metadata_xmlparser::xmlparser;
+use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_std::coord_common::{
     ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex, RowLength,
 };
+
+use test_file_system::TestFileSystem;
+mod test_file_system;
+
+use test_logger::TestLogger;
+mod test_logger;
 
 fn from_halves<T>(hi: T, lo: T) -> T
 where
@@ -70,4 +80,48 @@ fn image_hash_u16_test() {
             str,
         );
     }
+}
+
+const REF_CAMERAS: &str = "
+    <Cameras>
+        <Camera make=\"Make\" model=\"Model\">
+            <Hints>
+                <Hint name=\"filesize\" value=\"8\"/>
+                <Hint name=\"full_width\" value=\"4\"/>
+                <Hint name=\"full_height\" value=\"2\"/>
+                <Hint name=\"order\" value=\"plain\"/>
+            </Hints>
+        </Camera>
+    </Cameras>";
+
+const REF_INPUT: [u8; 8] = [11, 12, 13, 14, 21, 22, 23, 24];
+
+const REF_HASH: &str =
+    "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n";
+
+#[test]
+fn image_hashfile_test() {
+    let cameras = xmlparser::parse_str::<Cameras<'_>>(REF_CAMERAS).unwrap();
+    let (res, out_buf_request) = RawParser::get_decoder(
+        &REF_INPUT,
+        &cameras,
+        DecodeableCamera::new_unless_unsupported,
+    )
+    .unwrap();
+    let mut output_buf = out_buf_request.fulfill().unwrap();
+    let mut output = output_buf.get_mut();
+    res.decode(&mut output).unwrap();
+    assert_eq!(
+        Ok(Hash {
+            hash: REF_HASH.to_owned()
+        }),
+        img_hash(&*res, output.into())
+    );
+}
+
+mod fs {
+    mod create_unless_exists;
+    mod decode_and_verify_if_exists;
+    mod recreate;
+    mod verify_if_exists;
 }
