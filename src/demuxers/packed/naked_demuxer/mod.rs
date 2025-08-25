@@ -1,6 +1,7 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_codecs_packed_decoder::packed_decoder::Unpacker;
 use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer;
+use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
@@ -185,11 +186,11 @@ impl RawDemuxer for NakedDemuxer<'_> {
     fn decode(
         &self,
         output: &mut Array2DRefMut<'_, u16>,
-    ) -> Result<(), String> {
+    ) -> Result<(), RawDemuxerError> {
         if output.dims() != self.dims {
-            return Err(
-                "Output buffer dimensions differ from expected".to_owned()
-            );
+            return Err(RawDemuxerError::DecoderError(
+                "Output buffer dimensions differ from expected".to_owned(),
+            ));
         }
 
         Unpacker::new(

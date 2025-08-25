@@ -1,12 +1,13 @@
 macro_rules! impl_generic_tests {
     ($bitorder:expr) => {
         use crate::naked_demuxer::NakedDemuxer;
+        use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer as _;
+        use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
+        use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
         use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
         use rawspeed_metadata_xmlparser::xmlparser;
-        use rawspeed_std::coord_common::*;
         use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
-        use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer as _;
-        use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
+        use rawspeed_std::coord_common::*;
 
         #[test]
         fn empty_input_test() {
@@ -378,7 +379,9 @@ macro_rules! impl_generic_tests {
                     } else {
                         assert_eq!(
                             res.unwrap_err(),
+                            RawDemuxerError::DecoderError(
                             "Output buffer dimensions differ from expected"
+                            .to_owned())
                         );
                     }
                 }
