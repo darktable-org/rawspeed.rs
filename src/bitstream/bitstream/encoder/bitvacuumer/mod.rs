@@ -173,7 +173,7 @@ where
     fn drop(&mut self) {
         const ERR: &str = "Unrecoverable Error: trying to drop \
             non-empty BitVacuumer. Did you forget to call `flush()`?";
-        assert!((self.cache.fill_level() == 0), "{}", ERR);
+        assert!(self.cache.fill_level() == 0, "{}", ERR);
     }
 }
 
