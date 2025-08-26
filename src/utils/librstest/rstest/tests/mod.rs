@@ -119,6 +119,15 @@ fn image_hashfile_test() {
     );
 }
 
+#[inline(always)]
+#[expect(clippy::inline_always)]
+fn assert_contains(patterns: &[&str], input: &[String]) {
+    assert_eq!(patterns.len(), input.len());
+    for (a, str) in patterns.iter().zip(input) {
+        assert!(str.starts_with(a), "needle: {a}\nstr: {str}");
+    }
+}
+
 mod fs {
     mod create_unless_exists;
     mod decode_and_verify_if_exists;

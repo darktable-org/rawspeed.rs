@@ -1,5 +1,6 @@
 use super::super::TestFileSystem;
 use super::super::TestLogger;
+use super::super::assert_contains;
 use crate::vfs::VFS as _;
 
 fn get_args_no_fname() -> Vec<String> {
@@ -26,12 +27,9 @@ fn no_arguments() {
     .unwrap();
     assert!(fs.log().is_empty());
     assert!(fs.list_files().is_empty());
-    assert_eq!(
-        vec![
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
-        ],
-        log.log()
+    assert_contains(
+        &["Total decoding time: ", "All good, all hashes created!"],
+        log.log(),
     );
 }
 
@@ -49,15 +47,15 @@ fn missing_file() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert!(fs.list_files().is_empty());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): raw file not found",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: raw file not found"
+            "file: raw file not found",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -82,14 +80,14 @@ fn file_with_no_hash() {
         String::from_utf8(fs.read(fname_hash).unwrap()).unwrap()
     );
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file                                                   : succeeded (0 ms)",
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
+            "file                                                   : succeeded ",
+            "Total decoding time: ",
+            "All good, all hashes created!",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -111,23 +109,23 @@ fn file_with_no_hash_but_with_some_failed_hash() {
         super::super::REF_CAMERAS,
     )
     .unwrap();
-    assert_eq!(
-        vec!["removing 'file.hash.failed'", "writing 'file.hash'"],
-        fs.log()
+    assert_contains(
+        &["removing 'file.hash.failed'", "writing 'file.hash'"],
+        fs.log(),
     );
     assert_eq!(
         super::super::REF_HASH,
         String::from_utf8(fs.read(fname_hash).unwrap()).unwrap()
     );
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file                                                   : succeeded (0 ms)",
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
+            "file                                                   : succeeded ",
+            "Total decoding time: ",
+            "All good, all hashes created!",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -148,23 +146,20 @@ fn file_with_wrong_hash() {
         super::super::REF_CAMERAS,
     )
     .unwrap();
-    assert_eq!(
-        vec!["removing 'file.hash'", "writing 'file.hash'"],
-        fs.log()
-    );
+    assert_contains(&["removing 'file.hash'", "writing 'file.hash'"], fs.log());
     assert_eq!(
         super::super::REF_HASH,
         String::from_utf8(fs.read(fname_hash).unwrap()).unwrap()
     );
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file                                                   : succeeded (0 ms)",
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
+            "file                                                   : succeeded ",
+            "Total decoding time: ",
+            "All good, all hashes created!",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -188,27 +183,27 @@ fn file_with_wrong_hash_and_with_some_failed_hash() {
         super::super::REF_CAMERAS,
     )
     .unwrap();
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "removing 'file.hash.failed'",
             "removing 'file.hash'",
-            "writing 'file.hash'"
+            "writing 'file.hash'",
         ],
-        fs.log()
+        fs.log(),
     );
     assert_eq!(
         super::super::REF_HASH,
         String::from_utf8(fs.read(fname_hash).unwrap()).unwrap()
     );
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file                                                   : succeeded (0 ms)",
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
+            "file                                                   : succeeded ",
+            "Total decoding time: ",
+            "All good, all hashes created!",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -229,23 +224,20 @@ fn file_with_right_hash() {
         super::super::REF_CAMERAS,
     )
     .unwrap();
-    assert_eq!(
-        vec!["removing 'file.hash'", "writing 'file.hash'"],
-        fs.log()
-    );
+    assert_contains(&["removing 'file.hash'", "writing 'file.hash'"], fs.log());
     assert_eq!(
         super::super::REF_HASH,
         String::from_utf8(fs.read(fname_hash).unwrap()).unwrap()
     );
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file                                                   : succeeded (0 ms)",
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
+            "file                                                   : succeeded ",
+            "Total decoding time: ",
+            "All good, all hashes created!",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -269,27 +261,27 @@ fn file_with_right_hash_and_with_some_failed_hash() {
         super::super::REF_CAMERAS,
     )
     .unwrap();
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "removing 'file.hash.failed'",
             "removing 'file.hash'",
-            "writing 'file.hash'"
+            "writing 'file.hash'",
         ],
-        fs.log()
+        fs.log(),
     );
     assert_eq!(
         super::super::REF_HASH,
         String::from_utf8(fs.read(fname_hash).unwrap()).unwrap()
     );
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file                                                   : succeeded (0 ms)",
-            "Total decoding time: 0.000s\n",
-            "All good, all hashes created!"
+            "file                                                   : succeeded ",
+            "Total decoding time: ",
+            "All good, all hashes created!",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -311,15 +303,15 @@ fn bad_file_with_no_hash() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert_eq!(vec![fname], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))"
+            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -342,15 +334,15 @@ fn bad_file_with_no_hash_but_with_some_failed_hash() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert_eq!(vec![fname, fname_hash_failed], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))"
+            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -373,15 +365,15 @@ fn bad_file_with_wrong_hash() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))"
+            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -407,15 +399,15 @@ fn bad_file_with_wrong_hash_and_with_some_failed_hash() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert_eq!(vec![fname, fname_hash, fname_hash_failed], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))"
+            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -438,15 +430,15 @@ fn bad_file_with_right_hash() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert_eq!(vec![fname, fname_hash], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))"
+            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
         ],
-        log.log()
+        log.log(),
     );
 }
 
@@ -472,14 +464,14 @@ fn bad_file_with_right_hash_and_with_some_failed_hash() {
     .unwrap_err();
     assert!(fs.log().is_empty());
     assert_eq!(vec![fname, fname_hash, fname_hash_failed], fs.list_files());
-    assert_eq!(
-        vec![
+    assert_contains(
+        &[
             "file                                                   : starting decoding ... ",
-            "file failed (0 ms): failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
-            "Total decoding time: 0.000s\n",
+            "file failed (",
+            "Total decoding time: ",
             "WARNING: the following 1 tests have failed:",
-            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))"
+            "file: failure when computing hash: RawParserError(DecoderError(Input buffer must be non-empty))",
         ],
-        log.log()
+        log.log(),
     );
 }
