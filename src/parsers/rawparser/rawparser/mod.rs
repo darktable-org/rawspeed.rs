@@ -11,6 +11,17 @@ pub enum RawParserError {
     DecoderError(String),
 }
 
+impl core::fmt::Display for RawParserError {
+    #[inline]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            RawParserError::DecoderError(error) => {
+                write!(f, "RawParserError(DecoderError({error}))")
+            }
+        }
+    }
+}
+
 #[derive(Debug)]
 #[non_exhaustive]
 pub struct RawParser;

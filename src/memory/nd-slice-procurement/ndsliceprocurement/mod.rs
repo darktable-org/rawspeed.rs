@@ -75,6 +75,20 @@ pub enum NDSliceProcurementRequestError {
     OutOfMemory,
 }
 
+impl core::fmt::Display for NDSliceProcurementRequestError {
+    #[inline]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            NDSliceProcurementRequestError::LayoutError(error) => {
+                write!(f, "NDSliceProcurementRequestError({error})")
+            }
+            NDSliceProcurementRequestError::OutOfMemory => {
+                write!(f, "DSliceProcurementRequestError(OutOfMemory)")
+            }
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct NDSliceProcurementRequest<T>
 where

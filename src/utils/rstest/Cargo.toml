@@ -13,16 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common = { path = "../../common" }
-rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
-rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
-rawspeed-misc-md5 = { path = "../../misc/md5" }
-rawspeed-parsers-rawparser = { path = "../../parsers/rawparser" }
-rawspeed-std = { path = "../../std" }
-rawspeed-std-ndslice = { path = "../../std/ndslice" }
-
-[dev-dependencies]
-rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
+rawspeed-utils-librstest = { path = "../librstest" }
 
 [[bin]]
 name = "rstest"
