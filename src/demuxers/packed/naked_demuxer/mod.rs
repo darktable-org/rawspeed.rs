@@ -83,6 +83,7 @@ fn guess_bits(bytes_per_row: usize, num_cols: u64) -> Result<u64, String> {
 
 #[derive(Debug)]
 pub struct NakedDemuxer<'a> {
+    camera: &'a Camera<'a>,
     input: Array2DRef<'a, u8>,
     dims: Dimensions2D,
     order: BitOrder,
@@ -91,12 +92,12 @@ pub struct NakedDemuxer<'a> {
 
 type T = u16;
 
-impl<'a, 'b, 'c> NakedDemuxer<'c> {
+impl<'a> NakedDemuxer<'a> {
     #![expect(clippy::unwrap_in_result)]
     #[inline(never)]
     pub fn new<F>(
-        input: &'c [u8],
-        cameras: &'b Cameras<'a>,
+        input: &'a [u8],
+        cameras: &'a Cameras<'a>,
         check_camera_support_fn: F,
     ) -> Result<(Self, NDSliceProcurementRequest<T>), String>
     where
@@ -170,6 +171,7 @@ impl<'a, 'b, 'c> NakedDemuxer<'c> {
         );
         Ok((
             Self {
+                camera,
                 input: src,
                 dims,
                 order,
@@ -181,7 +183,49 @@ impl<'a, 'b, 'c> NakedDemuxer<'c> {
 }
 
 impl RawDemuxer for NakedDemuxer<'_> {
-    #![expect(clippy::unwrap_in_result)]
+    #[inline]
+    fn make(&self) -> &str {
+        self.camera.make.as_ref()
+    }
+
+    #[inline]
+    fn model(&self) -> &str {
+        self.camera.model.as_ref()
+    }
+
+    #[inline]
+    fn mode(&self) -> Option<&str> {
+        self.camera.mode.map(|v| &***v)
+    }
+
+    #[inline]
+    fn canonical_make(&self) -> &str {
+        self.camera
+            .id
+            .map_or_else(|| self.make(), |id| id.make.as_ref())
+    }
+
+    #[inline]
+    fn canonical_model(&self) -> &str {
+        self.camera
+            .id
+            .map_or_else(|| self.model(), |id| id.model.as_ref())
+    }
+
+    #[inline]
+    fn canonical_alias(&self) -> &str {
+        self.model()
+    }
+
+    #[inline]
+    fn canonical_id(&self) -> String {
+        self.camera.id.map_or_else(
+            || format!("{} {}", self.make(), self.model()),
+            |id| id.value.to_string(),
+        )
+    }
+
+    #[expect(clippy::unwrap_in_result)]
     #[inline(never)]
     fn decode(
         &self,

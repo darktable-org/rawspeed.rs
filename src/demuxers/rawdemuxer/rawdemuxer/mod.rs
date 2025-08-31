@@ -18,6 +18,14 @@ impl core::fmt::Display for RawDemuxerError {
 }
 
 pub trait RawDemuxer {
+    fn make(&self) -> &str;
+    fn model(&self) -> &str;
+    fn mode(&self) -> Option<&str>;
+    fn canonical_make(&self) -> &str;
+    fn canonical_model(&self) -> &str;
+    fn canonical_alias(&self) -> &str;
+    fn canonical_id(&self) -> String;
+
     fn decode(
         &self,
         output: &mut Array2DRefMut<'_, u16>,

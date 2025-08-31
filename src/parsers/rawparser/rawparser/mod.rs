@@ -26,14 +26,14 @@ impl core::fmt::Display for RawParserError {
 #[non_exhaustive]
 pub struct RawParser;
 
-impl<'a, 'b, 'c> RawParser {
+impl<'a> RawParser {
     #[inline(never)]
     pub fn get_decoder<F>(
-        input: &'c [u8],
-        cameras: &'b Cameras<'a>,
+        input: &'a [u8],
+        cameras: &'a Cameras<'a>,
         check_camera_support_fn: F,
     ) -> Result<
-        (Box<dyn RawDemuxer + 'c>, NDSliceProcurementRequest<u16>),
+        (Box<dyn RawDemuxer + 'a>, NDSliceProcurementRequest<u16>),
         RawParserError,
     >
     where

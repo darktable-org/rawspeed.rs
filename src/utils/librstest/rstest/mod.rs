@@ -56,14 +56,28 @@ struct Hash {
     hash: String,
 }
 
-fn img_hash(
-    _demux: &dyn RawDemuxer,
-    img: Array2DRef<'_, u16>,
-) -> Result<Hash, core::fmt::Error> {
-    use core::fmt::Write as _;
-    let mut hash = String::with_capacity(4096);
-    writeln!(hash, "md5sum of per-line md5sums: {}", img_data_hash(img))?;
-    Ok(Hash { hash })
+fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
+    let hash = format!(
+        concat!(
+            "make: {make}\n",
+            "model: {model}\n",
+            "mode: {mode}\n",
+            "canonical_make: {canonical_make}\n",
+            "canonical_model: {canonical_model}\n",
+            "canonical_alias: {canonical_alias}\n",
+            "canonical_id: {canonical_id}\n",
+            "md5sum of per-line md5sums: {hash}\n",
+        ),
+        make = demux.make(),
+        model = demux.model(),
+        mode = demux.mode().unwrap_or(""),
+        canonical_make = demux.canonical_make(),
+        canonical_model = demux.canonical_model(),
+        canonical_alias = demux.canonical_alias(),
+        canonical_id = demux.canonical_id(),
+        hash = img_data_hash(img)
+    );
+    Hash { hash }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -83,17 +97,10 @@ enum Hashfile {
 #[derive(Debug)]
 #[expect(clippy::enum_variant_names)]
 enum HashError {
-    FmtError(core::fmt::Error),
     IoError(std::io::Error),
     RawParserError(RawParserError),
     RawDemuxerError(RawDemuxerError),
     NDSliceProcurementRequestError(NDSliceProcurementRequestError),
-}
-
-impl From<core::fmt::Error> for HashError {
-    fn from(value: core::fmt::Error) -> Self {
-        HashError::FmtError(value)
-    }
 }
 
 impl From<std::io::Error> for HashError {
@@ -124,7 +131,6 @@ impl From<NDSliceProcurementRequestError> for HashError {
 impl core::error::Error for HashError {
     fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self {
-            HashError::FmtError(error) => error.source(),
             HashError::IoError(error) => error.source(),
             HashError::RawParserError(_)
             | HashError::RawDemuxerError(_)
@@ -136,7 +142,6 @@ impl core::error::Error for HashError {
 impl core::fmt::Display for HashError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            HashError::FmtError(error) => write!(f, "{error}"),
             HashError::IoError(error) => write!(f, "{error}"),
             HashError::RawParserError(error) => {
                 write!(f, "{error}")
@@ -236,7 +241,7 @@ fn compute_hash_for_file_impl(
     let mut output = output_buf.get_mut();
     res.decode(&mut output)?;
     let output: Array2DRef<'_, u16> = output.into();
-    Ok(img_hash(&*res, output)?)
+    Ok(img_hash(&*res, output))
 }
 
 fn compute_hash_for_file(

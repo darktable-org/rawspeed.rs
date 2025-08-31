@@ -84,7 +84,8 @@ fn image_hash_u16_test() {
 
 const REF_CAMERAS: &str = "
     <Cameras>
-        <Camera make=\"Make\" model=\"Model\">
+        <Camera make=\"Make\" model=\"Model\" mode=\"A Mode\">
+            <ID make=\"Canonical Make\" model=\"Canonical Model\">Canonical ID</ID>
             <Hints>
                 <Hint name=\"filesize\" value=\"8\"/>
                 <Hint name=\"full_width\" value=\"4\"/>
@@ -96,8 +97,16 @@ const REF_CAMERAS: &str = "
 
 const REF_INPUT: [u8; 8] = [11, 12, 13, 14, 21, 22, 23, 24];
 
-const REF_HASH: &str =
-    "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n";
+const REF_HASH: &str = concat!(
+    "make: Make\n",
+    "model: Model\n",
+    "mode: A Mode\n",
+    "canonical_make: Canonical Make\n",
+    "canonical_model: Canonical Model\n",
+    "canonical_alias: Model\n",
+    "canonical_id: Canonical ID\n",
+    "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n",
+);
 
 #[test]
 fn image_hashfile_test() {
@@ -112,9 +121,53 @@ fn image_hashfile_test() {
     let mut output = output_buf.get_mut();
     res.decode(&mut output).unwrap();
     assert_eq!(
-        Ok(Hash {
+        Hash {
             hash: REF_HASH.to_owned()
-        }),
+        },
+        img_hash(&*res, output.into())
+    );
+}
+
+const REF_CAMERAS_BAREBONES: &str = "
+    <Cameras>
+        <Camera make=\"Make\" model=\"Model\">
+            <Hints>
+                <Hint name=\"filesize\" value=\"8\"/>
+                <Hint name=\"full_width\" value=\"4\"/>
+                <Hint name=\"full_height\" value=\"2\"/>
+                <Hint name=\"order\" value=\"plain\"/>
+            </Hints>
+        </Camera>
+    </Cameras>";
+
+const REF_HASH_BAREBONES: &str = concat!(
+    "make: Make\n",
+    "model: Model\n",
+    "mode: \n",
+    "canonical_make: Make\n",
+    "canonical_model: Model\n",
+    "canonical_alias: Model\n",
+    "canonical_id: Make Model\n",
+    "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n",
+);
+
+#[test]
+fn image_barebones_hashfile_test() {
+    let cameras =
+        xmlparser::parse_str::<Cameras<'_>>(REF_CAMERAS_BAREBONES).unwrap();
+    let (res, out_buf_request) = RawParser::get_decoder(
+        &REF_INPUT,
+        &cameras,
+        DecodeableCamera::new_unless_unsupported,
+    )
+    .unwrap();
+    let mut output_buf = out_buf_request.fulfill().unwrap();
+    let mut output = output_buf.get_mut();
+    res.decode(&mut output).unwrap();
+    assert_eq!(
+        Hash {
+            hash: REF_HASH_BAREBONES.to_owned()
+        },
         img_hash(&*res, output.into())
     );
 }
