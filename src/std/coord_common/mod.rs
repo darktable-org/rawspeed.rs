@@ -108,7 +108,7 @@ impl core::ops::Deref for RowPitch {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RowIndex {
     row: usize,
 }
@@ -136,7 +136,7 @@ impl core::ops::Deref for RowIndex {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ColIndex {
     col: usize,
 }
@@ -164,7 +164,7 @@ impl core::ops::Deref for ColIndex {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Coord2D {
     row: RowIndex,
     col: ColIndex,
