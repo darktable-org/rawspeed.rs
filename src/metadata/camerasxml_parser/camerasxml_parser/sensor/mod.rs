@@ -21,11 +21,17 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Bounds {
         if let Ok(list) = input.parse() {
             return Ok(Bounds::Enumerated(list));
         }
-        let b = match (input.parse().ok(), input.parse().ok()) {
-            (Some(lb), Some(ub)) => Bounds::Range((lb, ub)),
-            (Some(lb), None) => Bounds::LowerBounded(lb),
-            (None, Some(ub)) => Bounds::UpperBounded(ub),
-            (None, None) => Self::Unbounded,
+        let lb = input.parse().ok().unwrap_or(iso_min::IsoMin {
+            val: crate::camerasxml_parser::Int { val: 0 },
+        });
+        let ub = input.parse().ok().unwrap_or(iso_max::IsoMax {
+            val: crate::camerasxml_parser::Int { val: 0 },
+        });
+        let b = match ((**lb != 0), (**ub != 0)) {
+            (true, true) => Bounds::Range((lb, ub)),
+            (true, false) => Bounds::LowerBounded(lb),
+            (false, true) => Bounds::UpperBounded(ub),
+            (false, false) => Bounds::Unbounded,
         };
         Ok(b)
     }
