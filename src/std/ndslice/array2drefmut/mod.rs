@@ -94,15 +94,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
-        let row = self.get_row(RowIndex::new(index.row()))?;
-        row.get(index.col())
+        let row = self.get_row(RowIndex::new(*index.row()))?;
+        row.get(*index.col())
     }
 
     #[inline]
     #[must_use]
     pub fn get_elt_mut(&mut self, index: Coord2D) -> Option<&mut T> {
-        let row = self.get_row_mut(RowIndex::new(index.row()))?;
-        row.get_mut(index.col())
+        let row = self.get_row_mut(RowIndex::new(*index.row()))?;
+        row.get_mut(*index.col())
     }
 }
 

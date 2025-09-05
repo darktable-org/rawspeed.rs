@@ -45,6 +45,9 @@ fn parse_test() {
         "<Sensor black=\"42\" white=\"24\" iso_min=\"12\"/>",
         "<Sensor black=\"42\" white=\"24\" iso_max=\"12\"/>",
         "<Sensor black=\"42\" white=\"24\" iso_min=\"12\" iso_max=\"25\"/>",
+        "<Sensor black=\"42\" white=\"24\" iso_min=\"12\" iso_max=\"0\"/>",
+        "<Sensor black=\"42\" white=\"24\" iso_min=\"0\" iso_max=\"25\"/>",
+        "<Sensor black=\"42\" white=\"24\" iso_min=\"0\" iso_max=\"0\"/>",
         "<Sensor black=\"42\" white=\"24\" iso_max=\"25\" iso_min=\"12\"/>",
         "<Sensor black=\"42\" white=\"24\" iso_list=\"1 2\" iso_min=\"12\"/>",
         "<Sensor black=\"42\" white=\"24\" iso_list=\"1 2\" iso_max=\"25\"/>",
@@ -253,6 +256,46 @@ fn parse_test() {
                         val: Int { val: 25 },
                     },
                 )),
+            }),
+        ),
+        (
+            "<Sensor black=\"42\" white=\"24\" iso_min=\"12\" iso_max=\"0\"/>",
+            Ok(Sensor {
+                black: Black {
+                    val: Int { val: 42 },
+                },
+                white: White {
+                    val: Int { val: 24 },
+                },
+                bounds: Bounds::LowerBounded(IsoMin {
+                    val: Int { val: 12 },
+                }),
+            }),
+        ),
+        (
+            "<Sensor black=\"42\" white=\"24\" iso_min=\"0\" iso_max=\"25\"/>",
+            Ok(Sensor {
+                black: Black {
+                    val: Int { val: 42 },
+                },
+                white: White {
+                    val: Int { val: 24 },
+                },
+                bounds: Bounds::UpperBounded(IsoMax {
+                    val: Int { val: 25 },
+                }),
+            }),
+        ),
+        (
+            "<Sensor black=\"42\" white=\"24\" iso_min=\"0\" iso_max=\"0\"/>",
+            Ok(Sensor {
+                black: Black {
+                    val: Int { val: 42 },
+                },
+                white: White {
+                    val: Int { val: 24 },
+                },
+                bounds: Bounds::Unbounded,
             }),
         ),
         (

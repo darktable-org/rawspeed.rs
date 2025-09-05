@@ -25,6 +25,25 @@ pub trait RawDemuxer {
     fn canonical_model(&self) -> &str;
     fn canonical_alias(&self) -> &str;
     fn canonical_id(&self) -> String;
+    fn iso_speed(&self) -> Option<()>;
+    fn blacklevel(&self) -> Option<()>;
+    fn whitelevel(&self) -> Option<()>;
+    fn blacklevel_separate(&self) -> Option<()>;
+    fn wb_coeffs(&self) -> Option<()>;
+    fn colormatrix(&self) -> Option<()>;
+    fn is_cfa(&self) -> Option<()>;
+    fn cfa(&self) -> Option<()>;
+    fn filters(&self) -> Option<()>;
+    fn bpp(&self) -> Option<()>;
+    fn cpp(&self) -> Option<()>;
+    fn datatype(&self) -> Option<()>;
+    fn dim_uncropped(&self) -> Option<()>;
+    fn dim_cropped(&self) -> Option<()>;
+    fn crop_offset(&self) -> Option<()>;
+    fn black_areas(&self) -> Option<()>;
+    fn fuji_rotation_pos(&self) -> Option<()>;
+    fn pixel_aspect_ratio(&self) -> Option<()>;
+    fn bad_pixel_positions(&self) -> Option<()>;
 
     fn decode(
         &self,

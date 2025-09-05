@@ -108,7 +108,7 @@ impl core::ops::Deref for RowPitch {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RowIndex {
     row: usize,
 }
@@ -136,7 +136,7 @@ impl core::ops::Deref for RowIndex {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ColIndex {
     col: usize,
 }
@@ -164,7 +164,7 @@ impl core::ops::Deref for ColIndex {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Coord2D {
     row: RowIndex,
     col: ColIndex,
@@ -179,14 +179,96 @@ impl Coord2D {
 
     #[inline]
     #[must_use]
-    pub const fn row(&self) -> usize {
-        self.row.val()
+    pub const fn row(&self) -> RowIndex {
+        self.row
     }
 
     #[inline]
     #[must_use]
-    pub const fn col(&self) -> usize {
-        self.col.val()
+    pub const fn col(&self) -> ColIndex {
+        self.col
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RowOffset {
+    row: isize,
+}
+
+impl RowOffset {
+    #[inline]
+    #[must_use]
+    pub const fn new(row: isize) -> Self {
+        Self { row }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn val(&self) -> isize {
+        self.row
+    }
+}
+
+impl core::ops::Deref for RowOffset {
+    type Target = isize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.row
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ColOffset {
+    col: isize,
+}
+
+impl ColOffset {
+    #[inline]
+    #[must_use]
+    pub const fn new(col: isize) -> Self {
+        Self { col }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn val(&self) -> isize {
+        self.col
+    }
+}
+
+impl core::ops::Deref for ColOffset {
+    type Target = isize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.col
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CoordOffset2D {
+    row: RowOffset,
+    col: ColOffset,
+}
+
+impl CoordOffset2D {
+    #[inline]
+    #[must_use]
+    pub const fn new(row: RowOffset, col: ColOffset) -> Self {
+        Self { row, col }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn row(&self) -> RowOffset {
+        self.row
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn col(&self) -> ColOffset {
+        self.col
     }
 }
 

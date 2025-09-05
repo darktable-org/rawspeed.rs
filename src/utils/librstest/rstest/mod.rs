@@ -66,6 +66,25 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             "canonical_model: {canonical_model}\n",
             "canonical_alias: {canonical_alias}\n",
             "canonical_id: {canonical_id}\n",
+            "isoSpeed: {isoSpeed}\n",
+            "blackLevel: {blackLevel}\n",
+            "whitePoint: {whitePoint}\n",
+            "blackLevelSeparate: {blackLevelSeparate}\n",
+            "wbCoeffs: {wbCoeffs}\n",
+            "colorMatrix: {colorMatrix}\n",
+            "isCFA: {isCFA}\n",
+            "cfa: {cfa}\n",
+            "filters: {filters}\n",
+            "bpp: {bpp}\n",
+            "cpp: {cpp}\n",
+            "dataType: {dataType}\n",
+            "dimUncropped: {dimUncropped}\n",
+            "dimCropped: {dimCropped}\n",
+            "cropOffset: {cropOffset}\n",
+            "blackAreas: {blackAreas}\n",
+            "fuji_rotation_pos: {fuji_rotation_pos}\n",
+            "pixel_aspect_ratio: {pixel_aspect_ratio}\n",
+            "badPixelPositions: {badPixelPositions}\n",
             "md5sum of per-line md5sums: {hash}\n",
         ),
         make = demux.make(),
@@ -75,6 +94,57 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         canonical_model = demux.canonical_model(),
         canonical_alias = demux.canonical_alias(),
         canonical_id = demux.canonical_id(),
+        isoSpeed = demux
+            .iso_speed()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        blackLevel = demux
+            .blacklevel()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        whitePoint = demux
+            .whitelevel()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        blackLevelSeparate = demux
+            .blacklevel_separate()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        wbCoeffs = demux
+            .wb_coeffs()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        colorMatrix = demux
+            .colormatrix()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        isCFA = demux
+            .is_cfa()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        cfa = demux.cfa().map_or("FIXME".to_owned(), |()| unreachable!()),
+        filters = demux
+            .filters()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        bpp = demux.bpp().map_or("FIXME".to_owned(), |()| unreachable!()),
+        cpp = demux.cpp().map_or("FIXME".to_owned(), |()| unreachable!()),
+        dataType = demux
+            .datatype()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        dimUncropped = demux
+            .dim_uncropped()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        dimCropped = demux
+            .dim_cropped()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        cropOffset = demux
+            .crop_offset()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        blackAreas = demux
+            .black_areas()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        fuji_rotation_pos = demux
+            .fuji_rotation_pos()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        pixel_aspect_ratio = demux
+            .pixel_aspect_ratio()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        badPixelPositions = demux
+            .bad_pixel_positions()
+            .map_or("FIXME".to_owned(), |()| unreachable!()),
         hash = img_data_hash(img)
     );
     Hash { hash }

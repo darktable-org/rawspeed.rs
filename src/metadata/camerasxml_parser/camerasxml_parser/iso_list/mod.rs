@@ -3,7 +3,7 @@ use super::xmlparser;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IsoValues {
-    pub values: Vec<u32>,
+    pub values: Vec<i32>,
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for IsoValues {

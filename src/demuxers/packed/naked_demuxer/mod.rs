@@ -225,6 +225,101 @@ impl RawDemuxer for NakedDemuxer<'_> {
         )
     }
 
+    #[inline]
+    fn iso_speed(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn blacklevel(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn whitelevel(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn blacklevel_separate(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn wb_coeffs(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn colormatrix(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn is_cfa(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn cfa(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn filters(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn bpp(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn cpp(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn datatype(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn dim_uncropped(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn dim_cropped(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn crop_offset(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn black_areas(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn fuji_rotation_pos(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn pixel_aspect_ratio(&self) -> Option<()> {
+        None
+    }
+
+    #[inline]
+    fn bad_pixel_positions(&self) -> Option<()> {
+        None
+    }
+
     #[expect(clippy::unwrap_in_result)]
     #[inline(never)]
     fn decode(
