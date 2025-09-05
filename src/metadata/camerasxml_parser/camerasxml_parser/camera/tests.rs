@@ -15,9 +15,6 @@ use super::super::color;
 use super::super::color::Color;
 use super::super::colormatrices::ColorMatrices;
 use super::super::colormatrix::ColorMatrix;
-use super::super::colormatrix::ColorMatrixRows;
-use super::super::colormatrixrow::ColorMatrixRow;
-use super::super::colormatrixrow::PlaneValues;
 use super::super::colorrow;
 use super::super::colorrow::ColorRow;
 use super::super::colorrow::ColorRowValues;
@@ -34,8 +31,6 @@ use super::super::iso_max::IsoMax;
 use super::super::iso_min::IsoMin;
 use super::super::mode::Mode;
 use super::super::name::Name;
-use super::super::plane::Plane;
-use super::super::planes::Planes;
 use super::super::sensor::Sensor;
 use super::super::supported::Supported;
 use super::super::value::Value;
@@ -1127,54 +1122,78 @@ fn parse_colormatrices_test() {
     let inputs: Vec<&'static str> = vec![
         "<Camera make=\"Make\" model=\"Model\">
             <ColorMatrices>
-                <ColorMatrix planes=\"0\">
-                    <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>
+                <ColorMatrix planes=\"3\">
+                    <ColorMatrixRow plane=\"0\"> -0 -1 2 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"2\"> -6 7 -8 </ColorMatrixRow>
+                </ColorMatrix>
+            </ColorMatrices>
+        </Camera>",
+        "<Camera make=\"Make\" model=\"Model\">
+            <ColorMatrices>
+                <ColorMatrix planes=\"4\">
+                    <ColorMatrixRow plane=\"0\"> -0 -1 2 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"2\"> -6 7 -8 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"3\"> 9 10 11 </ColorMatrixRow>
                 </ColorMatrix>
             </ColorMatrices>
         </Camera>",
     ];
-    let expected: Vec<(&str, xmlparser::Result<T<'_>>)> = vec![(
-        "<Camera make=\"Make\" model=\"Model\">\n            <ColorMatrices>\n                <ColorMatrix planes=\"0\">\n                    <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>\n                </ColorMatrix>\n            </ColorMatrices>\n        </Camera>",
-        Ok(Camera {
-            make: Make {
-                val: Str { val: "Make" },
-            },
-            model: Model {
-                val: Str { val: "Model" },
-            },
-            mode: None,
-            decoder_version: None,
-            supported: Supported::Supported,
-            id: None,
-            cfa: MaybeCFA::None,
-            crop: None,
-            sensors: Sensors { values: vec![] },
-            blackaras: None,
-            aliases: None,
-            hints: None,
-            colormatrices: Some(ColorMatrices {
-                value: ColorMatrix {
-                    planes: Planes {
-                        val: Int { val: 0 },
-                    },
-                    values: ColorMatrixRows {
-                        values: vec![ColorMatrixRow {
-                            plane: Plane {
-                                val: Int { val: 0 },
-                            },
-                            values: PlaneValues {
-                                values: vec![
-                                    Int { val: 21412 },
-                                    Int { val: -4324 },
-                                    Int { val: 51 },
-                                ],
-                            },
-                        }],
-                    },
+    let expected: Vec<(&str, xmlparser::Result<T<'_>>)> = vec![
+        (
+            "<Camera make=\"Make\" model=\"Model\">\n            <ColorMatrices>\n                <ColorMatrix planes=\"3\">\n                    <ColorMatrixRow plane=\"0\"> -0 -1 2 </ColorMatrixRow>\n                    <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>\n                    <ColorMatrixRow plane=\"2\"> -6 7 -8 </ColorMatrixRow>\n                </ColorMatrix>\n            </ColorMatrices>\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
                 },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::Supported,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: Some(ColorMatrices {
+                    value: ColorMatrix::new(vec![
+                        0, -1, 2, 3, -4, 5, -6, 7, -8,
+                    ]),
+                }),
             }),
-        }),
-    )];
+        ),
+        (
+            "<Camera make=\"Make\" model=\"Model\">\n            <ColorMatrices>\n                <ColorMatrix planes=\"4\">\n                    <ColorMatrixRow plane=\"0\"> -0 -1 2 </ColorMatrixRow>\n                    <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>\n                    <ColorMatrixRow plane=\"2\"> -6 7 -8 </ColorMatrixRow>\n                    <ColorMatrixRow plane=\"3\"> 9 10 11 </ColorMatrixRow>\n                </ColorMatrix>\n            </ColorMatrices>\n        </Camera>",
+            Ok(Camera {
+                make: Make {
+                    val: Str { val: "Make" },
+                },
+                model: Model {
+                    val: Str { val: "Model" },
+                },
+                mode: None,
+                decoder_version: None,
+                supported: Supported::Supported,
+                id: None,
+                cfa: MaybeCFA::None,
+                crop: None,
+                sensors: Sensors { values: vec![] },
+                blackaras: None,
+                aliases: None,
+                hints: None,
+                colormatrices: Some(ColorMatrices {
+                    value: ColorMatrix::new(vec![
+                        0, -1, 2, 3, -4, 5, -6, 7, -8, 9, 10, 11,
+                    ]),
+                }),
+            }),
+        ),
+    ];
     let mut results = vec![];
     for input in inputs {
         results.push((input, xmlparser::parse_str::<T<'_>>(input)));

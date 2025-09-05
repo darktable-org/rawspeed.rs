@@ -15,6 +15,7 @@ workspace = true
 [dependencies]
 rawspeed-metadata-xmlparser = { path = "../xmlparser" }
 rawspeed-std = { path = "../../std" }
+rawspeed-std-ndslice = { path = "../../std/ndslice" }
 
 [dev-dependencies]
 

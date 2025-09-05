@@ -1,5 +1,4 @@
 use super::ColorMatrixRow;
-use super::Int;
 use super::PlaneValues;
 use super::plane::Plane;
 use super::xmlparser;
@@ -29,13 +28,23 @@ fn parse_test() {
         "<ColorMatrixRow plane=\"foo\"",
         "<ColorMatrixRow plane=\"0\">",
         "<ColorMatrixRow plane=\"0\">Baz",
-        "<ColorMatrixRow plane=\"0\">3412312",
-        "<ColorMatrixRow plane=\"0\">3412312<",
-        "<ColorMatrixRow plane=\"0\">3412312</ColorMatrixRow",
-        "<ColorMatrixRow plane=\"0\">124123421</ColorMatrixRow>",
-        "<ColorMatrixRow plane=\"0\">124123421</NotColorMatrixRow>",
-        "<ColorMatrixRow plane=\"0\">124123421 -545432</ColorMatrixRow>",
-        "<ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">666",
+        "<ColorMatrixRow plane=\"0\">666<",
+        "<ColorMatrixRow plane=\"0\">666</ColorMatrixRow",
+        "<ColorMatrixRow plane=\"0\">0</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 -1</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 -1 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"-1\">0 -1 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"1\">0 -1 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"2\">0 -1 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"3\">0 -1 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"4\">0 -1 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 -1 2 3</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 -1 2</NotColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 abcd 2</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 32767 -32768</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 32768 0</ColorMatrixRow>",
+        "<ColorMatrixRow plane=\"0\">0 -32769 0</ColorMatrixRow>",
     ];
     let expected: Vec<(&str, xmlparser::Result<T<'_>>)> = vec![
         (
@@ -121,68 +130,99 @@ fn parse_test() {
             ),
         ),
         (
-            "<ColorMatrixRow plane=\"0\">3412312",
+            "<ColorMatrixRow plane=\"0\">666",
             Err(
-                "While trying to match `\"ElementContentVerbatim\"`, but the following was encountered instead: `Garbage(\"3412312\")`",
+                "While trying to match `\"ElementContentVerbatim\"`, but the following was encountered instead: `Garbage(\"666\")`",
             ),
         ),
         (
-            "<ColorMatrixRow plane=\"0\">3412312<",
-            Err(
-                "While trying to match `\"ElementSlash\"`, encountered end of stream",
-            ),
+            "<ColorMatrixRow plane=\"0\">666<",
+            Err("Color matrix row must have 3 components, got 1"),
         ),
         (
-            "<ColorMatrixRow plane=\"0\">3412312</ColorMatrixRow",
-            Err(
-                "While trying to match `\"ElementName\"`, but the following was encountered instead: `Garbage(\"ColorMatrixRow\")`",
-            ),
+            "<ColorMatrixRow plane=\"0\">666</ColorMatrixRow",
+            Err("Color matrix row must have 3 components, got 1"),
         ),
         (
-            "<ColorMatrixRow plane=\"0\">124123421</ColorMatrixRow>",
+            "<ColorMatrixRow plane=\"0\">0</ColorMatrixRow>",
+            Err("Color matrix row must have 3 components, got 1"),
+        ),
+        (
+            "<ColorMatrixRow plane=\"0\">0 -1</ColorMatrixRow>",
+            Err("Color matrix row must have 3 components, got 2"),
+        ),
+        (
+            "<ColorMatrixRow plane=\"0\">0 -1 2</ColorMatrixRow>",
             Ok(ColorMatrixRow {
-                plane: Plane {
-                    val: Int { val: 0 },
-                },
-                values: PlaneValues {
-                    values: vec![Int { val: 124_123_421 }],
-                },
+                plane: Plane::new(0),
+                values: PlaneValues { values: [0, -1, 2] },
             }),
         ),
         (
-            "<ColorMatrixRow plane=\"0\">124123421</NotColorMatrixRow>",
+            "<ColorMatrixRow plane=\"-1\">0 -1 2</ColorMatrixRow>",
+            Err("Invalid plane index: -1"),
+        ),
+        (
+            "<ColorMatrixRow plane=\"1\">0 -1 2</ColorMatrixRow>",
+            Ok(ColorMatrixRow {
+                plane: Plane::new(1),
+                values: PlaneValues { values: [0, -1, 2] },
+            }),
+        ),
+        (
+            "<ColorMatrixRow plane=\"2\">0 -1 2</ColorMatrixRow>",
+            Ok(ColorMatrixRow {
+                plane: Plane::new(2),
+                values: PlaneValues { values: [0, -1, 2] },
+            }),
+        ),
+        (
+            "<ColorMatrixRow plane=\"3\">0 -1 2</ColorMatrixRow>",
+            Ok(ColorMatrixRow {
+                plane: Plane::new(3),
+                values: PlaneValues { values: [0, -1, 2] },
+            }),
+        ),
+        (
+            "<ColorMatrixRow plane=\"4\">0 -1 2</ColorMatrixRow>",
+            Err("Invalid plane index: 4"),
+        ),
+        (
+            "<ColorMatrixRow plane=\"0\">0 -1 2 3</ColorMatrixRow>",
+            Err("Color matrix row must have 3 components, got 4"),
+        ),
+        (
+            "<ColorMatrixRow plane=\"0\">0 -1 2</NotColorMatrixRow>",
             Err(
                 "Error while parsing element, expected `\"ColorMatrixRow\"`, but instead found: `\"NotColorMatrixRow\"`",
             ),
         ),
         (
-            "<ColorMatrixRow plane=\"0\">124123421 -545432</ColorMatrixRow>",
+            "<ColorMatrixRow plane=\"0\">0 abcd 2</ColorMatrixRow>",
+            Err(
+                "Unable to parse plane components as integers: invalid digit found in string",
+            ),
+        ),
+        (
+            "<ColorMatrixRow plane=\"0\">0 32767 -32768</ColorMatrixRow>",
             Ok(ColorMatrixRow {
-                plane: Plane {
-                    val: Int { val: 0 },
-                },
+                plane: Plane::new(0),
                 values: PlaneValues {
-                    values: vec![
-                        Int { val: 124_123_421 },
-                        Int { val: -545_432 },
-                    ],
+                    values: [0, 0x7FFF, -0x8000],
                 },
             }),
         ),
         (
-            "<ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>",
-            Ok(ColorMatrixRow {
-                plane: Plane {
-                    val: Int { val: 0 },
-                },
-                values: PlaneValues {
-                    values: vec![
-                        Int { val: 21412 },
-                        Int { val: -4324 },
-                        Int { val: 51 },
-                    ],
-                },
-            }),
+            "<ColorMatrixRow plane=\"0\">0 32768 0</ColorMatrixRow>",
+            Err(
+                "Unable to parse plane components as integers: number too large to fit in target type",
+            ),
+        ),
+        (
+            "<ColorMatrixRow plane=\"0\">0 -32769 0</ColorMatrixRow>",
+            Err(
+                "Unable to parse plane components as integers: number too small to fit in target type",
+            ),
         ),
     ];
     let mut results = vec![];

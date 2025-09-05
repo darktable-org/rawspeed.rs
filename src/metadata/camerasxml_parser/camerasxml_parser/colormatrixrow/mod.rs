@@ -1,11 +1,20 @@
 use super::BodyStr;
-use super::Int;
 use super::plane;
 use super::xmlparser;
 
-#[derive(Debug, Clone, PartialEq)]
+type T = super::colormatrix::T;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PlaneValues {
-    pub values: Vec<Int>,
+    pub values: [T; super::colormatrix::COLUMN_COUNT],
+}
+
+impl core::ops::Deref for PlaneValues {
+    type Target = [T; super::colormatrix::COLUMN_COUNT];
+
+    fn deref(&self) -> &Self::Target {
+        &self.values
+    }
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for PlaneValues {
@@ -13,15 +22,24 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for PlaneValues {
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {
         let raw_values = input.parse::<BodyStr<'a>>()?;
-        let mut values = vec![];
-        for val in raw_values.split_ascii_whitespace() {
-            if let Ok(val) = val.parse() {
-                values.push(Int { val });
-            } else {
-                return Err(format!("Unable to parse `{val:?}` as an integer"));
-            }
-        }
-        Ok(Self { values })
+        let elts: Result<Vec<T>, _> = raw_values
+            .split_ascii_whitespace()
+            .map(str::parse::<T>)
+            .collect();
+        let Ok(elts) = elts else {
+            return Err(format!(
+                "Unable to parse plane components as integers: {}",
+                elts.unwrap_err()
+            ));
+        };
+        let Ok(elts) = (&*elts).try_into() else {
+            return Err(format!(
+                "Color matrix row must have {} components, got {}",
+                super::colormatrix::COLUMN_COUNT,
+                elts.len()
+            ));
+        };
+        Ok(Self { values: elts })
     }
 }
 

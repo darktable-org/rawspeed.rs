@@ -1,10 +1,4 @@
-use super::super::Int;
 use super::super::colormatrix::ColorMatrix;
-use super::super::colormatrix::ColorMatrixRows;
-use super::super::colormatrixrow::ColorMatrixRow;
-use super::super::colormatrixrow::PlaneValues;
-use super::super::plane::Plane;
-use super::super::planes::Planes;
 use super::ColorMatrices;
 use super::xmlparser;
 
@@ -24,21 +18,29 @@ fn parse_test() {
         "<ColorMatrices ",
         "<NotColorMatrices ",
         "<ColorMatrices>
-            <ColorMatrix planes=\"0\">
-                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>
+            <ColorMatrix planes=\"3\">
+                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"1\"> 3 4 5 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>
             </ColorMatrix>
         </ColorMatrices>",
         "<ColorMatrices>
-            <ColorMatrix planes=\"0\">
-                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>
+            <ColorMatrix planes=\"3\">
+                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"1\"> 3 4 5 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>
             </ColorMatrix>
         </NotColorMatrices>",
         "<ColorMatrices>
-            <ColorMatrix planes=\"0\">
-                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>
+            <ColorMatrix planes=\"3\">
+                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"1\"> 3 4 5 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>
             </ColorMatrix>
-            <ColorMatrix planes=\"0\">
-                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>
+            <ColorMatrix planes=\"3\">
+                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>
+                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>
             </ColorMatrix>
         </NotColorMatrices>",
     ];
@@ -72,37 +74,19 @@ fn parse_test() {
             ),
         ),
         (
-            "<ColorMatrices>\n            <ColorMatrix planes=\"0\">\n                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>\n            </ColorMatrix>\n        </ColorMatrices>",
+            "<ColorMatrices>\n            <ColorMatrix planes=\"3\">\n                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"1\"> 3 4 5 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>\n            </ColorMatrix>\n        </ColorMatrices>",
             Ok(ColorMatrices {
-                value: ColorMatrix {
-                    planes: Planes {
-                        val: Int { val: 0 },
-                    },
-                    values: ColorMatrixRows {
-                        values: vec![ColorMatrixRow {
-                            plane: Plane {
-                                val: Int { val: 0 },
-                            },
-                            values: PlaneValues {
-                                values: vec![
-                                    Int { val: 21412 },
-                                    Int { val: -4324 },
-                                    Int { val: 51 },
-                                ],
-                            },
-                        }],
-                    },
-                },
+                value: ColorMatrix::new(vec![0, 1, 2, 3, 4, 5, 6, 7, 8]),
             }),
         ),
         (
-            "<ColorMatrices>\n            <ColorMatrix planes=\"0\">\n                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>\n            </ColorMatrix>\n        </NotColorMatrices>",
+            "<ColorMatrices>\n            <ColorMatrix planes=\"3\">\n                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"1\"> 3 4 5 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>\n            </ColorMatrix>\n        </NotColorMatrices>",
             Err(
                 "Error while parsing element, expected `\"ColorMatrices\"`, but instead found: `\"NotColorMatrices\"`",
             ),
         ),
         (
-            "<ColorMatrices>\n            <ColorMatrix planes=\"0\">\n                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>\n            </ColorMatrix>\n            <ColorMatrix planes=\"0\">\n                <ColorMatrixRow plane=\"0\"> 21412 -4324 51 </ColorMatrixRow>\n            </ColorMatrix>\n        </NotColorMatrices>",
+            "<ColorMatrices>\n            <ColorMatrix planes=\"3\">\n                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"1\"> 3 4 5 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>\n            </ColorMatrix>\n            <ColorMatrix planes=\"3\">\n                <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>\n                <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>\n            </ColorMatrix>\n        </NotColorMatrices>",
             Err(
                 "While trying to match `\"ElementSlash\"`, but the following was encountered instead: `ElementName(\"ColorMatrix\")`",
             ),
