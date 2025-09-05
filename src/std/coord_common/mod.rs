@@ -190,6 +190,88 @@ impl Coord2D {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RowOffset {
+    row: isize,
+}
+
+impl RowOffset {
+    #[inline]
+    #[must_use]
+    pub const fn new(row: isize) -> Self {
+        Self { row }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn val(&self) -> isize {
+        self.row
+    }
+}
+
+impl core::ops::Deref for RowOffset {
+    type Target = isize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.row
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ColOffset {
+    col: isize,
+}
+
+impl ColOffset {
+    #[inline]
+    #[must_use]
+    pub const fn new(col: isize) -> Self {
+        Self { col }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn val(&self) -> isize {
+        self.col
+    }
+}
+
+impl core::ops::Deref for ColOffset {
+    type Target = isize;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.col
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CoordOffset2D {
+    row: RowOffset,
+    col: ColOffset,
+}
+
+impl CoordOffset2D {
+    #[inline]
+    #[must_use]
+    pub const fn new(row: RowOffset, col: ColOffset) -> Self {
+        Self { row, col }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn row(&self) -> RowOffset {
+        self.row
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn col(&self) -> ColOffset {
+        self.col
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct ByteMultiple {
     val: usize,
