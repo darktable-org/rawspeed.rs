@@ -179,14 +179,14 @@ impl Coord2D {
 
     #[inline]
     #[must_use]
-    pub const fn row(&self) -> usize {
-        self.row.val()
+    pub const fn row(&self) -> RowIndex {
+        self.row
     }
 
     #[inline]
     #[must_use]
-    pub const fn col(&self) -> usize {
-        self.col.val()
+    pub const fn col(&self) -> ColIndex {
+        self.col
     }
 }
 

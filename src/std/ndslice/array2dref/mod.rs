@@ -65,8 +65,8 @@ impl<'a, T> Array2DRef<'a, T> {
     #[inline]
     #[must_use]
     pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
-        let row = self.get_row(RowIndex::new(index.row()))?;
-        row.get(index.col())
+        let row = self.get_row(RowIndex::new(*index.row()))?;
+        row.get(*index.col())
     }
 }
 
