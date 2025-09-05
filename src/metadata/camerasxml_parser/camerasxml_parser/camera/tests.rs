@@ -51,6 +51,13 @@ use super::make::Make;
 use super::model::Model;
 use super::sensor;
 use super::xmlparser;
+use crate::camerasxml_parser::crop;
+use rawspeed_std::coord_common::ColIndex;
+use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::Dimensions2D;
+use rawspeed_std::coord_common::RowCount;
+use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std::coord_common::RowLength;
 
 type T<'a> = Camera<'a>;
 
@@ -683,20 +690,16 @@ fn parse_crop_test() {
             supported: Supported::Supported,
             id: None,
             cfa: MaybeCFA::None,
-            crop: Some(Crop {
-                x: X {
-                    val: Int { val: 0 },
-                },
-                y: Y {
-                    val: Int { val: 1 },
-                },
-                width: Width {
-                    val: Int { val: 2 },
-                },
-                height: Height {
-                    val: Int { val: 3 },
-                },
-            }),
+            crop: Some(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::Absolute(Dimensions2D::new(
+                    RowLength::new(2),
+                    RowCount::new(3),
+                )),
+            )),
             sensors: Sensors { values: vec![] },
             blackaras: None,
             aliases: None,
