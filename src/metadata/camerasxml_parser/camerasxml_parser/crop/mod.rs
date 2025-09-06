@@ -64,7 +64,6 @@ impl Crop {
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for Crop {
-    #[expect(clippy::unwrap_in_result)]
     #[inline]
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,

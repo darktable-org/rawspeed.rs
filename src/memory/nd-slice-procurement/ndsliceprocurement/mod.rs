@@ -151,7 +151,6 @@ impl<T> NDSliceProcurementRequest<T> {
     }
 
     #[inline]
-    #[expect(clippy::unwrap_in_result)]
     pub fn get_layout(
         &self,
     ) -> Result<(core::alloc::Layout, RowPitch), core::alloc::LayoutError> {
