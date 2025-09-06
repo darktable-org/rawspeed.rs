@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-metadata-camerasxml_parser"
+name = "rawspeed-camerasxml-xmllint"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,9 +13,8 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-metadata-xmlparser = { path = "../xmlparser" }
-
-[dev-dependencies]
+rawspeed-metadata-camerasxml_parser = { path = "../../../src/metadata/camerasxml_parser" }
+rawspeed-utils-librstest = { path = "../../../src/utils/librstest" }
 
 [lib]
-path = "mod.rs"
+path = "xmllint.rs"

@@ -45,7 +45,6 @@ impl<'a, T> Array2DRef<'a, T> {
         self.slice.len().checked_div(self.pitch()).unwrap()
     }
 
-    #[expect(clippy::unwrap_in_result)]
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {

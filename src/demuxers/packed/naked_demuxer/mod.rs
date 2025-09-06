@@ -320,7 +320,6 @@ impl RawDemuxer for NakedDemuxer<'_> {
         None
     }
 
-    #[expect(clippy::unwrap_in_result)]
     #[inline(never)]
     fn decode(
         &self,

@@ -58,7 +58,6 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    #[expect(clippy::unwrap_in_result)]
     pub fn get_row(&self, row: RowIndex) -> Option<&[T]> {
         if *row >= self.num_rows() {
             return None;
@@ -75,7 +74,6 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    #[expect(clippy::unwrap_in_result)]
     pub fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
         if *row >= self.num_rows() {
             return None;

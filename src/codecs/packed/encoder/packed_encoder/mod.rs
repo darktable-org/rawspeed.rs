@@ -154,7 +154,6 @@ impl<W> std::io::Write for ByteCountingWriter<'_, W>
 where
     W: std::io::Write,
 {
-    #[expect(clippy::unwrap_in_result)]
     #[inline]
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let res = self.writer.write(buf);
@@ -222,7 +221,6 @@ where
         }
     }
 
-    #[expect(clippy::unwrap_in_result)]
     fn pack_row<BitOrder>(
         &mut self,
         row: RowIndex,
