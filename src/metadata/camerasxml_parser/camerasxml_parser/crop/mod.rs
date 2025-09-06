@@ -1,99 +1,18 @@
-use super::{height, width, x, xmlparser, y};
-use rawspeed_std::coord_common::{
-    ColIndex, ColOffset, Coord2D, CoordOffset2D, Dimensions2D, RowCount,
-    RowIndex, RowLength, RowOffset,
-};
+use super::height;
+use super::width;
+use super::x;
+use super::xmlparser;
+use super::y;
 
-mod private {
-    use super::{height, width, x, xmlparser, y};
-
-    impl_elt_matcher!(
-        #[derive(Debug, Clone, Copy, PartialEq)]
-        struct Crop {
-            x: x::X,
-            y: y::Y,
-            width: width::Width,
-            height: height::Height,
-        }
-    );
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[non_exhaustive]
-pub struct AbsoluteCropPosition {
-    pos: Coord2D,
-}
-
-impl AbsoluteCropPosition {
-    #[must_use]
-    #[inline]
-    pub const fn new(pos: Coord2D) -> Self {
-        Self { pos }
+impl_elt_matcher!(
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    struct Crop {
+        x: x::X,
+        y: y::Y,
+        width: width::Width,
+        height: height::Height,
     }
-}
-
-impl core::ops::Deref for AbsoluteCropPosition {
-    type Target = Coord2D;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.pos
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[non_exhaustive]
-pub enum CropSize {
-    Relative(CoordOffset2D),
-    Absolute(Dimensions2D),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[non_exhaustive]
-pub struct Crop {
-    pub pos: AbsoluteCropPosition,
-    pub dim: CropSize,
-}
-
-impl Crop {
-    #[must_use]
-    #[inline]
-    pub const fn new(pos: AbsoluteCropPosition, dim: CropSize) -> Self {
-        Self { pos, dim }
-    }
-}
-
-impl<'a, 'b> xmlparser::Parse<'a, 'b> for Crop {
-    #[inline]
-    fn parse(
-        input: &'b mut xmlparser::ParseStream<'a>,
-    ) -> xmlparser::Result<Self> {
-        let crop: private::Crop = input.parse()?;
-        if **crop.x < 0 || **crop.y < 0 {
-            return Err("Crop x/y must be non-negative".to_owned());
-        }
-        let pos = AbsoluteCropPosition::new(Coord2D::new(
-            RowIndex::new((**crop.y).try_into().unwrap()),
-            ColIndex::new((**crop.x).try_into().unwrap()),
-        ));
-        let dim = match (**crop.width, **crop.height) {
-            (width, height) if width <= 0 && height <= 0 => {
-                CropSize::Relative(CoordOffset2D::new(
-                    RowOffset::new((**crop.height).try_into().unwrap()),
-                    ColOffset::new((**crop.width).try_into().unwrap()),
-                ))
-            }
-            (width, height) if width > 0 && height > 0 => {
-                CropSize::Absolute(Dimensions2D::new(
-                    RowLength::new((**crop.width).try_into().unwrap()),
-                    RowCount::new((**crop.height).try_into().unwrap()),
-                ))
-            }
-            _ => return Err("Invalid Crop width/height".to_owned()),
-        };
-        Ok(Crop::new(pos, dim))
-    }
-}
+);
 
 #[cfg(test)]
 mod tests;
