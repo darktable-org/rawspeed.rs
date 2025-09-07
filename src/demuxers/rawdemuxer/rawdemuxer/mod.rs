@@ -25,7 +25,7 @@ pub trait RawDemuxer {
     fn canonical_model(&self) -> &str;
     fn canonical_alias(&self) -> &str;
     fn canonical_id(&self) -> String;
-    fn iso_speed(&self) -> Option<()>;
+    fn iso_speed(&self) -> Option<u32>;
     fn blacklevel(&self) -> Option<()>;
     fn whitelevel(&self) -> Option<()>;
     fn blacklevel_separate(&self) -> Option<()>;

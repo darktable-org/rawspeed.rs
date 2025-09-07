@@ -226,7 +226,7 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn iso_speed(&self) -> Option<()> {
+    fn iso_speed(&self) -> Option<u32> {
         None
     }
 
