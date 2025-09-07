@@ -35,6 +35,7 @@ use super::make::Make;
 use super::model::Model;
 use super::sensor;
 use super::xmlparser;
+use crate::camerasxml_parser::blackareas::BlackArea;
 use crate::camerasxml_parser::crop;
 use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorFilterArray;
 use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
@@ -962,15 +963,14 @@ fn parse_blackareas_test() {
             sensors: Sensors { values: vec![] },
             blackaras: Some(BlackAreas {
                 value: IndividualBlackAreas {
-                    verticals: vec![Vertical {
+                    areas: vec![BlackArea::Vertical(Vertical {
                         x: X {
                             val: Int { val: 32 },
                         },
                         width: Width {
                             val: Int { val: 24 },
                         },
-                    }],
-                    horizontals: vec![],
+                    })],
                 },
             }),
             aliases: None,
