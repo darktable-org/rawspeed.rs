@@ -1,10 +1,9 @@
-use super::super::Int;
-use super::super::height::Height;
-use super::super::width::Width;
-use super::super::x::X;
-use super::super::y::Y;
 use super::Crop;
 use super::xmlparser;
+use crate::camerasxml_parser::crop;
+use rawspeed_std::coord_common::{
+    ColIndex, ColOffset, Coord2D, RowCount, RowIndex, RowLength, RowOffset,
+};
 
 type T = Crop;
 
@@ -48,7 +47,87 @@ fn parse_test() {
         "<Crop x=\"42\" y=\"24\" width=\"22\" height=\"44\"",
         "<Crop x=\"42\" y=\"24\" width=\"22\" not_height=\"44\"",
         "<Crop x=\"42\" y=\"24\" width=\"22\" height=\"44\"/",
-        "<Crop x=\"42\" y=\"24\" width=\"22\" height=\"44\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"0\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"1\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"0\" y=\"-1\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"0\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"1\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"1\" y=\"-1\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"0\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"1\" width=\"-1\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"0\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"0\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"0\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"1\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"1\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"1\" height=\"-1\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"-1\" height=\"0\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"-1\" height=\"1\"/>",
+        "<Crop x=\"-1\" y=\"-1\" width=\"-1\" height=\"-1\"/>",
     ];
     let expected: Vec<(&str, xmlparser::Result<T>)> = vec![
         (
@@ -234,21 +313,652 @@ fn parse_test() {
             Err("While trying to match `\"Gt\"`, encountered end of stream"),
         ),
         (
-            "<Crop x=\"42\" y=\"24\" width=\"22\" height=\"44\"/>",
-            Ok(Crop {
-                x: X {
-                    val: Int { val: 42 },
-                },
-                y: Y {
-                    val: Int { val: 24 },
-                },
-                width: Width {
-                    val: Int { val: 22 },
-                },
-                height: Height {
-                    val: Int { val: 44 },
-                },
-            }),
+            "<Crop x=\"0\" y=\"0\" width=\"0\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"0\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"0\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"-1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"-1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"0\" width=\"-1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"0\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"0\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"0\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"-1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"-1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"1\" width=\"-1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(0),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"0\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"0\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"0\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"-1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"-1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"0\" y=\"-1\" width=\"-1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"0\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"0\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"0\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"-1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"-1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"0\" width=\"-1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(0),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"0\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"0\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"0\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(0)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Absolute(RowLength::new(1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"-1\" height=\"0\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(0)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"-1\" height=\"1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Absolute(RowCount::new(1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"1\" width=\"-1\" height=\"-1\"/>",
+            Ok(Crop::new(
+                crop::AbsoluteCropPosition::new(Coord2D::new(
+                    RowIndex::new(1),
+                    ColIndex::new(1),
+                )),
+                crop::CropSize::new(
+                    crop::Width::Relative(ColOffset::new(-1)),
+                    crop::Height::Relative(RowOffset::new(-1)),
+                ),
+            )),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"0\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"0\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"0\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"-1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"-1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"1\" y=\"-1\" width=\"-1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"0\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"0\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"0\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"-1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"-1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"0\" width=\"-1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"0\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"0\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"0\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"-1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"-1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"1\" width=\"-1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"0\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"0\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"0\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"-1\" height=\"0\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"-1\" height=\"1\"/>",
+            Err("Crop x/y must be non-negative"),
+        ),
+        (
+            "<Crop x=\"-1\" y=\"-1\" width=\"-1\" height=\"-1\"/>",
+            Err("Crop x/y must be non-negative"),
         ),
     ];
     let mut results = vec![];
