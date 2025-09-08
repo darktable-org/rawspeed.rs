@@ -49,6 +49,7 @@ env:
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.job-flavor == 'plain' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
+  WITH_CODEQL: ${{ inputs.builder-host != 'aarch64' && inputs.job-flavor != 'RustFmt' && inputs.job-flavor != 'doc' }}
 
 jobs:
   linux:
@@ -386,6 +387,13 @@ jobs:
           cd rawspeed.rs
           git fetch origin pull/${PR}/merge:pr/${PR}/merge
           git switch pr/${PR}/merge
+      - name: Initialize CodeQL (for CodeQL static analysis)
+        timeout-minutes: 1
+        if: env.WITH_CODEQL == 'true'
+        uses: github/codeql-action/init@v3
+        with:
+          source-root: ${{ env.SRC_DIR}}
+          languages: rust
       - name: Verify that the source code is properly formatted
         id: rustfmt
         timeout-minutes: 1
@@ -506,6 +514,13 @@ jobs:
           export ${{ inputs.job-flavor }}_OPTIONS="allocator_may_return_null=1"
           cd "$SRC_DIR"
           cargo test --all-targets $BUILD_ARGS --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}-sanitized
+      - name: Perform CodeQL static analysis
+        timeout-minutes: 5
+        if: env.WITH_CODEQL == 'true'
+        uses: github/codeql-action/analyze@v3
+        with:
+          source-root: ${{ env.SRC_DIR}}
+          checkout_path: ${{ env.SRC_DIR}}
       - name: Build docs
         timeout-minutes: 1
         if: inputs.job-flavor == 'doc'
