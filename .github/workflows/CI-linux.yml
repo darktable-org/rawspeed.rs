@@ -39,6 +39,7 @@ on:
         type: string
     secrets:
       CODECOV_TOKEN:
+      SONAR_TOKEN:
     outputs:
       rustfmt-artifact-url:
         value: ${{ jobs.linux.outputs.rustfmt-artifact-url }}
@@ -49,7 +50,7 @@ env:
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.job-flavor == 'plain' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
-  WITH_CODEQL: ${{ inputs.builder-host != 'aarch64' && inputs.job-flavor != 'RustFmt' && inputs.job-flavor != 'doc' }}
+  WITH_CODEQL: ${{ inputs.builder-host != 'aarch64' && inputs.job-flavor == 'plain' }}
 
 jobs:
   linux:
@@ -175,11 +176,18 @@ jobs:
             gpg \
           "
           if    [ "${{ inputs.job-flavor }}" != "RustFmt" ] \
-             && [ "${{ inputs.job-flavor }}" != "doc" ]; then
+             && [ "${{ inputs.job-flavor }}" != "doc" ] \
+             && [ "${{ inputs.job-flavor }}" != "SonarQube" ]; then
           PACKAGES="${PACKAGES} \
             clang-${{ inputs.distro-LLVM }} \
             lld-${{ inputs.distro-LLVM }} \
           "
+          fi
+          if [ "${{ inputs.job-flavor }}" = "SonarQube" ]; then
+          PACKAGES="${PACKAGES} \
+            curl unzip \
+          "
+          fi
           dpkg-divert --add --rename --divert /usr/bin/cc.original /usr/bin/cc
           dpkg-divert --add --rename --divert /usr/bin/gcc.original /usr/bin/gcc
           dpkg-divert --add --rename --divert /usr/bin/g++.original /usr/bin/g++
@@ -193,7 +201,6 @@ jobs:
           ln -s /usr/local/bin/clang++ /usr/local/bin/c++
           ln -s /usr/local/bin/clang++ /usr/local/bin/g++
           ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
-          fi
           echo "PACKAGES=$(echo ${PACKAGES})" >> $GITHUB_ENV
       - name: Configure for same-os cross-arch compilation
         timeout-minutes: 1
@@ -294,6 +301,8 @@ jobs:
             rustfmt \
           "
           elif [ "${{ inputs.job-flavor }}" = "doc" ]; then
+          /bin/true
+          elif [ "${{ inputs.job-flavor }}" = "SonarQube" ]; then
           /bin/true
           elif [ "${{ inputs.job-flavor }}" = "plain" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
@@ -521,6 +530,18 @@ jobs:
         with:
           source-root: ${{ env.SRC_DIR}}
           checkout_path: ${{ env.SRC_DIR}}
+      - name: Perform SonarQube static analysis
+        timeout-minutes: 1
+        if: inputs.job-flavor == 'SonarQube'
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            --define sonar.organization=darktable-org
+            --define sonar.projectKey=darktable-org_rawspeed-rs
+            --define sonar.projectBaseDir=rawspeed.rs
+            --define sonar.sources=.
       - name: Build docs
         timeout-minutes: 1
         if: inputs.job-flavor == 'doc'

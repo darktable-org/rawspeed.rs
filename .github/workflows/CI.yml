@@ -245,6 +245,25 @@ jobs:
       job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  SonarQube:
+    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
+             linux-slow-native, linux-slow-cross, windows-slow]
+    uses: ./.github/workflows/CI-linux.yml
+    with:
+      os: linux
+      runs-on: ubuntu-latest
+      builder-host: x86_64
+      builder-target: x86_64
+      target-vendor: "unknown"
+      target-os: "linux"
+      rust-toolchain-abi: "gnu"
+      distro-image: "debian:trixie-slim"
+      distro-LLVM: 19
+      rust-toolchain-name: stable
+      build-profile: dev
+      job-flavor: SonarQube
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   build-docs:
     needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
              linux-slow-native, linux-slow-cross, windows-slow]
