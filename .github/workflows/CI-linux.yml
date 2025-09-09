@@ -51,6 +51,7 @@ env:
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.job-flavor == 'plain' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
   WITH_CODEQL: ${{ inputs.builder-host != 'aarch64' && inputs.job-flavor == 'plain' }}
+  WITH_SONARQUBE: ${{ secrets.SONAR_TOKEN != '' }}
 
 jobs:
   linux:
@@ -532,7 +533,7 @@ jobs:
           checkout_path: ${{ env.SRC_DIR}}
       - name: Perform SonarQube static analysis
         timeout-minutes: 1
-        if: inputs.job-flavor == 'SonarQube'
+        if: inputs.job-flavor == 'SonarQube' && env.WITH_SONARQUBE == 'true'
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
