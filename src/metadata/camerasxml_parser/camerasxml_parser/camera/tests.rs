@@ -8,15 +8,11 @@ use super::super::black::Black;
 use super::super::blackareas::BlackAreas;
 use super::super::blackareas::IndividualBlackAreas;
 use super::super::cfa::CFA;
-use super::super::cfa::CFAColors;
 use super::super::cfa2::CFA2;
-use super::super::color;
-use super::super::color::Color;
 use super::super::colormatrices::ColorMatrices;
 use super::super::colormatrix::ColorMatrix;
 use super::super::crop::Crop;
 use super::super::decoder_version::DecoderVersion;
-use super::super::height::Height;
 use super::super::hint::Hint;
 use super::super::hints::Hints;
 use super::super::hints::IndividualHints;
@@ -34,7 +30,6 @@ use super::super::vertical::Vertical;
 use super::super::white::White;
 use super::super::width::Width;
 use super::super::x::X;
-use super::super::y::Y;
 use super::Camera;
 use super::MaybeCFA;
 use super::Sensors;
@@ -572,25 +567,10 @@ fn parse_cfa_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::CFA(CFA {
-                width: Width {
-                    val: Int { val: 1 },
-                },
-                height: Height {
-                    val: Int { val: 1 },
-                },
-                values: CFAColors {
-                    values: vec![Color {
-                        x: X {
-                            val: Int { val: 0 },
-                        },
-                        y: Y {
-                            val: Int { val: 0 },
-                        },
-                        value: color::ColorVariant::Red,
-                    }],
-                },
-            }),
+            cfa: MaybeCFA::CFA(CFA::new(ColorFilterArray::new(
+                vec![ColorVariant::Red],
+                RowLength::new(1),
+            ))),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
