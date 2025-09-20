@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-metadata-camerasxml_parser"
+name = "rawspeed-metadata-colorfilterarray"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,12 +13,8 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-metadata-colorfilterarray = { path = "../colorfilterarray" }
-rawspeed-metadata-xmlparser = { path = "../xmlparser" }
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
-
-[dev-dependencies]
 
 [lib]
 path = "mod.rs"

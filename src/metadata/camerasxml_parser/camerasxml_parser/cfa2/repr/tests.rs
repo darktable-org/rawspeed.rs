@@ -1,6 +1,9 @@
-use crate::camerasxml_parser::cfa2::CFA2;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::{
-    ColorFilterArray, ColorVariant,
+use crate::camerasxml_parser::{
+    Int,
+    cfa2::repr::{CFA2, Matrix},
+    colorrow::ColorVariant,
+    height::Height,
+    width::Width,
 };
 use rawspeed_metadata_xmlparser::xmlparser;
 use rawspeed_std::coord_common::RowLength;
@@ -312,10 +315,16 @@ fn parse_test() {
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">G</ColorRow>\n        </CFA2>",
             Ok(CFA2 {
-                data: ColorFilterArray::new(
-                    vec![ColorVariant::Green],
-                    RowLength::new(1),
-                ),
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::G],
+                    row_length: RowLength::new(1),
+                },
             }),
         ),
         (
@@ -329,15 +338,32 @@ fn parse_test() {
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">R</ColorRow>\n        </CFA2>",
             Ok(CFA2 {
-                data: ColorFilterArray::new(
-                    vec![ColorVariant::Red],
-                    RowLength::new(1),
-                ),
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R],
+                    row_length: RowLength::new(1),
+                },
             }),
         ),
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 2 expected 1"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(1),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
@@ -345,7 +371,18 @@ fn parse_test() {
         ),
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">RG</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row length, got 2 expected 1"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(2),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
@@ -353,19 +390,52 @@ fn parse_test() {
         ),
         (
             "<CFA2 width=\"1\" height=\"1\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 2 expected 1"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![
+                        ColorVariant::R,
+                        ColorVariant::G,
+                        ColorVariant::G,
+                        ColorVariant::B,
+                    ],
+                    row_length: RowLength::new(2),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"1\" height=\"2\">\n            <ColorRow y=\"0\">R</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 1 expected 2"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R],
+                    row_length: RowLength::new(1),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"1\" height=\"2\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
             Ok(CFA2 {
-                data: ColorFilterArray::new(
-                    vec![ColorVariant::Red, ColorVariant::Green],
-                    RowLength::new(1),
-                ),
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(1),
+                },
             }),
         ),
         (
@@ -374,7 +444,18 @@ fn parse_test() {
         ),
         (
             "<CFA2 width=\"1\" height=\"2\">\n            <ColorRow y=\"0\">RG</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 1 expected 2"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(2),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"1\" height=\"2\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
@@ -382,15 +463,53 @@ fn parse_test() {
         ),
         (
             "<CFA2 width=\"1\" height=\"2\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row length, got 2 expected 1"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 1 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![
+                        ColorVariant::R,
+                        ColorVariant::G,
+                        ColorVariant::G,
+                        ColorVariant::B,
+                    ],
+                    row_length: RowLength::new(2),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"1\">\n            <ColorRow y=\"0\">R</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row length, got 1 expected 2"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R],
+                    row_length: RowLength::new(1),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"1\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 2 expected 1"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(1),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"1\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
@@ -399,10 +518,16 @@ fn parse_test() {
         (
             "<CFA2 width=\"2\" height=\"1\">\n            <ColorRow y=\"0\">RG</ColorRow>\n        </CFA2>",
             Ok(CFA2 {
-                data: ColorFilterArray::new(
-                    vec![ColorVariant::Red, ColorVariant::Green],
-                    RowLength::new(2),
-                ),
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(2),
+                },
             }),
         ),
         (
@@ -411,15 +536,53 @@ fn parse_test() {
         ),
         (
             "<CFA2 width=\"2\" height=\"1\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 2 expected 1"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 1 },
+                },
+                body: Matrix {
+                    data: vec![
+                        ColorVariant::R,
+                        ColorVariant::G,
+                        ColorVariant::G,
+                        ColorVariant::B,
+                    ],
+                    row_length: RowLength::new(2),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"2\">\n            <ColorRow y=\"0\">R</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 1 expected 2"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R],
+                    row_length: RowLength::new(1),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"2\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row length, got 1 expected 2"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(1),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"2\">\n            <ColorRow y=\"0\">R</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
@@ -427,7 +590,18 @@ fn parse_test() {
         ),
         (
             "<CFA2 width=\"2\" height=\"2\">\n            <ColorRow y=\"0\">RG</ColorRow>\n        </CFA2>",
-            Err("unexpected CFA matrix row count, got 1 expected 2"),
+            Ok(CFA2 {
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![ColorVariant::R, ColorVariant::G],
+                    row_length: RowLength::new(2),
+                },
+            }),
         ),
         (
             "<CFA2 width=\"2\" height=\"2\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">G</ColorRow>\n        </CFA2>",
@@ -436,15 +610,21 @@ fn parse_test() {
         (
             "<CFA2 width=\"2\" height=\"2\">\n            <ColorRow y=\"0\">RG</ColorRow>\n            <ColorRow y=\"1\">GB</ColorRow>\n        </CFA2>",
             Ok(CFA2 {
-                data: ColorFilterArray::new(
-                    vec![
-                        ColorVariant::Red,
-                        ColorVariant::Green,
-                        ColorVariant::Green,
-                        ColorVariant::Blue,
+                width: Width {
+                    val: Int { val: 2 },
+                },
+                height: Height {
+                    val: Int { val: 2 },
+                },
+                body: Matrix {
+                    data: vec![
+                        ColorVariant::R,
+                        ColorVariant::G,
+                        ColorVariant::G,
+                        ColorVariant::B,
                     ],
-                    RowLength::new(2),
-                ),
+                    row_length: RowLength::new(2),
+                },
             }),
         ),
     ];

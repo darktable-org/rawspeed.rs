@@ -22,6 +22,7 @@ members = [
     "src/metadata/camerametadata",
     "src/metadata/camerasxml_parser",
     "src/metadata/xmlparser",
+    "src/metadata/colorfilterarray",
     "src/metadata/xmltokendesparsifier",
     "src/metadata/xmltokenizer",
     "src/misc/md5",
