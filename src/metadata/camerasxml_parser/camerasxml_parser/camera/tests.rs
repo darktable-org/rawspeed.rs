@@ -10,14 +10,10 @@ use super::super::blackareas::IndividualBlackAreas;
 use super::super::cfa::CFA;
 use super::super::cfa::CFAColors;
 use super::super::cfa2::CFA2;
-use super::super::cfa2::CFA2Colors;
 use super::super::color;
 use super::super::color::Color;
 use super::super::colormatrices::ColorMatrices;
 use super::super::colormatrix::ColorMatrix;
-use super::super::colorrow;
-use super::super::colorrow::ColorRow;
-use super::super::colorrow::ColorRowValues;
 use super::super::crop::Crop;
 use super::super::decoder_version::DecoderVersion;
 use super::super::height::Height;
@@ -47,6 +43,8 @@ use super::model::Model;
 use super::sensor;
 use super::xmlparser;
 use crate::camerasxml_parser::crop;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorFilterArray;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
 use rawspeed_std::coord_common::ColIndex;
 use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std::coord_common::RowCount;
@@ -630,24 +628,10 @@ fn parse_cfa2_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::CFA2(CFA2 {
-                width: Width {
-                    val: Int { val: 1 },
-                },
-                height: Height {
-                    val: Int { val: 1 },
-                },
-                values: CFA2Colors {
-                    values: vec![ColorRow {
-                        y: Y {
-                            val: Int { val: 0 },
-                        },
-                        value: ColorRowValues {
-                            values: vec![colorrow::ColorVariant::G],
-                        },
-                    }],
-                },
-            }),
+            cfa: MaybeCFA::CFA2(CFA2::new(ColorFilterArray::new(
+                vec![ColorVariant::Green],
+                RowLength::new(1),
+            ))),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
