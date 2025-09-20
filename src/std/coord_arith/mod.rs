@@ -28,8 +28,8 @@ impl core::ops::Sub<RowOffset> for RowIndex {
     #[inline]
     fn sub(self, rhs: RowOffset) -> Self::Output {
         let lhs = *self;
-        let rhs = (*rhs).try_into().ok()?;
-        Some(Self::new(lhs.checked_sub(rhs)?))
+        let rhs = *rhs;
+        Some(Self::new(lhs.checked_sub_signed(rhs)?))
     }
 }
 
@@ -59,8 +59,8 @@ impl core::ops::Sub<ColOffset> for ColIndex {
     #[inline]
     fn sub(self, rhs: ColOffset) -> Self::Output {
         let lhs = *self;
-        let rhs = (*rhs).try_into().ok()?;
-        Some(Self::new(lhs.checked_sub(rhs)?))
+        let rhs = *rhs;
+        Some(Self::new(lhs.checked_sub_signed(rhs)?))
     }
 }
 

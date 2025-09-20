@@ -169,21 +169,32 @@ where
     let thr: usize = isize::MAX.try_into().unwrap();
     let tests = [
         //
-        ((0, -2_isize), None),
-        ((0, -1), None),
+        ((0, isize::MIN), Some(thr + 1)),
+        ((0, isize::MIN + 1), Some(thr)),
+        ((0, (isize::MIN + 2)), Some(thr - 1)),
+        ((0, -2_isize), Some(2)),
+        ((0, -1), Some(1)),
         ((0, 0), Some(0_usize)),
         ((0, 1), None),
         ((0, 2), None),
         //
-        ((1, -2), None),
-        ((1, -1), None),
+        ((1, isize::MIN), Some(thr + 2)),
+        ((1, isize::MIN + 1), Some(thr + 1)),
+        ((1, (isize::MIN + 2)), Some(thr)),
+        ((1, (isize::MIN + 3)), Some(thr - 1)),
+        ((1, -2), Some(3)),
+        ((1, -1), Some(2)),
         ((1, 0), Some(1)),
         ((1, 1), Some(0)),
         ((1, 2), None),
         ((1, 3), None),
         //
-        ((thr - 1, -2), None),
-        ((thr - 1, -1), None),
+        ((thr - 1, isize::MIN), Some(2 * thr)),
+        ((thr - 1, isize::MIN + 1), Some(2 * thr - 1)),
+        ((thr - 1, (isize::MIN + 2)), Some(2 * thr - 2)),
+        ((thr - 1, (isize::MIN + 3)), Some(2 * thr - 3)),
+        ((thr - 1, -2), Some(thr + 1)),
+        ((thr - 1, -1), Some(thr)),
         ((thr - 1, 0), Some(thr - 1)),
         ((thr - 1, 1), Some(thr - 2)),
         ((thr - 1, 2), Some(thr - 3)),
@@ -192,8 +203,12 @@ where
         ((thr - 1, isize::MAX - 1), Some(0)),
         ((thr - 1, isize::MAX), None),
         //
-        ((thr, -2), None),
-        ((thr, -1), None),
+        ((thr, isize::MIN), Some(2 * thr + 1)),
+        ((thr, isize::MIN + 1), Some(2 * thr)),
+        ((thr, (isize::MIN + 2)), Some(2 * thr - 1)),
+        ((thr, (isize::MIN + 3)), Some(2 * thr - 2)),
+        ((thr, -2), Some(thr + 2)),
+        ((thr, -1), Some(thr + 1)),
         ((thr, 0), Some(thr)),
         ((thr, 1), Some(thr - 1)),
         ((thr, 2), Some(thr - 2)),
@@ -202,8 +217,12 @@ where
         ((thr, isize::MAX - 1), Some(1)),
         ((thr, isize::MAX), Some(0)),
         //
-        ((thr + 1, -2), None),
-        ((thr + 1, -1), None),
+        ((thr + 1, isize::MIN), None),
+        ((thr + 1, isize::MIN + 1), Some(2 * thr + 1)),
+        ((thr + 1, (isize::MIN + 2)), Some(2 * thr)),
+        ((thr + 1, (isize::MIN + 3)), Some(2 * thr - 1)),
+        ((thr + 1, -2), Some(thr + 3)),
+        ((thr + 1, -1), Some(thr + 2)),
         ((thr + 1, 0), Some(thr + 1)),
         ((thr + 1, 1), Some(thr)),
         ((thr + 1, 2), Some(thr - 1)),
@@ -220,7 +239,11 @@ where
 #[test]
 fn rowindex_offset_test() {
     enumerate_offset_tests(|(a, b), c| {
-        assert_eq!(RowIndex::new(a) - RowOffset::new(b), c.map(RowIndex::new));
+        assert_eq!(
+            RowIndex::new(a) - RowOffset::new(b),
+            c.map(RowIndex::new),
+            "{a} - {b}",
+        );
     });
 }
 
