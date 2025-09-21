@@ -246,6 +246,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   SonarQube:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
              linux-slow-native, linux-slow-cross, windows-slow]
     uses: ./.github/workflows/CI-linux.yml
