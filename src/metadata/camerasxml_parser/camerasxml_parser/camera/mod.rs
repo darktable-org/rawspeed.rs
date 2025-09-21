@@ -1,3 +1,5 @@
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorFilterArray;
+
 use super::aliases;
 use super::blackareas;
 use super::cfa;
@@ -15,24 +17,38 @@ use super::supported;
 use super::xmlparser;
 
 #[derive(Debug, Clone, PartialEq)]
-#[expect(clippy::upper_case_acronyms)]
-pub enum MaybeCFA {
-    None,
-    CFA(cfa::CFA),
-    CFA2(cfa2::CFA2),
+pub struct MaybeCFA {
+    val: Option<ColorFilterArray>,
+}
+
+impl MaybeCFA {
+    pub const fn some(val: ColorFilterArray) -> Self {
+        Self { val: Some(val) }
+    }
+    pub const fn none() -> Self {
+        Self { val: None }
+    }
+}
+
+impl core::ops::Deref for MaybeCFA {
+    type Target = Option<ColorFilterArray>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for MaybeCFA {
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {
-        if let Ok(cfa) = input.parse() {
-            return Ok(Self::CFA(cfa));
+        if let Ok(cfa) = input.parse::<cfa::CFA>() {
+            return Ok(Self::some(cfa.take_cfa()));
         }
-        if let Ok(cfa) = input.parse() {
-            return Ok(Self::CFA2(cfa));
+        if let Ok(cfa) = input.parse::<cfa2::CFA2>() {
+            return Ok(Self::some(cfa.take_cfa()));
         }
-        Ok(Self::None)
+        Ok(Self::none())
     }
 }
 

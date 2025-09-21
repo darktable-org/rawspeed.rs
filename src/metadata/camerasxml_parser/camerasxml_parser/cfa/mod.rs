@@ -16,8 +16,8 @@ pub struct CFA {
 }
 
 impl CFA {
-    pub const fn new(data: ColorFilterArray) -> Self {
-        Self { data }
+    pub fn take_cfa(self) -> ColorFilterArray {
+        self.data
     }
 }
 

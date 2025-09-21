@@ -7,8 +7,6 @@ use super::super::aliases::IndividualAliases;
 use super::super::black::Black;
 use super::super::blackareas::BlackAreas;
 use super::super::blackareas::IndividualBlackAreas;
-use super::super::cfa::CFA;
-use super::super::cfa2::CFA2;
 use super::super::colormatrices::ColorMatrices;
 use super::super::colormatrix::ColorMatrix;
 use super::super::crop::Crop;
@@ -222,7 +220,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -246,7 +244,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -270,7 +268,7 @@ fn parse_outer_test() {
                 }),
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -292,7 +290,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -314,7 +312,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::SupportedNoSamples,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -336,7 +334,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::Unsupported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -358,7 +356,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::UnsupportedNoSamples,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -380,7 +378,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::Unknown,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -402,7 +400,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::UnknownNoSamples,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -430,7 +428,7 @@ fn parse_outer_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -454,7 +452,7 @@ fn parse_outer_test() {
                 }),
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -480,7 +478,7 @@ fn parse_outer_test() {
                 }),
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -529,7 +527,7 @@ fn parse_id_test() {
                 },
                 value: BodyStr { val: "pretty name" },
             }),
-            cfa: MaybeCFA::None,
+            cfa: MaybeCFA::none(),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
@@ -567,10 +565,10 @@ fn parse_cfa_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::CFA(CFA::new(ColorFilterArray::new(
+            cfa: MaybeCFA::some(ColorFilterArray::new(
                 vec![ColorVariant::Red],
                 RowLength::new(1),
-            ))),
+            )),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
@@ -608,10 +606,10 @@ fn parse_cfa2_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::CFA2(CFA2::new(ColorFilterArray::new(
+            cfa: MaybeCFA::some(ColorFilterArray::new(
                 vec![ColorVariant::Green],
                 RowLength::new(1),
-            ))),
+            )),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
@@ -647,7 +645,7 @@ fn parse_crop_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::None,
+            cfa: MaybeCFA::none(),
             crop: Some(Crop::new(
                 crop::AbsoluteCropPosition::new(Coord2D::new(
                     RowIndex::new(1),
@@ -711,7 +709,7 @@ fn parse_sensors_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors {
                     values: vec![Sensor {
@@ -743,7 +741,7 @@ fn parse_sensors_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors {
                     values: vec![Sensor {
@@ -777,7 +775,7 @@ fn parse_sensors_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors {
                     values: vec![Sensor {
@@ -811,7 +809,7 @@ fn parse_sensors_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors {
                     values: vec![Sensor {
@@ -850,7 +848,7 @@ fn parse_sensors_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors {
                     values: vec![Sensor {
@@ -884,7 +882,7 @@ fn parse_sensors_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors {
                     values: vec![
@@ -959,7 +957,7 @@ fn parse_blackareas_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::None,
+            cfa: MaybeCFA::none(),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: Some(BlackAreas {
@@ -1009,7 +1007,7 @@ fn parse_aliases_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::None,
+            cfa: MaybeCFA::none(),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
@@ -1054,7 +1052,7 @@ fn parse_hints_test() {
             decoder_version: None,
             supported: Supported::Supported,
             id: None,
-            cfa: MaybeCFA::None,
+            cfa: MaybeCFA::none(),
             crop: None,
             sensors: Sensors { values: vec![] },
             blackaras: None,
@@ -1118,7 +1116,7 @@ fn parse_colormatrices_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
@@ -1144,7 +1142,7 @@ fn parse_colormatrices_test() {
                 decoder_version: None,
                 supported: Supported::Supported,
                 id: None,
-                cfa: MaybeCFA::None,
+                cfa: MaybeCFA::none(),
                 crop: None,
                 sensors: Sensors { values: vec![] },
                 blackaras: None,
