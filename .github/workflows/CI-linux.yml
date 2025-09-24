@@ -557,6 +557,7 @@ jobs:
           </head>
           EOT
           fi
+          find $SRC_DIR/target/doc/ -type f -printf 'https://rawspeed.rs/%P\n' > $SRC_DIR/target/doc/sitemap.txt
       - name: Upload docs artifact
         timeout-minutes: 1
         if: inputs.job-flavor == 'doc'
