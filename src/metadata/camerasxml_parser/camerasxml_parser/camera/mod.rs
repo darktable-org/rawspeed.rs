@@ -57,6 +57,35 @@ pub struct Sensors {
     pub values: Vec<sensor::Sensor>,
 }
 
+impl Sensors {
+    #[must_use]
+    #[inline]
+    pub fn get_for_iso(&self, iso: Option<u32>) -> Option<&sensor::Sensor> {
+        if self.values.is_empty() {
+            return None;
+        }
+        let Some(iso) = iso else {
+            for sensor in &self.values {
+                if matches!(sensor.bounds, sensor::Bounds::Unbounded) {
+                    return Some(sensor);
+                }
+            }
+            return None;
+        };
+        let iso = iso.try_into().unwrap();
+        let mut first_fallback = None;
+        for sensor in &self.values {
+            #[expect(clippy::else_if_without_else)]
+            if matches!(sensor.bounds, sensor::Bounds::Unbounded) {
+                first_fallback = first_fallback.or(Some(sensor));
+            } else if sensor.bounds.contains(iso) {
+                return Some(sensor);
+            }
+        }
+        first_fallback
+    }
+}
+
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for Sensors {
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
@@ -81,7 +110,7 @@ pub struct Camera<'a> {
     pub cfa: MaybeCFA,
     pub crop: Option<crop::Crop>,
     pub sensors: Sensors,
-    pub blackaras: Option<blackareas::BlackAreas>,
+    pub blackareas: Option<blackareas::BlackAreas>,
     pub aliases: Option<aliases::Aliases<'a>>,
     pub hints: Option<hints::Hints<'a>>,
     pub colormatrices: Option<colormatrices::ColorMatrices>,
@@ -112,7 +141,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Camera<'a> {
         let cfa = input.parse()?;
         let crop = input.parse()?;
         let sensors = input.parse()?;
-        let blackaras = input.parse()?;
+        let blackareas = input.parse()?;
         let aliases = input.parse()?;
         let hints = input.parse()?;
         let colormatrices = input.parse()?;
@@ -137,7 +166,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Camera<'a> {
             cfa,
             crop,
             sensors,
-            blackaras,
+            blackareas,
             aliases,
             hints,
             colormatrices,

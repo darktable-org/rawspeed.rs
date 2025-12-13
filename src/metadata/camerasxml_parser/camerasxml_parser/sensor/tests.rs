@@ -359,3 +359,104 @@ fn parse_test() {
     }
     assert_eq!(results, expected);
 }
+
+#[test]
+fn bounds_contains_unbounded() {
+    for iso in [0, 100] {
+        assert!(Bounds::Unbounded.contains(iso));
+    }
+}
+
+#[test]
+fn bounds_contains_lowerbounded() {
+    {
+        let bound = Bounds::LowerBounded(IsoMin {
+            val: Int { val: 100 },
+        });
+        assert!(!bound.contains(99));
+        assert!(bound.contains(100));
+        assert!(bound.contains(101));
+    }
+}
+
+#[test]
+fn bounds_contains_upperbounded() {
+    {
+        let bound = Bounds::UpperBounded(IsoMax {
+            val: Int { val: 100 },
+        });
+        assert!(bound.contains(99));
+        assert!(bound.contains(100));
+        assert!(!bound.contains(101));
+    }
+}
+
+#[test]
+fn bounds_contains_range() {
+    {
+        let bound = Bounds::Range((
+            IsoMin {
+                val: Int { val: 100 },
+            },
+            IsoMax {
+                val: Int { val: 200 },
+            },
+        ));
+        assert!(!bound.contains(99));
+        assert!(bound.contains(100));
+        assert!(bound.contains(101));
+        assert!(bound.contains(199));
+        assert!(bound.contains(200));
+        assert!(!bound.contains(201));
+    }
+}
+
+#[test]
+fn bounds_contains_range_single() {
+    {
+        let bound = Bounds::Range((
+            IsoMin {
+                val: Int { val: 100 },
+            },
+            IsoMax {
+                val: Int { val: 100 },
+            },
+        ));
+        assert!(!bound.contains(99));
+        assert!(bound.contains(100));
+        assert!(!bound.contains(101));
+    }
+}
+#[test]
+fn bounds_contains_range_empty() {
+    {
+        let bound = Bounds::Range((
+            IsoMin {
+                val: Int { val: 100 },
+            },
+            IsoMax {
+                val: Int { val: 99 },
+            },
+        ));
+        assert!(!bound.contains(99));
+        assert!(!bound.contains(100));
+        assert!(!bound.contains(101));
+    }
+}
+
+#[test]
+fn bounds_contains_enumerated() {
+    {
+        let bound = Bounds::Enumerated(iso_list::IsoList {
+            val: IsoValues {
+                values: vec![100, 200],
+            },
+        });
+        assert!(!bound.contains(99));
+        assert!(bound.contains(100));
+        assert!(!bound.contains(101));
+        assert!(!bound.contains(199));
+        assert!(bound.contains(200));
+        assert!(!bound.contains(201));
+    }
+}

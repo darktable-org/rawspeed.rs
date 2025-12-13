@@ -14,6 +14,22 @@ pub enum Bounds {
     Enumerated(iso_list::IsoList),
 }
 
+impl Bounds {
+    #[must_use]
+    #[inline]
+    pub fn contains(&self, iso: i32) -> bool {
+        match self {
+            Bounds::Unbounded => true,
+            Bounds::LowerBounded(iso_min) => iso >= ***iso_min,
+            Bounds::UpperBounded(iso_max) => iso <= ***iso_max,
+            Bounds::Range((iso_min, iso_max)) => {
+                iso >= ***iso_min && iso <= ***iso_max
+            }
+            Bounds::Enumerated(iso_list) => iso_list.values.contains(&iso),
+        }
+    }
+}
+
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for Bounds {
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
