@@ -1162,3 +1162,129 @@ fn parse_colormatrices_test() {
     }
     assert_eq!(results, expected);
 }
+
+#[test]
+fn get_for_iso_nosensors() {
+    let sensors = Sensors { values: vec![] };
+    assert!(sensors.get_for_iso(None).is_none());
+    assert!(sensors.get_for_iso(Some(100)).is_none());
+}
+
+#[test]
+fn get_for_iso_lowerbounded() {
+    let s_lower = Sensor {
+        black: Black {
+            val: Int { val: 0 },
+        },
+        white: White {
+            val: Int { val: 1 },
+        },
+        bounds: sensor::Bounds::LowerBounded(IsoMin {
+            val: Int { val: 100 },
+        }),
+    };
+    let sensors = Sensors {
+        values: vec![s_lower.clone()],
+    };
+    assert_eq!(sensors.get_for_iso(None), None);
+    assert_eq!(sensors.get_for_iso(Some(0)), None);
+    assert_eq!(sensors.get_for_iso(Some(99)), None);
+    assert_eq!(sensors.get_for_iso(Some(100)), Some(&s_lower));
+    assert_eq!(sensors.get_for_iso(Some(101)), Some(&s_lower));
+}
+
+#[test]
+fn get_for_iso_lowerbounded_with_alternative() {
+    let s_lower = Sensor {
+        black: Black {
+            val: Int { val: 0 },
+        },
+        white: White {
+            val: Int { val: 1 },
+        },
+        bounds: sensor::Bounds::LowerBounded(IsoMin {
+            val: Int { val: 100 },
+        }),
+    };
+    let s_lower_alt = Sensor {
+        black: Black {
+            val: Int { val: 2 },
+        },
+        white: White {
+            val: Int { val: 3 },
+        },
+        bounds: sensor::Bounds::LowerBounded(IsoMin {
+            val: Int { val: 200 },
+        }),
+    };
+    let sensors = Sensors {
+        values: vec![s_lower.clone(), s_lower_alt.clone()],
+    };
+    assert_eq!(sensors.get_for_iso(None), None);
+    assert_eq!(sensors.get_for_iso(Some(0)), None);
+    assert_eq!(sensors.get_for_iso(Some(99)), None);
+    assert_eq!(sensors.get_for_iso(Some(100)), Some(&s_lower));
+    assert_eq!(sensors.get_for_iso(Some(101)), Some(&s_lower));
+    assert_eq!(sensors.get_for_iso(Some(199)), Some(&s_lower));
+    assert_eq!(sensors.get_for_iso(Some(200)), Some(&s_lower));
+    assert_eq!(sensors.get_for_iso(Some(201)), Some(&s_lower));
+}
+
+#[test]
+fn get_for_iso_lowerbounded_with_default() {
+    let s_lower = Sensor {
+        black: Black {
+            val: Int { val: 0 },
+        },
+        white: White {
+            val: Int { val: 1 },
+        },
+        bounds: sensor::Bounds::LowerBounded(IsoMin {
+            val: Int { val: 100 },
+        }),
+    };
+    let s_unbounded = Sensor {
+        black: Black {
+            val: Int { val: 2 },
+        },
+        white: White {
+            val: Int { val: 3 },
+        },
+        bounds: sensor::Bounds::Unbounded,
+    };
+    let s_unbounded_alt = Sensor {
+        black: Black {
+            val: Int { val: 4 },
+        },
+        white: White {
+            val: Int { val: 5 },
+        },
+        bounds: sensor::Bounds::Unbounded,
+    };
+    for values in [
+        vec![s_lower.clone(), s_unbounded.clone()],
+        vec![s_unbounded.clone(), s_lower.clone()],
+        vec![
+            s_lower.clone(),
+            s_unbounded.clone(),
+            s_unbounded_alt.clone(),
+        ],
+        vec![
+            s_unbounded.clone(),
+            s_unbounded_alt.clone(),
+            s_lower.clone(),
+        ],
+        vec![
+            s_unbounded.clone(),
+            s_lower.clone(),
+            s_unbounded_alt.clone(),
+        ],
+    ] {
+        let sensors = Sensors { values };
+        assert_eq!(sensors.get_for_iso(None), Some(&s_unbounded));
+        assert_eq!(sensors.get_for_iso(Some(0)), Some(&s_unbounded));
+        assert_eq!(sensors.get_for_iso(Some(99)), Some(&s_unbounded));
+        assert_eq!(sensors.get_for_iso(Some(100)), Some(&s_lower));
+        assert_eq!(sensors.get_for_iso(Some(101)), Some(&s_lower));
+    }
+}
