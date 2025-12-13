@@ -81,7 +81,7 @@ pub struct Camera<'a> {
     pub cfa: MaybeCFA,
     pub crop: Option<crop::Crop>,
     pub sensors: Sensors,
-    pub blackaras: Option<blackareas::BlackAreas>,
+    pub blackareas: Option<blackareas::BlackAreas>,
     pub aliases: Option<aliases::Aliases<'a>>,
     pub hints: Option<hints::Hints<'a>>,
     pub colormatrices: Option<colormatrices::ColorMatrices>,
@@ -112,7 +112,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Camera<'a> {
         let cfa = input.parse()?;
         let crop = input.parse()?;
         let sensors = input.parse()?;
-        let blackaras = input.parse()?;
+        let blackareas = input.parse()?;
         let aliases = input.parse()?;
         let hints = input.parse()?;
         let colormatrices = input.parse()?;
@@ -137,7 +137,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Camera<'a> {
             cfa,
             crop,
             sensors,
-            blackaras,
+            blackareas,
             aliases,
             hints,
             colormatrices,
