@@ -1,3 +1,5 @@
+use crate::camerasxml_parser::blackareas::BlackArea;
+
 use super::super::Int;
 use super::super::blackareas::BlackAreas;
 use super::super::height::Height;
@@ -125,15 +127,14 @@ fn parse_test() {
             "<BlackAreas>\n            <Vertical x=\"32\" width=\"24\"/>\n        </BlackAreas>",
             Ok(BlackAreas {
                 value: IndividualBlackAreas {
-                    verticals: vec![Vertical {
+                    areas: vec![BlackArea::Vertical(Vertical {
                         x: X {
                             val: Int { val: 32 },
                         },
                         width: Width {
                             val: Int { val: 24 },
                         },
-                    }],
-                    horizontals: vec![],
+                    })],
                 },
             }),
         ),
@@ -141,49 +142,47 @@ fn parse_test() {
             "<BlackAreas>\n        <Vertical x=\"32\" width=\"24\"/>\n            <Horizontal y=\"42\" height=\"11\"/>\n            <Vertical x=\"23\" width=\"42\"/>\n            <Horizontal y=\"22\" height=\"21\"/>\n            <Vertical x=\"33\" width=\"422\"/>\n        </BlackAreas>",
             Ok(BlackAreas {
                 value: IndividualBlackAreas {
-                    verticals: vec![
-                        Vertical {
+                    areas: vec![
+                        BlackArea::Vertical(Vertical {
                             x: X {
                                 val: Int { val: 32 },
                             },
                             width: Width {
                                 val: Int { val: 24 },
                             },
-                        },
-                        Vertical {
-                            x: X {
-                                val: Int { val: 23 },
-                            },
-                            width: Width {
-                                val: Int { val: 42 },
-                            },
-                        },
-                        Vertical {
-                            x: X {
-                                val: Int { val: 33 },
-                            },
-                            width: Width {
-                                val: Int { val: 422 },
-                            },
-                        },
-                    ],
-                    horizontals: vec![
-                        Horizontal {
+                        }),
+                        BlackArea::Horizontal(Horizontal {
                             y: Y {
                                 val: Int { val: 42 },
                             },
                             height: Height {
                                 val: Int { val: 11 },
                             },
-                        },
-                        Horizontal {
+                        }),
+                        BlackArea::Vertical(Vertical {
+                            x: X {
+                                val: Int { val: 23 },
+                            },
+                            width: Width {
+                                val: Int { val: 42 },
+                            },
+                        }),
+                        BlackArea::Horizontal(Horizontal {
                             y: Y {
                                 val: Int { val: 22 },
                             },
                             height: Height {
                                 val: Int { val: 21 },
                             },
-                        },
+                        }),
+                        BlackArea::Vertical(Vertical {
+                            x: X {
+                                val: Int { val: 33 },
+                            },
+                            width: Width {
+                                val: Int { val: 422 },
+                            },
+                        }),
                     ],
                 },
             }),

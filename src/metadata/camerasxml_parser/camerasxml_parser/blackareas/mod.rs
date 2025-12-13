@@ -3,37 +3,51 @@ use super::vertical;
 use super::xmlparser;
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+pub enum BlackArea {
+    Vertical(vertical::Vertical),
+    Horizontal(horizontal::Horizontal),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub struct IndividualBlackAreas {
-    pub verticals: Vec<vertical::Vertical>,
-    pub horizontals: Vec<horizontal::Horizontal>,
+    pub areas: Vec<BlackArea>,
+}
+
+impl core::ops::Deref for IndividualBlackAreas {
+    type Target = [BlackArea];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.areas
+    }
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for IndividualBlackAreas {
+    #[inline]
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {
-        let mut res = IndividualBlackAreas {
-            verticals: vec![],
-            horizontals: vec![],
-        };
+        let mut areas = vec![];
         let mut made_changes = true;
         while made_changes {
             made_changes = false;
             while let Ok(row) = input.parse() {
-                res.verticals.push(row);
+                areas.push(BlackArea::Vertical(row));
                 made_changes = true;
             }
             while let Ok(row) = input.parse() {
-                res.horizontals.push(row);
+                areas.push(BlackArea::Horizontal(row));
                 made_changes = true;
             }
         }
-        if res.verticals.is_empty() && res.horizontals.is_empty() {
+        if areas.is_empty() {
             return Err(
                 "unexpected end of input, expected black areas".to_owned()
             );
         }
-        Ok(res)
+        Ok(IndividualBlackAreas { areas })
     }
 }
 
