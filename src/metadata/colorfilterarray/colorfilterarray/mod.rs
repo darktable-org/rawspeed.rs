@@ -13,6 +13,16 @@ pub enum ColorVariant {
     Cyan,
 }
 
+impl ColorVariant {
+    #[inline]
+    #[must_use]
+    const fn card() -> usize {
+        7
+    }
+}
+
+pub mod dcraw_filter;
+
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
 pub struct ColorFilterArray {
