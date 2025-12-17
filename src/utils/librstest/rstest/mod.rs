@@ -6,6 +6,7 @@ use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
 use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::dcraw_filter::DCrawFilterError;
 use rawspeed_misc_md5::md5::MD5;
 use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_parsers_rawparser::rawparser::RawParserError;
@@ -159,9 +160,18 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             }
             repr
         },
-        filters = demux
-            .filters()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        filters = {
+            match demux.filters() {
+                Ok(f) => format!("0x{:x}", f.filter()),
+                Err(e) => match e {
+                    DCrawFilterError::BadDims => "0x1",
+                    DCrawFilterError::XTrans => "0x9",
+                    DCrawFilterError::UnknownCFABasis => "invalid CFA pattern!",
+                    _ => unreachable!(),
+                }
+                .to_owned(),
+            }
+        },
         bpp = demux.bpp(),
         cpp = demux.cpp(),
         dataType = demux.datatype() as u8,

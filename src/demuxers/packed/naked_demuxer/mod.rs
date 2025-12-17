@@ -185,6 +185,7 @@ impl<'a> NakedDemuxer<'a> {
     }
 }
 
+#[expect(clippy::missing_trait_methods)]
 impl RawDemuxer for NakedDemuxer<'_> {
     #[inline]
     fn make(&self) -> &str {
@@ -275,11 +276,6 @@ impl RawDemuxer for NakedDemuxer<'_> {
     #[inline]
     fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>> {
         self.camera.cfa.as_ref().map(|cfa| cfa.mat())
-    }
-
-    #[inline]
-    fn filters(&self) -> Option<()> {
-        None
     }
 
     #[inline]
