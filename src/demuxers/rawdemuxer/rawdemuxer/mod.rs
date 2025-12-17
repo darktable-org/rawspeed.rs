@@ -1,3 +1,4 @@
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
 use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
@@ -47,7 +48,7 @@ pub trait RawDemuxer {
     fn dim_uncropped(&self) -> Option<()>;
     fn dim_cropped(&self) -> Option<()>;
     fn crop_offset(&self) -> Option<()>;
-    fn black_areas(&self) -> Option<()>;
+    fn black_areas(&self) -> Option<&[BlackArea]>;
     fn fuji_rotation_pos(&self) -> Option<u32>;
     fn pixel_aspect_ratio(&self) -> Option<f64>;
     fn bad_pixel_positions(&self) -> Vec<Coord2D>;

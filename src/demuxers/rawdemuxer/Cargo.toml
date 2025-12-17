@@ -15,6 +15,7 @@ workspace = true
 [dependencies]
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
+rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
 
 [lib]
 path = "mod.rs"

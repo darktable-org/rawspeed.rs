@@ -405,7 +405,7 @@ mod tests;
 mod alias;
 mod aliases;
 mod black;
-mod blackareas;
+pub mod blackareas;
 mod camera;
 pub mod cameras;
 mod cfa;

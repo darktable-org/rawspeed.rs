@@ -8,6 +8,7 @@ use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
 use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std::coord_common::Dimensions2D;
 use rawspeed_std::coord_common::RowCount;
@@ -302,8 +303,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn black_areas(&self) -> Option<()> {
-        None
+    fn black_areas(&self) -> Option<&[BlackArea]> {
+        self.camera.blackareas.as_ref().map(|f| &*f.value.areas)
     }
 
     #[inline]

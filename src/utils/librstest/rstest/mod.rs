@@ -4,6 +4,7 @@ use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequestError;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
 use rawspeed_misc_md5::md5::MD5;
 use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_parsers_rawparser::rawparser::RawParserError;
@@ -56,6 +57,7 @@ struct Hash {
     hash: String,
 }
 
+#[expect(clippy::too_many_lines)]
 fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
     let hash = format!(
         concat!(
@@ -129,9 +131,25 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         cropOffset = demux
             .crop_offset()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
-        blackAreas = demux
-            .black_areas()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        blackAreas = {
+            let mut repr = String::new();
+            if let Some(a) = demux.black_areas() {
+                for e in a {
+                    use core::fmt::Write as _;
+                    let (is_vertical, b, c) = match e {
+                        BlackArea::Vertical(vertical) => {
+                            (1, **vertical.x, **vertical.width)
+                        }
+                        BlackArea::Horizontal(horizontal) => {
+                            (0, **horizontal.y, **horizontal.height)
+                        }
+                        _ => unreachable!(),
+                    };
+                    write!(repr, "{is_vertical}:{b}x{c}, ").unwrap();
+                }
+            }
+            repr
+        },
         fuji_rotation_pos = demux.fuji_rotation_pos().unwrap_or(0),
         pixel_aspect_ratio =
             format!("{:.6}", demux.pixel_aspect_ratio().unwrap_or(1.)),
