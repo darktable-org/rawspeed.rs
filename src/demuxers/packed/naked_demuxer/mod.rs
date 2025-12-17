@@ -307,7 +307,7 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn fuji_rotation_pos(&self) -> Option<()> {
+    fn fuji_rotation_pos(&self) -> Option<u32> {
         None
     }
 

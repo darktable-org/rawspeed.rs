@@ -132,9 +132,7 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         blackAreas = demux
             .black_areas()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
-        fuji_rotation_pos = demux
-            .fuji_rotation_pos()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        fuji_rotation_pos = demux.fuji_rotation_pos().unwrap_or(0),
         pixel_aspect_ratio =
             format!("{:.6}", demux.pixel_aspect_ratio().unwrap_or(1.)),
         badPixelPositions = {
