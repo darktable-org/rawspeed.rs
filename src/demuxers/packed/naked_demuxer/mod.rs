@@ -312,7 +312,7 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn pixel_aspect_ratio(&self) -> Option<()> {
+    fn pixel_aspect_ratio(&self) -> Option<f64> {
         None
     }
 

@@ -49,7 +49,7 @@ pub trait RawDemuxer {
     fn crop_offset(&self) -> Option<()>;
     fn black_areas(&self) -> Option<()>;
     fn fuji_rotation_pos(&self) -> Option<()>;
-    fn pixel_aspect_ratio(&self) -> Option<()>;
+    fn pixel_aspect_ratio(&self) -> Option<f64>;
     fn bad_pixel_positions(&self) -> Vec<Coord2D>;
 
     fn decode(
