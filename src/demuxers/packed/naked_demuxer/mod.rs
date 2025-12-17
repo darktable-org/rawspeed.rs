@@ -298,8 +298,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn crop_offset(&self) -> Option<()> {
-        None
+    fn crop_offset(&self) -> Option<Coord2D> {
+        Some(*self.camera.crop?.pos)
     }
 
     #[inline]

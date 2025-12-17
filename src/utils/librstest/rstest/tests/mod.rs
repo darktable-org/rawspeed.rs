@@ -86,6 +86,7 @@ const REF_CAMERAS: &str = "
     <Cameras>
         <Camera make=\"Make\" model=\"Model\" mode=\"A Mode\">
             <ID make=\"Canonical Make\" model=\"Canonical Model\">Canonical ID</ID>
+            <Crop x=\"0\" y=\"1\" width=\"-1\" height=\"0\"/>
             <BlackAreas>
                 <Vertical x=\"10\" width=\"20\"/>
                 <Horizontal y=\"30\" height=\"40\"/>
@@ -123,7 +124,7 @@ const REF_HASH: &str = concat!(
     "dataType: 0\n",
     "dimUncropped: FIXME\n",
     "dimCropped: FIXME\n",
-    "cropOffset: FIXME\n",
+    "cropOffset: 0x1\n",
     "blackAreas: 1:10x20, 0:30x40, \n",
     "fuji_rotation_pos: 0\n",
     "pixel_aspect_ratio: 1.000000\n",
@@ -185,7 +186,7 @@ const REF_HASH_BAREBONES: &str = concat!(
     "dataType: 0\n",
     "dimUncropped: FIXME\n",
     "dimCropped: FIXME\n",
-    "cropOffset: FIXME\n",
+    "cropOffset: 0x0\n",
     "blackAreas: \n",
     "fuji_rotation_pos: 0\n",
     "pixel_aspect_ratio: 1.000000\n",

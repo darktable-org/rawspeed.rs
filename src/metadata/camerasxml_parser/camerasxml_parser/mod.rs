@@ -415,7 +415,7 @@ mod colormatrices;
 mod colormatrix;
 mod colormatrixrow;
 mod colorrow;
-mod crop;
+pub mod crop;
 mod decoder_version;
 mod height;
 mod hint;

@@ -8,7 +8,7 @@ use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackAre
 use rawspeed_misc_md5::md5::MD5;
 use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_parsers_rawparser::rawparser::RawParserError;
-use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std::coord_common::{ColIndex, Coord2D, RowIndex};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 
 use crate::logger::Logger;
@@ -128,9 +128,12 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         dimCropped = demux
             .dim_cropped()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
-        cropOffset = demux
-            .crop_offset()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        cropOffset = {
+            let pos = demux
+                .crop_offset()
+                .unwrap_or(Coord2D::new(RowIndex::new(0), ColIndex::new(0)));
+            format!("{}x{}", *pos.col(), *pos.row())
+        },
         blackAreas = {
             let mut repr = String::new();
             if let Some(a) = demux.black_areas() {

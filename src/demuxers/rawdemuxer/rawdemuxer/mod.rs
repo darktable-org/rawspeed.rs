@@ -47,7 +47,7 @@ pub trait RawDemuxer {
     fn datatype(&self) -> DataType;
     fn dim_uncropped(&self) -> Option<()>;
     fn dim_cropped(&self) -> Option<()>;
-    fn crop_offset(&self) -> Option<()>;
+    fn crop_offset(&self) -> Option<Coord2D>;
     fn black_areas(&self) -> Option<&[BlackArea]>;
     fn fuji_rotation_pos(&self) -> Option<u32>;
     fn pixel_aspect_ratio(&self) -> Option<f64>;
