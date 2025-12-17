@@ -273,8 +273,14 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn bpp(&self) -> Option<()> {
-        None
+    fn bpp(&self) -> usize {
+        let bpc = match self.datatype() {
+            rawspeed_demuxers_rawdemuxer::rawdemuxer::DataType::U16 => {
+                size_of::<u16>()
+            }
+            _ => unreachable!(),
+        };
+        bpc.checked_mul(self.cpp()).unwrap()
     }
 
     #[inline]

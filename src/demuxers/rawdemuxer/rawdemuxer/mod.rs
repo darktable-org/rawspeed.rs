@@ -42,7 +42,7 @@ pub trait RawDemuxer {
     fn is_cfa(&self) -> Option<()>;
     fn cfa(&self) -> Option<()>;
     fn filters(&self) -> Option<()>;
-    fn bpp(&self) -> Option<()>;
+    fn bpp(&self) -> usize;
     fn cpp(&self) -> usize;
     fn datatype(&self) -> DataType;
     fn dim_uncropped(&self) -> Dimensions2D;
