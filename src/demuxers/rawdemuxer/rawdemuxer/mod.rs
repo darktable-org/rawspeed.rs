@@ -1,5 +1,5 @@
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
-use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::{Coord2D, Dimensions2D};
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
 #[derive(Debug, PartialEq)]
@@ -45,7 +45,7 @@ pub trait RawDemuxer {
     fn bpp(&self) -> Option<()>;
     fn cpp(&self) -> usize;
     fn datatype(&self) -> DataType;
-    fn dim_uncropped(&self) -> Option<()>;
+    fn dim_uncropped(&self) -> Dimensions2D;
     fn dim_cropped(&self) -> Option<()>;
     fn crop_offset(&self) -> Option<Coord2D>;
     fn black_areas(&self) -> Option<&[BlackArea]>;

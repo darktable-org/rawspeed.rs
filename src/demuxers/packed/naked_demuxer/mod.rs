@@ -288,8 +288,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn dim_uncropped(&self) -> Option<()> {
-        None
+    fn dim_uncropped(&self) -> Dimensions2D {
+        self.dims
     }
 
     #[inline]

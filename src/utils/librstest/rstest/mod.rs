@@ -122,9 +122,10 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         bpp = demux.bpp().map_or("FIXME".to_owned(), |()| unreachable!()),
         cpp = demux.cpp(),
         dataType = demux.datatype() as u8,
-        dimUncropped = demux
-            .dim_uncropped()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        dimUncropped = {
+            let dim = demux.dim_uncropped();
+            format!("{}x{}", *dim.row_len(), *dim.row_count())
+        },
         dimCropped = demux
             .dim_cropped()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
