@@ -281,8 +281,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn datatype(&self) -> Option<()> {
-        None
+    fn datatype(&self) -> rawspeed_demuxers_rawdemuxer::rawdemuxer::DataType {
+        rawspeed_demuxers_rawdemuxer::rawdemuxer::DataType::U16
     }
 
     #[inline]

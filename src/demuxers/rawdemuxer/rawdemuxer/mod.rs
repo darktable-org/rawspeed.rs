@@ -17,6 +17,12 @@ impl core::fmt::Display for RawDemuxerError {
     }
 }
 
+#[non_exhaustive]
+#[derive(Debug)]
+pub enum DataType {
+    U16,
+}
+
 pub trait RawDemuxer {
     fn make(&self) -> &str;
     fn model(&self) -> &str;
@@ -36,7 +42,7 @@ pub trait RawDemuxer {
     fn filters(&self) -> Option<()>;
     fn bpp(&self) -> Option<()>;
     fn cpp(&self) -> usize;
-    fn datatype(&self) -> Option<()>;
+    fn datatype(&self) -> DataType;
     fn dim_uncropped(&self) -> Option<()>;
     fn dim_cropped(&self) -> Option<()>;
     fn crop_offset(&self) -> Option<()>;
