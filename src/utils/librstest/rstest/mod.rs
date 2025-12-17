@@ -138,9 +138,10 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         pixel_aspect_ratio = demux
             .pixel_aspect_ratio()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
-        badPixelPositions = demux
-            .bad_pixel_positions()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        badPixelPositions = {
+            assert!(demux.bad_pixel_positions().is_empty());
+            ""
+        },
         hash = img_data_hash(img)
     );
     Hash { hash }

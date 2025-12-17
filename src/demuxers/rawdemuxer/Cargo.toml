@@ -13,6 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
 
 [lib]

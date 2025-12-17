@@ -123,7 +123,7 @@ const REF_HASH: &str = concat!(
     "blackAreas: FIXME\n",
     "fuji_rotation_pos: FIXME\n",
     "pixel_aspect_ratio: FIXME\n",
-    "badPixelPositions: FIXME\n",
+    "badPixelPositions: \n",
     "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n",
 );
 
@@ -185,7 +185,7 @@ const REF_HASH_BAREBONES: &str = concat!(
     "blackAreas: FIXME\n",
     "fuji_rotation_pos: FIXME\n",
     "pixel_aspect_ratio: FIXME\n",
-    "badPixelPositions: FIXME\n",
+    "badPixelPositions: \n",
     "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n",
 );
 

@@ -8,6 +8,7 @@ use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
+use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std::coord_common::Dimensions2D;
 use rawspeed_std::coord_common::RowCount;
 use rawspeed_std::coord_common::RowLength;
@@ -316,8 +317,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn bad_pixel_positions(&self) -> Option<()> {
-        None
+    fn bad_pixel_positions(&self) -> Vec<Coord2D> {
+        vec![]
     }
 
     #[inline(never)]

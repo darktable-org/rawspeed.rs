@@ -1,3 +1,4 @@
+use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
 #[derive(Debug, PartialEq)]
@@ -49,7 +50,7 @@ pub trait RawDemuxer {
     fn black_areas(&self) -> Option<()>;
     fn fuji_rotation_pos(&self) -> Option<()>;
     fn pixel_aspect_ratio(&self) -> Option<()>;
-    fn bad_pixel_positions(&self) -> Option<()>;
+    fn bad_pixel_positions(&self) -> Vec<Coord2D>;
 
     fn decode(
         &self,
