@@ -100,7 +100,7 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         blackLevel = demux.blacklevel().map_or(-1, Into::into),
         whitePoint = demux
             .whitelevel()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+            .map_or("unknown".to_owned(), |v| v.to_string()),
         blackLevelSeparate = demux
             .blacklevel_separate()
             .map_or("FIXME".to_owned(), |()| unreachable!()),

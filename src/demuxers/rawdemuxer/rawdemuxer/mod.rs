@@ -37,7 +37,7 @@ pub trait RawDemuxer {
     fn canonical_id(&self) -> String;
     fn iso_speed(&self) -> Option<u32>;
     fn blacklevel(&self) -> Option<u16>;
-    fn whitelevel(&self) -> Option<()>;
+    fn whitelevel(&self) -> Option<u16>;
     fn blacklevel_separate(&self) -> Option<()>;
     fn wb_coeffs(&self) -> Option<()>;
     fn colormatrix(&self) -> Option<Array2DRef<'_, i16>>;

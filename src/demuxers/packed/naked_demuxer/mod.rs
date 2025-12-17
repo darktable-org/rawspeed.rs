@@ -241,8 +241,11 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn whitelevel(&self) -> Option<()> {
-        None
+    fn whitelevel(&self) -> Option<u16> {
+        self.camera.sensors.get_for_iso(self.iso_speed()).map(|s| {
+            let val = **s.white;
+            val.try_into().unwrap()
+        })
     }
 
     #[inline]
