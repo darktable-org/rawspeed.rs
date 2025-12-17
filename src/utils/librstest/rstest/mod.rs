@@ -97,9 +97,7 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         canonical_alias = demux.canonical_alias(),
         canonical_id = demux.canonical_id(),
         isoSpeed = demux.iso_speed().unwrap_or(0),
-        blackLevel = demux
-            .blacklevel()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        blackLevel = demux.blacklevel().map_or(-1, Into::into),
         whitePoint = demux
             .whitelevel()
             .map_or("FIXME".to_owned(), |()| unreachable!()),

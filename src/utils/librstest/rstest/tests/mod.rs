@@ -87,6 +87,7 @@ const REF_CAMERAS: &str = "
         <Camera make=\"Make\" model=\"Model\" mode=\"A Mode\">
             <ID make=\"Canonical Make\" model=\"Canonical Model\">Canonical ID</ID>
             <Crop x=\"0\" y=\"1\" width=\"-1\" height=\"0\"/>
+            <Sensor black=\"16\" white=\"255\"/>
             <BlackAreas>
                 <Vertical x=\"10\" width=\"20\"/>
                 <Horizontal y=\"30\" height=\"40\"/>
@@ -118,7 +119,7 @@ const REF_HASH: &str = concat!(
     "canonical_alias: Model\n",
     "canonical_id: Canonical ID\n",
     "isoSpeed: 0\n",
-    "blackLevel: FIXME\n",
+    "blackLevel: 16\n",
     "whitePoint: FIXME\n",
     "blackLevelSeparate: FIXME\n",
     "wbCoeffs: FIXME\n",
@@ -180,7 +181,7 @@ const REF_HASH_BAREBONES: &str = concat!(
     "canonical_alias: Model\n",
     "canonical_id: Make Model\n",
     "isoSpeed: 0\n",
-    "blackLevel: FIXME\n",
+    "blackLevel: -1\n",
     "whitePoint: FIXME\n",
     "blackLevelSeparate: FIXME\n",
     "wbCoeffs: FIXME\n",
