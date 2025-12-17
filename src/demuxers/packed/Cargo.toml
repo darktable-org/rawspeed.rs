@@ -21,6 +21,7 @@ rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
 rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
+rawspeed-metadata-colorfilterarray = { path = "../../metadata/colorfilterarray" }
 
 [dev-dependencies]
 rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }

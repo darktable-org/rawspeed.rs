@@ -86,6 +86,12 @@ const REF_CAMERAS: &str = "
     <Cameras>
         <Camera make=\"Make\" model=\"Model\" mode=\"A Mode\">
             <ID make=\"Canonical Make\" model=\"Canonical Model\">Canonical ID</ID>
+            <CFA width=\"2\" height=\"2\">
+                <Color x=\"0\" y=\"0\">RED</Color>
+                <Color x=\"1\" y=\"0\">GREEN</Color>
+                <Color x=\"0\" y=\"1\">GREEN</Color>
+                <Color x=\"1\" y=\"1\">BLUE</Color>
+            </CFA>
             <Crop x=\"0\" y=\"1\" width=\"-1\" height=\"0\"/>
             <Sensor black=\"16\" white=\"255\"/>
             <BlackAreas>
@@ -125,7 +131,9 @@ const REF_HASH: &str = concat!(
     "wbCoeffs: FIXME\n",
     "colorMatrix: 0/10000 1/10000 2/10000 3/10000 -4/10000 5/10000 6/10000 7/10000 8/10000\n",
     "isCFA: FIXME\n",
-    "cfa: FIXME\n",
+    "cfa: RED,GREEN\n",
+    "GREEN,BLUE\n",
+    "\n",
     "filters: FIXME\n",
     "bpp: 2\n",
     "cpp: 1\n",
@@ -187,7 +195,7 @@ const REF_HASH_BAREBONES: &str = concat!(
     "wbCoeffs: FIXME\n",
     "colorMatrix: (none)\n",
     "isCFA: FIXME\n",
-    "cfa: FIXME\n",
+    "cfa: \n",
     "filters: FIXME\n",
     "bpp: 2\n",
     "cpp: 1\n",

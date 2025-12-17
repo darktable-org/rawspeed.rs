@@ -1,4 +1,5 @@
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
 use rawspeed_std::coord_common::{Coord2D, Dimensions2D};
 use rawspeed_std_ndslice::{
     array2dref::Array2DRef, array2drefmut::Array2DRefMut,
@@ -42,8 +43,8 @@ pub trait RawDemuxer {
     fn wb_coeffs(&self) -> Option<()>;
     fn colormatrix(&self) -> Option<Array2DRef<'_, i16>>;
     fn is_cfa(&self) -> Option<()>;
-    fn cfa(&self) -> Option<()>;
     fn filters(&self) -> Option<()>;
+    fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>>;
     fn bpp(&self) -> usize;
     fn cpp(&self) -> usize;
     fn datatype(&self) -> DataType;

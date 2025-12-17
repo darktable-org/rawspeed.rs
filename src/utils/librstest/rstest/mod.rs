@@ -5,6 +5,7 @@ use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurement
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
 use rawspeed_misc_md5::md5::MD5;
 use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_parsers_rawparser::rawparser::RawParserError;
@@ -57,7 +58,7 @@ struct Hash {
     hash: String,
 }
 
-#[expect(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines, clippy::cognitive_complexity)]
 fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
     let hash = format!(
         concat!(
@@ -131,7 +132,35 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         isCFA = demux
             .is_cfa()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
-        cfa = demux.cfa().map_or("FIXME".to_owned(), |()| unreachable!()),
+        cfa = {
+            let mut repr = String::new();
+            if let Some(cfa) = demux.cfa() {
+                for row in 0..cfa.num_rows() {
+                    for col in 0..cfa.row_length() {
+                        if col != 0 {
+                            repr.push(',');
+                        }
+                        let e = cfa[Coord2D::new(
+                            RowIndex::new(row),
+                            ColIndex::new(col),
+                        )];
+                        let e = match e {
+                            ColorVariant::Red => "RED",
+                            ColorVariant::Green => "GREEN",
+                            ColorVariant::Blue => "BLUE",
+                            ColorVariant::FujiGreen => "FUJI_GREEN",
+                            ColorVariant::Magenta => "MAGENTA",
+                            ColorVariant::Yellow => "YELLOW",
+                            ColorVariant::Cyan => "CYAN",
+                            _ => unreachable!(),
+                        };
+                        repr.push_str(e);
+                    }
+                    repr.push('\n');
+                }
+            }
+            repr
+        },
         filters = demux
             .filters()
             .map_or("FIXME".to_owned(), |()| unreachable!()),

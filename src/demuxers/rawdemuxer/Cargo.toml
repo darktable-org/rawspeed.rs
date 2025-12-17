@@ -16,6 +16,7 @@ workspace = true
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
 rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
+rawspeed-metadata-colorfilterarray = { path = "../../metadata/colorfilterarray" }
 
 [lib]
 path = "mod.rs"
