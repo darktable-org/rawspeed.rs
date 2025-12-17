@@ -253,8 +253,11 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn colormatrix(&self) -> Option<()> {
-        None
+    fn colormatrix(&self) -> Option<Array2DRef<'_, i16>> {
+        self.camera
+            .colormatrices
+            .as_ref()
+            .map(|mat| mat.value.mat())
     }
 
     #[inline]

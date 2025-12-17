@@ -109,9 +109,27 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         wbCoeffs = demux
             .wb_coeffs()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
-        colorMatrix = demux
-            .colormatrix()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        colorMatrix = {
+            let mut repr = String::new();
+            if let Some(mat) = demux.colormatrix() {
+                for row in 0..mat.num_rows() {
+                    for col in 0..mat.row_length() {
+                        use core::fmt::Write as _;
+                        if row != 0 || col != 0 {
+                            repr.push(' ');
+                        }
+                        let e = mat[Coord2D::new(
+                            RowIndex::new(row),
+                            ColIndex::new(col),
+                        )];
+                        write!(repr, "{e}/10000").unwrap();
+                    }
+                }
+            } else {
+                "(none)".clone_into(&mut repr);
+            }
+            repr
+        },
         isCFA = demux
             .is_cfa()
             .map_or("FIXME".to_owned(), |()| unreachable!()),

@@ -97,6 +97,13 @@ const REF_CAMERAS: &str = "
                 <Hint name=\"full_height\" value=\"2\"/>
                 <Hint name=\"order\" value=\"plain\"/>
             </Hints>
+            <ColorMatrices>
+                <ColorMatrix planes=\"3\">
+                    <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>
+                </ColorMatrix>
+            </ColorMatrices>
         </Camera>
     </Cameras>";
 
@@ -115,7 +122,7 @@ const REF_HASH: &str = concat!(
     "whitePoint: FIXME\n",
     "blackLevelSeparate: FIXME\n",
     "wbCoeffs: FIXME\n",
-    "colorMatrix: FIXME\n",
+    "colorMatrix: 0/10000 1/10000 2/10000 3/10000 -4/10000 5/10000 6/10000 7/10000 8/10000\n",
     "isCFA: FIXME\n",
     "cfa: FIXME\n",
     "filters: FIXME\n",
@@ -177,7 +184,7 @@ const REF_HASH_BAREBONES: &str = concat!(
     "whitePoint: FIXME\n",
     "blackLevelSeparate: FIXME\n",
     "wbCoeffs: FIXME\n",
-    "colorMatrix: FIXME\n",
+    "colorMatrix: (none)\n",
     "isCFA: FIXME\n",
     "cfa: FIXME\n",
     "filters: FIXME\n",
