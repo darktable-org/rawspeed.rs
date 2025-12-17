@@ -276,8 +276,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn cpp(&self) -> Option<()> {
-        None
+    fn cpp(&self) -> usize {
+        1
     }
 
     #[inline]

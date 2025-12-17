@@ -118,7 +118,7 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             .filters()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
         bpp = demux.bpp().map_or("FIXME".to_owned(), |()| unreachable!()),
-        cpp = demux.cpp().map_or("FIXME".to_owned(), |()| unreachable!()),
+        cpp = demux.cpp(),
         dataType = demux
             .datatype()
             .map_or("FIXME".to_owned(), |()| unreachable!()),
