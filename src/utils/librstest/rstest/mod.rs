@@ -129,9 +129,7 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             }
             repr
         },
-        isCFA = demux
-            .is_cfa()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        isCFA = u8::from(demux.is_cfa()),
         cfa = {
             let mut repr = String::new();
             if let Some(cfa) = demux.cfa() {

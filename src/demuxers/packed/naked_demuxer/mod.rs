@@ -268,8 +268,8 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn is_cfa(&self) -> Option<()> {
-        None
+    fn is_cfa(&self) -> bool {
+        self.camera.cfa.is_some()
     }
 
     #[inline]

@@ -42,7 +42,7 @@ pub trait RawDemuxer {
     fn blacklevel_separate(&self) -> Option<()>;
     fn wb_coeffs(&self) -> Option<()>;
     fn colormatrix(&self) -> Option<Array2DRef<'_, i16>>;
-    fn is_cfa(&self) -> Option<()>;
+    fn is_cfa(&self) -> bool;
     fn filters(&self) -> Option<()>;
     fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>>;
     fn bpp(&self) -> usize;
