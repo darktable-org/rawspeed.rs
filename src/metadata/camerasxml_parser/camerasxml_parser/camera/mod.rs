@@ -22,9 +22,14 @@ pub struct MaybeCFA {
 }
 
 impl MaybeCFA {
+    #[inline]
+    #[must_use]
     pub const fn some(val: ColorFilterArray) -> Self {
         Self { val: Some(val) }
     }
+
+    #[inline]
+    #[must_use]
     pub const fn none() -> Self {
         Self { val: None }
     }
@@ -33,12 +38,14 @@ impl MaybeCFA {
 impl core::ops::Deref for MaybeCFA {
     type Target = Option<ColorFilterArray>;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for MaybeCFA {
+    #[inline]
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {
@@ -87,6 +94,7 @@ impl Sensors {
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for Sensors {
+    #[inline]
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {

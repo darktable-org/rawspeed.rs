@@ -86,12 +86,31 @@ const REF_CAMERAS: &str = "
     <Cameras>
         <Camera make=\"Make\" model=\"Model\" mode=\"A Mode\">
             <ID make=\"Canonical Make\" model=\"Canonical Model\">Canonical ID</ID>
+            <CFA width=\"2\" height=\"2\">
+                <Color x=\"0\" y=\"0\">RED</Color>
+                <Color x=\"1\" y=\"0\">GREEN</Color>
+                <Color x=\"0\" y=\"1\">GREEN</Color>
+                <Color x=\"1\" y=\"1\">BLUE</Color>
+            </CFA>
+            <Crop x=\"0\" y=\"1\" width=\"-1\" height=\"0\"/>
+            <Sensor black=\"16\" white=\"255\"/>
+            <BlackAreas>
+                <Vertical x=\"10\" width=\"20\"/>
+                <Horizontal y=\"30\" height=\"40\"/>
+            </BlackAreas>
             <Hints>
                 <Hint name=\"filesize\" value=\"8\"/>
                 <Hint name=\"full_width\" value=\"4\"/>
                 <Hint name=\"full_height\" value=\"2\"/>
                 <Hint name=\"order\" value=\"plain\"/>
             </Hints>
+            <ColorMatrices>
+                <ColorMatrix planes=\"3\">
+                    <ColorMatrixRow plane=\"0\"> 0 1 2 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"1\"> 3 -4 5 </ColorMatrixRow>
+                    <ColorMatrixRow plane=\"2\"> 6 7 8 </ColorMatrixRow>
+                </ColorMatrix>
+            </ColorMatrices>
         </Camera>
     </Cameras>";
 
@@ -105,25 +124,27 @@ const REF_HASH: &str = concat!(
     "canonical_model: Canonical Model\n",
     "canonical_alias: Model\n",
     "canonical_id: Canonical ID\n",
-    "isoSpeed: FIXME\n",
-    "blackLevel: FIXME\n",
-    "whitePoint: FIXME\n",
-    "blackLevelSeparate: FIXME\n",
-    "wbCoeffs: FIXME\n",
-    "colorMatrix: FIXME\n",
-    "isCFA: FIXME\n",
-    "cfa: FIXME\n",
-    "filters: FIXME\n",
-    "bpp: FIXME\n",
-    "cpp: FIXME\n",
-    "dataType: FIXME\n",
-    "dimUncropped: FIXME\n",
-    "dimCropped: FIXME\n",
-    "cropOffset: FIXME\n",
-    "blackAreas: FIXME\n",
-    "fuji_rotation_pos: FIXME\n",
-    "pixel_aspect_ratio: FIXME\n",
-    "badPixelPositions: FIXME\n",
+    "isoSpeed: 0\n",
+    "blackLevel: 16\n",
+    "whitePoint: 255\n",
+    "blackLevelSeparate: none\n",
+    "wbCoeffs: (none)\n",
+    "colorMatrix: 0/10000 1/10000 2/10000 3/10000 -4/10000 5/10000 6/10000 7/10000 8/10000\n",
+    "isCFA: 1\n",
+    "cfa: RED,GREEN\n",
+    "GREEN,BLUE\n",
+    "\n",
+    "filters: 0x94949494\n",
+    "bpp: 2\n",
+    "cpp: 1\n",
+    "dataType: 0\n",
+    "dimUncropped: 4x2\n",
+    "dimCropped: 3x1\n",
+    "cropOffset: 0x1\n",
+    "blackAreas: 1:10x20, 0:30x40, \n",
+    "fuji_rotation_pos: 0\n",
+    "pixel_aspect_ratio: 1.000000\n",
+    "badPixelPositions: \n",
     "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n",
 );
 
@@ -167,25 +188,25 @@ const REF_HASH_BAREBONES: &str = concat!(
     "canonical_model: Model\n",
     "canonical_alias: Model\n",
     "canonical_id: Make Model\n",
-    "isoSpeed: FIXME\n",
-    "blackLevel: FIXME\n",
-    "whitePoint: FIXME\n",
-    "blackLevelSeparate: FIXME\n",
-    "wbCoeffs: FIXME\n",
-    "colorMatrix: FIXME\n",
-    "isCFA: FIXME\n",
-    "cfa: FIXME\n",
-    "filters: FIXME\n",
-    "bpp: FIXME\n",
-    "cpp: FIXME\n",
-    "dataType: FIXME\n",
-    "dimUncropped: FIXME\n",
-    "dimCropped: FIXME\n",
-    "cropOffset: FIXME\n",
-    "blackAreas: FIXME\n",
-    "fuji_rotation_pos: FIXME\n",
-    "pixel_aspect_ratio: FIXME\n",
-    "badPixelPositions: FIXME\n",
+    "isoSpeed: 0\n",
+    "blackLevel: -1\n",
+    "whitePoint: unknown\n",
+    "blackLevelSeparate: none\n",
+    "wbCoeffs: (none)\n",
+    "colorMatrix: (none)\n",
+    "isCFA: 0\n",
+    "cfa: \n",
+    "filters: 0x1\n",
+    "bpp: 2\n",
+    "cpp: 1\n",
+    "dataType: 0\n",
+    "dimUncropped: 4x2\n",
+    "dimCropped: 4x2\n",
+    "cropOffset: 0x0\n",
+    "blackAreas: \n",
+    "fuji_rotation_pos: 0\n",
+    "pixel_aspect_ratio: 1.000000\n",
+    "badPixelPositions: \n",
     "md5sum of per-line md5sums: 441ee0c3c5e0033cde9d9dcee7ac46fb\n",
 );
 

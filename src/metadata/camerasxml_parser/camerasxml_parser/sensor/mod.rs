@@ -31,6 +31,7 @@ impl Bounds {
 }
 
 impl<'a, 'b> xmlparser::Parse<'a, 'b> for Bounds {
+    #[inline]
     fn parse(
         input: &'b mut xmlparser::ParseStream<'a>,
     ) -> xmlparser::Result<Self> {

@@ -4,10 +4,13 @@ use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequestError;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::dcraw_filter::DCrawFilterError;
 use rawspeed_misc_md5::md5::MD5;
 use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_parsers_rawparser::rawparser::RawParserError;
-use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std::coord_common::{ColIndex, Coord2D, RowIndex};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 
 use crate::logger::Logger;
@@ -56,6 +59,7 @@ struct Hash {
     hash: String,
 }
 
+#[expect(clippy::too_many_lines, clippy::cognitive_complexity)]
 fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
     let hash = format!(
         concat!(
@@ -94,57 +98,124 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         canonical_model = demux.canonical_model(),
         canonical_alias = demux.canonical_alias(),
         canonical_id = demux.canonical_id(),
-        isoSpeed = demux
-            .iso_speed()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        blackLevel = demux
-            .blacklevel()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        isoSpeed = demux.iso_speed().unwrap_or(0),
+        blackLevel = demux.blacklevel().map_or(-1, Into::into),
         whitePoint = demux
             .whitelevel()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+            .map_or("unknown".to_owned(), |v| v.to_string()),
         blackLevelSeparate = demux
             .blacklevel_separate()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+            .map_or("none".to_owned(), |()| unreachable!()),
         wbCoeffs = demux
             .wb_coeffs()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        colorMatrix = demux
-            .colormatrix()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        isCFA = demux
-            .is_cfa()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        cfa = demux.cfa().map_or("FIXME".to_owned(), |()| unreachable!()),
-        filters = demux
-            .filters()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        bpp = demux.bpp().map_or("FIXME".to_owned(), |()| unreachable!()),
-        cpp = demux.cpp().map_or("FIXME".to_owned(), |()| unreachable!()),
-        dataType = demux
-            .datatype()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        dimUncropped = demux
-            .dim_uncropped()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        dimCropped = demux
-            .dim_cropped()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        cropOffset = demux
-            .crop_offset()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        blackAreas = demux
-            .black_areas()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        fuji_rotation_pos = demux
-            .fuji_rotation_pos()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        pixel_aspect_ratio = demux
-            .pixel_aspect_ratio()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
-        badPixelPositions = demux
-            .bad_pixel_positions()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+            .map_or("(none)".to_owned(), |()| unreachable!()),
+        colorMatrix = {
+            let mut repr = String::new();
+            if let Some(mat) = demux.colormatrix() {
+                for row in 0..mat.num_rows() {
+                    for col in 0..mat.row_length() {
+                        use core::fmt::Write as _;
+                        if row != 0 || col != 0 {
+                            repr.push(' ');
+                        }
+                        let e = mat[Coord2D::new(
+                            RowIndex::new(row),
+                            ColIndex::new(col),
+                        )];
+                        write!(repr, "{e}/10000").unwrap();
+                    }
+                }
+            } else {
+                "(none)".clone_into(&mut repr);
+            }
+            repr
+        },
+        isCFA = u8::from(demux.is_cfa()),
+        cfa = {
+            let mut repr = String::new();
+            if let Some(cfa) = demux.cfa() {
+                for row in 0..cfa.num_rows() {
+                    for col in 0..cfa.row_length() {
+                        if col != 0 {
+                            repr.push(',');
+                        }
+                        let e = cfa[Coord2D::new(
+                            RowIndex::new(row),
+                            ColIndex::new(col),
+                        )];
+                        let e = match e {
+                            ColorVariant::Red => "RED",
+                            ColorVariant::Green => "GREEN",
+                            ColorVariant::Blue => "BLUE",
+                            ColorVariant::FujiGreen => "FUJI_GREEN",
+                            ColorVariant::Magenta => "MAGENTA",
+                            ColorVariant::Yellow => "YELLOW",
+                            ColorVariant::Cyan => "CYAN",
+                            _ => unreachable!(),
+                        };
+                        repr.push_str(e);
+                    }
+                    repr.push('\n');
+                }
+            }
+            repr
+        },
+        filters = {
+            match demux.filters() {
+                Ok(f) => format!("0x{:x}", f.filter()),
+                Err(e) => match e {
+                    DCrawFilterError::BadDims => "0x1",
+                    DCrawFilterError::XTrans => "0x9",
+                    DCrawFilterError::UnknownCFABasis => "invalid CFA pattern!",
+                    _ => unreachable!(),
+                }
+                .to_owned(),
+            }
+        },
+        bpp = demux.bpp(),
+        cpp = demux.cpp(),
+        dataType = demux.datatype() as u8,
+        dimUncropped = {
+            let dim = demux.dim_uncropped();
+            format!("{}x{}", *dim.row_len(), *dim.row_count())
+        },
+        dimCropped = {
+            let dim =
+                demux.dim_cropped().unwrap_or_else(|| demux.dim_uncropped());
+            format!("{}x{}", *dim.row_len(), *dim.row_count())
+        },
+        cropOffset = {
+            let pos = demux
+                .crop_offset()
+                .unwrap_or(Coord2D::new(RowIndex::new(0), ColIndex::new(0)));
+            format!("{}x{}", *pos.col(), *pos.row())
+        },
+        blackAreas = {
+            let mut repr = String::new();
+            if let Some(a) = demux.black_areas() {
+                for e in a {
+                    use core::fmt::Write as _;
+                    let (is_vertical, b, c) = match e {
+                        BlackArea::Vertical(vertical) => {
+                            (1, **vertical.x, **vertical.width)
+                        }
+                        BlackArea::Horizontal(horizontal) => {
+                            (0, **horizontal.y, **horizontal.height)
+                        }
+                        _ => unreachable!(),
+                    };
+                    write!(repr, "{is_vertical}:{b}x{c}, ").unwrap();
+                }
+            }
+            repr
+        },
+        fuji_rotation_pos = demux.fuji_rotation_pos().unwrap_or(0),
+        pixel_aspect_ratio =
+            format!("{:.6}", demux.pixel_aspect_ratio().unwrap_or(1.)),
+        badPixelPositions = {
+            assert!(demux.bad_pixel_positions().is_empty());
+            ""
+        },
         hash = img_data_hash(img)
     );
     Hash { hash }

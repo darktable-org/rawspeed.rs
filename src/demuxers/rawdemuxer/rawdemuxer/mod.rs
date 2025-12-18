@@ -1,4 +1,12 @@
-use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::{
+    ColorVariant,
+    dcraw_filter::{DCrawFilter, DCrawFilterError},
+};
+use rawspeed_std::coord_common::{Coord2D, Dimensions2D};
+use rawspeed_std_ndslice::{
+    array2dref::Array2DRef, array2drefmut::Array2DRefMut,
+};
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
@@ -17,6 +25,12 @@ impl core::fmt::Display for RawDemuxerError {
     }
 }
 
+#[non_exhaustive]
+#[derive(Debug)]
+pub enum DataType {
+    U16,
+}
+
 pub trait RawDemuxer {
     fn make(&self) -> &str;
     fn model(&self) -> &str;
@@ -25,25 +39,28 @@ pub trait RawDemuxer {
     fn canonical_model(&self) -> &str;
     fn canonical_alias(&self) -> &str;
     fn canonical_id(&self) -> String;
-    fn iso_speed(&self) -> Option<()>;
-    fn blacklevel(&self) -> Option<()>;
-    fn whitelevel(&self) -> Option<()>;
+    fn iso_speed(&self) -> Option<u32>;
+    fn blacklevel(&self) -> Option<u16>;
+    fn whitelevel(&self) -> Option<u16>;
     fn blacklevel_separate(&self) -> Option<()>;
     fn wb_coeffs(&self) -> Option<()>;
-    fn colormatrix(&self) -> Option<()>;
-    fn is_cfa(&self) -> Option<()>;
-    fn cfa(&self) -> Option<()>;
-    fn filters(&self) -> Option<()>;
-    fn bpp(&self) -> Option<()>;
-    fn cpp(&self) -> Option<()>;
-    fn datatype(&self) -> Option<()>;
-    fn dim_uncropped(&self) -> Option<()>;
-    fn dim_cropped(&self) -> Option<()>;
-    fn crop_offset(&self) -> Option<()>;
-    fn black_areas(&self) -> Option<()>;
-    fn fuji_rotation_pos(&self) -> Option<()>;
-    fn pixel_aspect_ratio(&self) -> Option<()>;
-    fn bad_pixel_positions(&self) -> Option<()>;
+    fn colormatrix(&self) -> Option<Array2DRef<'_, i16>>;
+    fn is_cfa(&self) -> bool;
+    fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>>;
+    #[inline]
+    fn filters(&self) -> Result<DCrawFilter, DCrawFilterError> {
+        self.cfa().ok_or(DCrawFilterError::BadDims)?.try_into()
+    }
+    fn bpp(&self) -> usize;
+    fn cpp(&self) -> usize;
+    fn datatype(&self) -> DataType;
+    fn dim_uncropped(&self) -> Dimensions2D;
+    fn dim_cropped(&self) -> Option<Dimensions2D>;
+    fn crop_offset(&self) -> Option<Coord2D>;
+    fn black_areas(&self) -> Option<&[BlackArea]>;
+    fn fuji_rotation_pos(&self) -> Option<u32>;
+    fn pixel_aspect_ratio(&self) -> Option<f64>;
+    fn bad_pixel_positions(&self) -> Vec<Coord2D>;
 
     fn decode(
         &self,

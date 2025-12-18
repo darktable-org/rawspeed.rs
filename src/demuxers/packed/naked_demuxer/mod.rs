@@ -8,10 +8,14 @@ use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
-use rawspeed_std::coord_common::Dimensions2D;
-use rawspeed_std::coord_common::RowCount;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::coord_common::RowPitch;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::crop::Height;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::crop::Width;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
+use rawspeed_std::coord_common::CoordOffset2D;
+use rawspeed_std::coord_common::{
+    ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex, RowLength, RowPitch,
+};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
@@ -182,6 +186,7 @@ impl<'a> NakedDemuxer<'a> {
     }
 }
 
+#[expect(clippy::missing_trait_methods)]
 impl RawDemuxer for NakedDemuxer<'_> {
     #[inline]
     fn make(&self) -> &str {
@@ -226,18 +231,24 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn iso_speed(&self) -> Option<()> {
+    fn iso_speed(&self) -> Option<u32> {
         None
     }
 
     #[inline]
-    fn blacklevel(&self) -> Option<()> {
-        None
+    fn blacklevel(&self) -> Option<u16> {
+        self.camera.sensors.get_for_iso(self.iso_speed()).map(|s| {
+            let val = **s.black;
+            val.try_into().unwrap()
+        })
     }
 
     #[inline]
-    fn whitelevel(&self) -> Option<()> {
-        None
+    fn whitelevel(&self) -> Option<u16> {
+        self.camera.sensors.get_for_iso(self.iso_speed()).map(|s| {
+            let val = **s.white;
+            val.try_into().unwrap()
+        })
     }
 
     #[inline]
@@ -251,73 +262,110 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn colormatrix(&self) -> Option<()> {
+    fn colormatrix(&self) -> Option<Array2DRef<'_, i16>> {
+        self.camera
+            .colormatrices
+            .as_ref()
+            .map(|mat| mat.value.mat())
+    }
+
+    #[inline]
+    fn is_cfa(&self) -> bool {
+        self.camera.cfa.is_some()
+    }
+
+    #[inline]
+    fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>> {
+        self.camera.cfa.as_ref().map(|cfa| cfa.mat())
+    }
+
+    #[inline]
+    fn bpp(&self) -> usize {
+        let bpc = match self.datatype() {
+            rawspeed_demuxers_rawdemuxer::rawdemuxer::DataType::U16 => {
+                size_of::<u16>()
+            }
+            _ => unreachable!(),
+        };
+        bpc.checked_mul(self.cpp()).unwrap()
+    }
+
+    #[inline]
+    fn cpp(&self) -> usize {
+        1
+    }
+
+    #[inline]
+    fn datatype(&self) -> rawspeed_demuxers_rawdemuxer::rawdemuxer::DataType {
+        rawspeed_demuxers_rawdemuxer::rawdemuxer::DataType::U16
+    }
+
+    #[inline]
+    fn dim_uncropped(&self) -> Dimensions2D {
+        self.dims
+    }
+
+    #[expect(clippy::unwrap_in_result)]
+    #[inline]
+    fn dim_cropped(&self) -> Option<Dimensions2D> {
+        const ZERO_POINT: Coord2D =
+            Coord2D::new(RowIndex::new(0), ColIndex::new(0));
+        let crop_pos = self.crop_offset().unwrap_or(ZERO_POINT);
+        let crop_xy = (crop_pos - ZERO_POINT).unwrap();
+        let dim_remaining = Coord2D::new(
+            RowIndex::new(*self.dim_uncropped().row_count()),
+            ColIndex::new(*self.dim_uncropped().row_len()),
+        );
+        let dim_remaining = (dim_remaining - crop_xy).unwrap();
+        let crop_dim = CoordOffset2D::new(
+            match self.camera.crop?.dim.height() {
+                Height::Relative(offset) => offset,
+                Height::Absolute(size) => {
+                    let cropped_dim = RowIndex::new(*size);
+                    (cropped_dim - dim_remaining.row()).unwrap()
+                }
+                _ => unreachable!(),
+            },
+            match self.camera.crop?.dim.width() {
+                Width::Relative(offset) => offset,
+                Width::Absolute(size) => {
+                    let cropped_dim = ColIndex::new(*size);
+                    (cropped_dim - dim_remaining.col()).unwrap()
+                }
+                _ => unreachable!(),
+            },
+        );
+        let crop_wh = (-crop_dim).unwrap();
+        let cropped_dim = (dim_remaining - crop_wh).unwrap();
+        Some(Dimensions2D::new(
+            RowLength::new(*cropped_dim.col()),
+            RowCount::new(*cropped_dim.row()),
+        ))
+    }
+
+    #[inline]
+    fn crop_offset(&self) -> Option<Coord2D> {
+        Some(*self.camera.crop?.pos)
+    }
+
+    #[inline]
+    fn black_areas(&self) -> Option<&[BlackArea]> {
+        self.camera.blackareas.as_ref().map(|f| &*f.value.areas)
+    }
+
+    #[inline]
+    fn fuji_rotation_pos(&self) -> Option<u32> {
         None
     }
 
     #[inline]
-    fn is_cfa(&self) -> Option<()> {
+    fn pixel_aspect_ratio(&self) -> Option<f64> {
         None
     }
 
     #[inline]
-    fn cfa(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn filters(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn bpp(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn cpp(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn datatype(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn dim_uncropped(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn dim_cropped(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn crop_offset(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn black_areas(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn fuji_rotation_pos(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn pixel_aspect_ratio(&self) -> Option<()> {
-        None
-    }
-
-    #[inline]
-    fn bad_pixel_positions(&self) -> Option<()> {
-        None
+    fn bad_pixel_positions(&self) -> Vec<Coord2D> {
+        vec![]
     }
 
     #[inline(never)]

@@ -63,8 +63,21 @@ pub struct CropSize {
 
 impl CropSize {
     #[inline]
+    #[must_use]
     pub const fn new(width: Width, height: Height) -> Self {
         Self { width, height }
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn width(&self) -> Width {
+        self.width
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn height(&self) -> Height {
+        self.height
     }
 }
 
