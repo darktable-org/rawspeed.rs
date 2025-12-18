@@ -105,10 +105,10 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             .map_or("unknown".to_owned(), |v| v.to_string()),
         blackLevelSeparate = demux
             .blacklevel_separate()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+            .map_or("none".to_owned(), |()| unreachable!()),
         wbCoeffs = demux
             .wb_coeffs()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+            .map_or("(none)".to_owned(), |()| unreachable!()),
         colorMatrix = {
             let mut repr = String::new();
             if let Some(mat) = demux.colormatrix() {
