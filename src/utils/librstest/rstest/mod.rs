@@ -179,9 +179,11 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             let dim = demux.dim_uncropped();
             format!("{}x{}", *dim.row_len(), *dim.row_count())
         },
-        dimCropped = demux
-            .dim_cropped()
-            .map_or("FIXME".to_owned(), |()| unreachable!()),
+        dimCropped = {
+            let dim =
+                demux.dim_cropped().unwrap_or_else(|| demux.dim_uncropped());
+            format!("{}x{}", *dim.row_len(), *dim.row_count())
+        },
         cropOffset = {
             let pos = demux
                 .crop_offset()

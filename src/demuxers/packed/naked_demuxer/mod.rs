@@ -9,12 +9,13 @@ use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::crop::Height;
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::crop::Width;
 use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::Dimensions2D;
-use rawspeed_std::coord_common::RowCount;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::coord_common::RowPitch;
+use rawspeed_std::coord_common::CoordOffset2D;
+use rawspeed_std::coord_common::{
+    ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex, RowLength, RowPitch,
+};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 
@@ -304,9 +305,42 @@ impl RawDemuxer for NakedDemuxer<'_> {
         self.dims
     }
 
+    #[expect(clippy::unwrap_in_result)]
     #[inline]
-    fn dim_cropped(&self) -> Option<()> {
-        None
+    fn dim_cropped(&self) -> Option<Dimensions2D> {
+        const ZERO_POINT: Coord2D =
+            Coord2D::new(RowIndex::new(0), ColIndex::new(0));
+        let crop_pos = self.crop_offset().unwrap_or(ZERO_POINT);
+        let crop_xy = (crop_pos - ZERO_POINT).unwrap();
+        let dim_remaining = Coord2D::new(
+            RowIndex::new(*self.dim_uncropped().row_count()),
+            ColIndex::new(*self.dim_uncropped().row_len()),
+        );
+        let dim_remaining = (dim_remaining - crop_xy).unwrap();
+        let crop_dim = CoordOffset2D::new(
+            match self.camera.crop?.dim.height() {
+                Height::Relative(offset) => offset,
+                Height::Absolute(size) => {
+                    let cropped_dim = RowIndex::new(*size);
+                    (cropped_dim - dim_remaining.row()).unwrap()
+                }
+                _ => unreachable!(),
+            },
+            match self.camera.crop?.dim.width() {
+                Width::Relative(offset) => offset,
+                Width::Absolute(size) => {
+                    let cropped_dim = ColIndex::new(*size);
+                    (cropped_dim - dim_remaining.col()).unwrap()
+                }
+                _ => unreachable!(),
+            },
+        );
+        let crop_wh = (-crop_dim).unwrap();
+        let cropped_dim = (dim_remaining - crop_wh).unwrap();
+        Some(Dimensions2D::new(
+            RowLength::new(*cropped_dim.col()),
+            RowCount::new(*cropped_dim.row()),
+        ))
     }
 
     #[inline]
