@@ -13,6 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+rawspeed-common = { path = "../common" }
 
 [lib]
 path = "mod.rs"
