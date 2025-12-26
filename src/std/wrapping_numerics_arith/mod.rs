@@ -3,7 +3,7 @@ use crate::{
 };
 use rawspeed_common::{
     common::Integer,
-    generic_arith::{WrappingAdd, WrappingRem},
+    generic_arith::{CheckedAdd, CheckedRem},
 };
 
 impl<T> core::ops::Add<T> for WrappingUnsigned<T>
@@ -13,19 +13,21 @@ where
         + PartialOrd
         + Clone
         + Copy
-        + WrappingAdd<Output = T>
-        + WrappingRem<Output = T>,
+        + CheckedAdd<Output = Option<T>>
+        + CheckedRem<Output = Option<T>>,
 {
-    type Output = Self;
+    type Output = Option<Self>;
 
     #[inline]
-    fn add(self, rhs: T) -> Self {
+    fn add(self, rhs: T) -> Self::Output {
         let domain = self.domain();
         let lhs = **self;
-        let rhs = rhs.wrapping_rem(**domain);
-        let sum = lhs.wrapping_add(rhs);
-        let rem = sum.wrapping_rem(**domain);
-        WrappingUnsigned::new(BoundUnsigned::new(*domain, rem).unwrap())
+        let rhs = rhs.checked_rem(**domain).unwrap();
+        let sum = lhs.checked_add(rhs)?;
+        let rem = sum.checked_rem(**domain).unwrap();
+        Some(WrappingUnsigned::new(
+            BoundUnsigned::new(*domain, rem).unwrap(),
+        ))
     }
 }
 

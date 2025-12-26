@@ -3,114 +3,150 @@ use crate::{
     wrapping_numerics::WrappingUnsigned,
 };
 
-struct Test {
-    bound: u8,
-    lhs: u8,
-    rhs: u8,
-    res: u8,
+type T = u8;
+
+fn naive_wrapping_add(lhs: BoundUnsigned<T>, rhs: T) -> WrappingUnsigned<T> {
+    let bound = *lhs.domain();
+    let res = (u16::checked_add((*lhs).into(), rhs.into()).unwrap())
+        .checked_rem((*bound).into())
+        .unwrap()
+        .try_into()
+        .unwrap();
+    WrappingUnsigned::new(BoundUnsigned::new(bound, res).unwrap())
 }
 
-macro_rules! test_entry {
-    ((($lhs:expr) + ($rhs:expr)) mod ($bound:expr) == ($res:expr)) => {
-        Test {
-            bound: $bound,
-            lhs: $lhs,
-            rhs: $rhs,
-            res: $res,
+fn run_test(lhs: BoundUnsigned<T>, rhs: T) {
+    let expected = naive_wrapping_add(lhs, rhs);
+    let lhs = WrappingUnsigned::new(lhs);
+    let res = lhs + rhs;
+    if res.is_none() {
+        return;
+    }
+    assert_eq!(res.unwrap(), expected);
+}
+
+#[test]
+#[cfg(not(miri))]
+fn add_test_exhaustive() {
+    for bound in u8::MIN..u8::MAX {
+        let Some(bound) = Bound::new(bound) else {
+            continue;
+        };
+        for lhs in u8::MIN..u8::MAX {
+            let Some(lhs) = BoundUnsigned::new(bound, lhs) else {
+                continue;
+            };
+            for rhs in u8::MIN..u8::MAX {
+                run_test(lhs, rhs);
+            }
         }
+    }
+}
+
+macro_rules! test {
+    ($((($lhs:expr) + ($rhs:expr)) (mod ($bound:expr)) == ($res:expr),)+) => {
+        $(
+            {
+                let bound = Bound::new($bound).unwrap();
+                let lhs = BoundUnsigned::new(bound, $lhs).unwrap();
+                assert_eq!(
+                    WrappingUnsigned::new(BoundUnsigned::new(bound, $res).unwrap()),
+                    naive_wrapping_add(lhs, $rhs),
+                    "Self-check in wider types"
+                );
+                run_test(lhs, $rhs);
+            }
+        )+
     };
 }
 
 #[test]
+#[expect(clippy::cognitive_complexity)]
 fn add_test() {
-    let tests = [
+    test!(
         //
-        test_entry!(((0) + (0)) mod (1) == (0)),
-        test_entry!(((0) + (1)) mod (1) == (0)),
-        test_entry!(((0) + (2)) mod (1) == (0)),
+        ((0) + (0)) (mod (1)) == (0),
+        ((0) + (1)) (mod (1)) == (0),
+        ((0) + (2)) (mod (1)) == (0),
         //
-        test_entry!(((0) + (0)) mod (2) == (0)),
-        test_entry!(((0) + (1)) mod (2) == (1)),
-        test_entry!(((0) + (2)) mod (2) == (0)),
-        test_entry!(((0) + (3)) mod (2) == (1)),
+        ((0) + (0)) (mod (2)) == (0),
+        ((0) + (1)) (mod (2)) == (1),
+        ((0) + (2)) (mod (2)) == (0),
+        ((0) + (3)) (mod (2)) == (1),
         //
-        test_entry!(((1) + (0)) mod (2) == (1)),
-        test_entry!(((1) + (1)) mod (2) == (0)),
-        test_entry!(((1) + (2)) mod (2) == (1)),
-        test_entry!(((1) + (3)) mod (2) == (0)),
+        ((1) + (0)) (mod (2)) == (1),
+        ((1) + (1)) (mod (2)) == (0),
+        ((1) + (2)) (mod (2)) == (1),
+        ((1) + (3)) (mod (2)) == (0),
         //
-        test_entry!(((0) + (0)) mod (3) == (0)),
-        test_entry!(((0) + (1)) mod (3) == (1)),
-        test_entry!(((0) + (2)) mod (3) == (2)),
-        test_entry!(((0) + (3)) mod (3) == (0)),
-        test_entry!(((0) + (4)) mod (3) == (1)),
-        test_entry!(((0) + (5)) mod (3) == (2)),
+        ((0) + (0)) (mod (3)) == (0),
+        ((0) + (1)) (mod (3)) == (1),
+        ((0) + (2)) (mod (3)) == (2),
+        ((0) + (3)) (mod (3)) == (0),
+        ((0) + (4)) (mod (3)) == (1),
+        ((0) + (5)) (mod (3)) == (2),
         //
-        test_entry!(((1) + (0)) mod (3) == (1)),
-        test_entry!(((1) + (1)) mod (3) == (2)),
-        test_entry!(((1) + (2)) mod (3) == (0)),
-        test_entry!(((1) + (3)) mod (3) == (1)),
-        test_entry!(((1) + (4)) mod (3) == (2)),
-        test_entry!(((1) + (5)) mod (3) == (0)),
+        ((1) + (0)) (mod (3)) == (1),
+        ((1) + (1)) (mod (3)) == (2),
+        ((1) + (2)) (mod (3)) == (0),
+        ((1) + (3)) (mod (3)) == (1),
+        ((1) + (4)) (mod (3)) == (2),
+        ((1) + (5)) (mod (3)) == (0),
         //
-        test_entry!(((2) + (0)) mod (3) == (2)),
-        test_entry!(((2) + (1)) mod (3) == (0)),
-        test_entry!(((2) + (2)) mod (3) == (1)),
-        test_entry!(((2) + (3)) mod (3) == (2)),
-        test_entry!(((2) + (4)) mod (3) == (0)),
-        test_entry!(((2) + (5)) mod (3) == (1)),
+        ((2) + (0)) (mod (3)) == (2),
+        ((2) + (1)) (mod (3)) == (0),
+        ((2) + (2)) (mod (3)) == (1),
+        ((2) + (3)) (mod (3)) == (2),
+        ((2) + (4)) (mod (3)) == (0),
+        ((2) + (5)) (mod (3)) == (1),
         //--------------------------------------
-        test_entry!(((0) + (u8::MAX-3)) mod (1) == (0)),
-        test_entry!(((0) + (u8::MAX-2)) mod (1) == (0)),
-        test_entry!(((0) + (u8::MAX-1)) mod (1) == (0)),
-        test_entry!(((0) + (u8::MAX)) mod (1) == (0)),
+        ((0) + (u8::MAX-3)) (mod (1)) == (0),
+        ((0) + (u8::MAX-2)) (mod (1)) == (0),
+        ((0) + (u8::MAX-1)) (mod (1)) == (0),
+        ((0) + (u8::MAX)) (mod (1)) == (0),
         //
-        test_entry!(((0) + (u8::MAX-3)) mod (2) == (0)),
-        test_entry!(((0) + (u8::MAX-2)) mod (2) == (1)),
-        test_entry!(((0) + (u8::MAX-1)) mod (2) == (0)),
-        test_entry!(((0) + (u8::MAX)) mod (2) == (1)),
+        ((0) + (u8::MAX-3)) (mod (2)) == (0),
+        ((0) + (u8::MAX-2)) (mod (2)) == (1),
+        ((0) + (u8::MAX-1)) (mod (2)) == (0),
+        ((0) + (u8::MAX)) (mod (2)) == (1),
         //
-        test_entry!(((1) + (u8::MAX-3)) mod (2) == (1)),
-        test_entry!(((1) + (u8::MAX-2)) mod (2) == (0)),
-        test_entry!(((1) + (u8::MAX-1)) mod (2) == (1)),
-        test_entry!(((1) + (u8::MAX)) mod (2) == (0)),
+        ((1) + (u8::MAX-3)) (mod (2)) == (1),
+        ((1) + (u8::MAX-2)) (mod (2)) == (0),
+        ((1) + (u8::MAX-1)) (mod (2)) == (1),
+        ((1) + (u8::MAX)) (mod (2)) == (0),
         //
-        test_entry!(((0) + (u8::MAX-5)) mod (3) == (1)),
-        test_entry!(((0) + (u8::MAX-4)) mod (3) == (2)),
-        test_entry!(((0) + (u8::MAX-3)) mod (3) == (0)),
-        test_entry!(((0) + (u8::MAX-2)) mod (3) == (1)),
-        test_entry!(((0) + (u8::MAX-1)) mod (3) == (2)),
-        test_entry!(((0) + (u8::MAX)) mod (3) == (0)),
+        ((0) + (u8::MAX-5)) (mod (3)) == (1),
+        ((0) + (u8::MAX-4)) (mod (3)) == (2),
+        ((0) + (u8::MAX-3)) (mod (3)) == (0),
+        ((0) + (u8::MAX-2)) (mod (3)) == (1),
+        ((0) + (u8::MAX-1)) (mod (3)) == (2),
+        ((0) + (u8::MAX)) (mod (3)) == (0),
         //
-        test_entry!(((1) + (u8::MAX-5)) mod (3) == (2)),
-        test_entry!(((1) + (u8::MAX-4)) mod (3) == (0)),
-        test_entry!(((1) + (u8::MAX-3)) mod (3) == (1)),
-        test_entry!(((1) + (u8::MAX-2)) mod (3) == (2)),
-        test_entry!(((1) + (u8::MAX-1)) mod (3) == (0)),
-        test_entry!(((1) + (u8::MAX)) mod (3) == (1)), // <- needs rhs mod dom
+        ((1) + (u8::MAX-5)) (mod (3)) == (2),
+        ((1) + (u8::MAX-4)) (mod (3)) == (0),
+        ((1) + (u8::MAX-3)) (mod (3)) == (1),
+        ((1) + (u8::MAX-2)) (mod (3)) == (2),
+        ((1) + (u8::MAX-1)) (mod (3)) == (0),
+        ((1) + (u8::MAX)) (mod (3)) == (1), // <- needs rhs mod dom
         //
-        test_entry!(((2) + (u8::MAX-5)) mod (3) == (0)),
-        test_entry!(((2) + (u8::MAX-4)) mod (3) == (1)),
-        test_entry!(((2) + (u8::MAX-3)) mod (3) == (2)),
-        test_entry!(((2) + (u8::MAX-2)) mod (3) == (0)),
-        test_entry!(((2) + (u8::MAX-1)) mod (3) == (1)), // <- needs rhs mod dom
-        test_entry!(((2) + (u8::MAX)) mod (3) == (2)),   // <- needs rhs mod dom
-    ];
-    for test in tests {
-        assert_eq!(
-            u16::from(test.res),
-            (u16::checked_add(test.lhs.into(), test.rhs.into()).unwrap())
-                .checked_rem(test.bound.into())
-                .unwrap(),
-            "Self-check in wider types"
-        );
+        ((2) + (u8::MAX-5)) (mod (3)) == (0),
+        ((2) + (u8::MAX-4)) (mod (3)) == (1),
+        ((2) + (u8::MAX-3)) (mod (3)) == (2),
+        ((2) + (u8::MAX-2)) (mod (3)) == (0),
+        ((2) + (u8::MAX-1)) (mod (3)) == (1), // <- needs rhs mod dom
+        ((2) + (u8::MAX)) (mod (3)) == (2),); // <- needs rhs mod dom
+}
 
-        let bound = Bound::<u8>::new(test.bound);
-        let lhs =
-            WrappingUnsigned::new(BoundUnsigned::new(bound, test.lhs).unwrap());
-        let res = lhs + test.rhs;
-        let expected =
-            WrappingUnsigned::new(BoundUnsigned::new(bound, test.res).unwrap());
-        assert_eq!(res, expected);
-    }
+#[test]
+fn add_is_none_test() {
+    let bound = Bound::new(129_u8).unwrap();
+    let lhs = BoundUnsigned::new(bound, 128_u8).unwrap();
+    let rhs = 128;
+    assert_eq!(
+        naive_wrapping_add(lhs, rhs),
+        WrappingUnsigned::new(BoundUnsigned::new(bound, 127_u8).unwrap())
+    );
+    let lhs = WrappingUnsigned::new(lhs);
+    let res = lhs + rhs;
+    assert!(res.is_none());
 }
