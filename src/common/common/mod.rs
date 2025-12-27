@@ -48,18 +48,16 @@ pub trait ConstZero {
     const ZERO: Self;
 }
 
-impl ConstZero for u8 {
-    const ZERO: Self = 0;
+macro_rules! impl_constzero {
+    ($($t:ty)+) => {
+        $(
+            impl ConstZero for $t {
+                const ZERO: Self = 0;
+            }
+        )+
+    };
 }
-impl ConstZero for u16 {
-    const ZERO: Self = 0;
-}
-impl ConstZero for u32 {
-    const ZERO: Self = 0;
-}
-impl ConstZero for u64 {
-    const ZERO: Self = 0;
-}
+impl_constzero!(u8 u16 u32 u64);
 
 //------------------------------------------------------------------------------
 
