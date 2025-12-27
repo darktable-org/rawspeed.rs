@@ -1,10 +1,16 @@
 //------------------------------------------------------------------------------
 
 pub trait Integer: Sized + Bitwidth + ConstZero {}
-impl Integer for u8 {}
-impl Integer for u16 {}
-impl Integer for u32 {}
-impl Integer for u64 {}
+
+macro_rules! impl_simple_trait {
+    (impl $tr:ident for $($t:ty$(,)?)+) => {
+        $(
+            impl $tr for $t {}
+        )+
+    };
+}
+
+impl_simple_trait!(impl Integer for u8, u16, u32, u64);
 
 pub trait Bitwidth {
     const BITWIDTH: usize;
