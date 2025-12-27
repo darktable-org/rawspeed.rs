@@ -19,10 +19,7 @@ fn run_test(lhs: BoundUnsigned<T>, rhs: T) {
     let expected = naive_wrapping_add(lhs, rhs);
     let lhs = WrappingUnsigned::new(lhs);
     let res = lhs + rhs;
-    if res.is_none() {
-        return;
-    }
-    assert_eq!(res.unwrap(), expected);
+    assert_eq!(res, expected);
 }
 
 #[test]
@@ -134,19 +131,8 @@ fn add_test() {
         ((2) + (u8::MAX-3)) (mod (3)) == (2),
         ((2) + (u8::MAX-2)) (mod (3)) == (0),
         ((2) + (u8::MAX-1)) (mod (3)) == (1), // <- needs rhs mod dom
-        ((2) + (u8::MAX)) (mod (3)) == (2),); // <- needs rhs mod dom
-}
-
-#[test]
-fn add_is_none_test() {
-    let bound = Bound::new(129_u8).unwrap();
-    let lhs = BoundUnsigned::new(bound, 128_u8).unwrap();
-    let rhs = 128;
-    assert_eq!(
-        naive_wrapping_add(lhs, rhs),
-        WrappingUnsigned::new(BoundUnsigned::new(bound, 127_u8).unwrap())
+        ((2) + (u8::MAX)) (mod (3)) == (2), // <- needs rhs mod dom
+        //
+        ((128) + (128)) (mod (129)) == (127),
     );
-    let lhs = WrappingUnsigned::new(lhs);
-    let res = lhs + rhs;
-    assert!(res.is_none());
 }
