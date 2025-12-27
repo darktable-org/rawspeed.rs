@@ -22,6 +22,22 @@ macro_rules! impl_bitwidth {
 
 impl_bitwidth!(u8 u16 u32 u64);
 
+pub trait Max {
+    const MAX: Self;
+}
+
+macro_rules! impl_max {
+    ($($t:ty)+) => {
+        $(
+            impl Max for $t {
+                const MAX: $t = <$t>::MAX;
+            }
+        )+
+    };
+}
+
+impl_max!(u8 u16 u32 u64);
+
 pub trait ConstZero {
     const ZERO: Self;
 }
