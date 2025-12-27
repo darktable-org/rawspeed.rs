@@ -14,9 +14,11 @@ where
 {
     #[inline]
     #[must_use]
-    pub fn new(domain: T) -> Self {
-        assert!(domain != ConstZero::ZERO);
-        Self { domain }
+    pub fn new(domain: T) -> Option<Self> {
+        if domain == ConstZero::ZERO {
+            return None;
+        }
+        Some(Self { domain })
     }
 
     #[inline]
