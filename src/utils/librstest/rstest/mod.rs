@@ -1,4 +1,4 @@
-use rawspeed_common::bit_transmutation::ToLeBytes;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::ToLeBytes;
 use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer;
 use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequestError;

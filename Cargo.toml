@@ -11,6 +11,7 @@ members = [
     "src/codecs/packed/decoder",
     "src/codecs/packed/encoder",
     "src/common",
+    "src/common/bit_manip",
     "src/common/generic_num",
     "src/demuxers/packed",
     "src/demuxers/rawdemuxer",

@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-bitstream-bytestream-encoder"
+name = "rawspeed-common-bit_manip"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,8 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-generic_num = { path = "../../../common/generic_num" }
-rawspeed-memory-endianness = { path = "../../../memory/endianness" }
+rawspeed-common-generic_num = { path = "../generic_num" }
 
 [lib]
 path = "mod.rs"

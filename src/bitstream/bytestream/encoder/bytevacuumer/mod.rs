@@ -1,5 +1,5 @@
-use rawspeed_common::bit_transmutation::ToBits;
-use rawspeed_common::bit_transmutation::ToNeBytes;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::ToBits;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::ToNeBytes;
 use rawspeed_memory_endianness::endianness::Endianness;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
