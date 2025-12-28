@@ -1,5 +1,5 @@
 use super::*;
-use rawspeed_common::common::Bitwidth as _;
+use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
 
 #[test]
 fn bitstreamcache_constructable_test() {

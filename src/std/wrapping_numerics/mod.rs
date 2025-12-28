@@ -1,5 +1,6 @@
+use rawspeed_common_generic_num::generic_num::common::Integer;
+
 use crate::bound_numerics::BoundUnsigned;
-use rawspeed_common::common::Integer;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WrappingUnsigned<T>

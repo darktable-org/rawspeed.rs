@@ -1,4 +1,4 @@
-use rawspeed_common::common::{ConstZero, Integer};
+use rawspeed_common_generic_num::generic_num::common::{ConstZero, Integer};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Bound<T>

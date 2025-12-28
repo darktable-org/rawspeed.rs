@@ -14,6 +14,7 @@ workspace = true
 
 [dependencies]
 rawspeed-common = { path = "../../common" }
+rawspeed-common-generic_num = { path = "../../common/generic_num" }
 rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
 rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
 rawspeed-misc-md5 = { path = "../../misc/md5" }

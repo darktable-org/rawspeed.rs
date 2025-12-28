@@ -1,6 +1,4 @@
 use core::marker::PhantomData;
-use rawspeed_common::common::Bitwidth;
-use rawspeed_common::common::Integer;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[non_exhaustive]
@@ -68,3 +66,4 @@ mod low_in_high_out;
 
 pub use high_in_low_out::BitStreamCacheHighInLowOut;
 pub use low_in_high_out::BitStreamCacheLowInHighOut;
+use rawspeed_common_generic_num::generic_num::common::{Bitwidth, Integer};

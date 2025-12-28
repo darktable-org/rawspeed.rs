@@ -1,4 +1,4 @@
-use rawspeed_common::common::Bitwidth;
+use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::Endianness;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
