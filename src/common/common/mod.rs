@@ -1,5 +1,54 @@
 //------------------------------------------------------------------------------
 
+pub trait CastUnsigned {
+    type Output;
+    #[must_use]
+    fn cast_unsigned(self) -> Self::Output;
+}
+
+pub trait CastSigned {
+    type Output;
+    #[must_use]
+    fn cast_signed(self) -> Self::Output;
+}
+
+macro_rules! impl_signcast {
+    ($(($u:ty, $i:ty)$(,)?)+) => {
+        $(
+            impl CastUnsigned for $u {
+                type Output = Self;
+                #[inline]
+                fn cast_unsigned(self) -> Self::Output {
+                    self
+                }
+            }
+            impl CastSigned for $i {
+                type Output = Self;
+                #[inline]
+                fn cast_signed(self) -> Self::Output {
+                    self
+                }
+            }
+            impl CastUnsigned for $i {
+                type Output = $u;
+                #[inline]
+                fn cast_unsigned(self) -> Self::Output {
+                    self.cast_unsigned()
+                }
+            }
+            impl CastSigned for $u {
+                type Output = $i;
+                #[inline]
+                fn cast_signed(self) -> Self::Output {
+                    self.cast_signed()
+                }
+            }
+        )+
+    };
+}
+
+impl_signcast!((u8, i8), (u16, i16), (u32, i32), (u64, i64));
+
 pub trait Integer: Sized + Bitwidth + ConstZero {}
 
 macro_rules! impl_simple_trait {
@@ -42,7 +91,23 @@ macro_rules! impl_max {
     };
 }
 
-impl_max!(u8 u16 u32 u64);
+impl_max!(u8 i8 u16 i16 u32 i32 u64 i64);
+
+pub trait Min {
+    const MIN: Self;
+}
+
+macro_rules! impl_min {
+    ($($t:ty)+) => {
+        $(
+            impl Min for $t {
+                const MIN: $t = <$t>::MIN;
+            }
+        )+
+    };
+}
+
+impl_min!(u8 i8 u16 i16 u32 i32 u64 i64);
 
 pub trait ConstZero {
     const ZERO: Self;
@@ -57,7 +122,7 @@ macro_rules! impl_constzero {
         )+
     };
 }
-impl_constzero!(u8 u16 u32 u64);
+impl_constzero!(u8 i8 u16 i16 u32 i32 u64 i64);
 
 //------------------------------------------------------------------------------
 
