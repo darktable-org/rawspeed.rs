@@ -42,6 +42,8 @@ where
     lhs_lo
 }
 
+#[inline]
+#[must_use]
 fn is_signed_type<T>() -> bool
 where
     T: ConstZero + Min + PartialOrd,
@@ -49,6 +51,8 @@ where
     T::MIN < T::ZERO
 }
 
+#[inline]
+#[must_use]
 fn normalize_rhs<T, I>(rhs: I, domain: &crate::bound_numerics::Bound<T>) -> T
 where
     T: Copy
