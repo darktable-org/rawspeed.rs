@@ -4,7 +4,7 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common::bit_transmutation::FromNeBytes;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
