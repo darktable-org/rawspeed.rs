@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-common"
+name = "rawspeed-common-bit_manip"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,6 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+rawspeed-common-generic_num = { path = "../generic_num" }
 
 [lib]
 path = "mod.rs"

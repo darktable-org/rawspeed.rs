@@ -1,10 +1,10 @@
+use rawspeed_common_bit_manip::bit_manip::extract_low_bits;
+
 use super::BitStreamCache;
 use super::BitStreamCacheBase;
 use super::BitStreamCacheData;
 use super::BitStreamFlowTrait;
 use super::PhantomData;
-
-use rawspeed_common::common::extract_low_bits;
 
 #[derive(Debug, Copy, Clone)]
 pub struct BitStreamFlowHighInLowOut;
