@@ -7,7 +7,7 @@ macro_rules! impl_binary_op {
         }
         $(
             impl $trait for $t {
-                type Output = Option<Self>;
+                type Output = Self;
                 #[inline]
                 fn $method(self, other: Self) -> Self::Output {
                     <Self>::$method(self, other)
@@ -17,5 +17,4 @@ macro_rules! impl_binary_op {
     };
 }
 
-impl_binary_op!(checked_add as CheckedAdd for u8 i8 u16 i16 u32 i32 u64 i64);
-impl_binary_op!(checked_rem as CheckedRem for u8 i8 u16 i16 u32 i32 u64 i64);
+impl_binary_op!(wrapping_add as WrappingAdd for u8 u16 u32 u64);
