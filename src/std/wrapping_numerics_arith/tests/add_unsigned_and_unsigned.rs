@@ -25,15 +25,15 @@ fn run_test(lhs: BoundUnsigned<T>, rhs: T) {
 #[test]
 #[cfg(not(miri))]
 fn add_test_exhaustive() {
-    for bound in u8::MIN..u8::MAX {
+    for bound in u8::MIN..=u8::MAX {
         let Some(bound) = Bound::new(bound) else {
             continue;
         };
-        for lhs in u8::MIN..u8::MAX {
+        for lhs in u8::MIN..=u8::MAX {
             let Some(lhs) = BoundUnsigned::new(bound, lhs) else {
                 continue;
             };
-            for rhs in u8::MIN..u8::MAX {
+            for rhs in u8::MIN..=u8::MAX {
                 run_test(lhs, rhs);
             }
         }
