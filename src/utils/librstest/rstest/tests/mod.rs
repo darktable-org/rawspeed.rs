@@ -1,7 +1,7 @@
 use super::{AsSlice, Hash, img_data_hash, img_hash};
 use crate::rstest::camerasxml_parser::Cameras;
 use rawspeed_common::bit_transmutation::ToLeBytes;
-use rawspeed_common::common::Bitwidth;
+use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_xmlparser::xmlparser;

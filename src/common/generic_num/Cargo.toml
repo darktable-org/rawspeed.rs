@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-std"
+name = "rawspeed-common-generic_num"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,7 +13,6 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-generic_num = { path = "../common/generic_num" }
 
 [lib]
 path = "mod.rs"

@@ -5,7 +5,7 @@ use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common::common::Bitwidth;
+use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
