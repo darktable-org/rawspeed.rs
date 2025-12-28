@@ -12,7 +12,7 @@ license.workspace = true
 [lints]
 workspace = true
 
-[dependencies]
+[dev-dependencies]
 rawspeed-metadata-camerasxml_parser = { path = "../../../src/metadata/camerasxml_parser" }
 rawspeed-utils-librstest = { path = "../../../src/utils/librstest" }
 
