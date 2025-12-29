@@ -17,5 +17,5 @@ macro_rules! impl_ternary_op {
     };
 }
 
-impl_ternary_op!(carrying_add as CarryingAdd for u8 u16 u32 u64);
-impl_ternary_op!(borrowing_sub as BorrowingSub for u8 u16 u32 u64);
+impl_ternary_op!(carrying_add as CarryingAdd for u8 u16 u32 u64 usize);
+impl_ternary_op!(borrowing_sub as BorrowingSub for u8 u16 u32 u64 usize);

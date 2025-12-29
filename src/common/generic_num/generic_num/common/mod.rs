@@ -45,7 +45,7 @@ macro_rules! impl_signcast {
     };
 }
 
-impl_signcast!((u8, i8), (u16, i16), (u32, i32), (u64, i64));
+impl_signcast!((u8, i8), (u16, i16), (u32, i32), (u64, i64), (usize, isize));
 
 pub trait Integer: Sized + Bitwidth + ConstZero {}
 
@@ -57,7 +57,7 @@ macro_rules! impl_simple_trait {
     };
 }
 
-impl_simple_trait!(impl Integer for u8, u16, u32, u64);
+impl_simple_trait!(impl Integer for u8, u16, u32, u64, usize);
 
 pub trait Bitwidth {
     const BITWIDTH: usize;
@@ -73,7 +73,7 @@ macro_rules! impl_bitwidth {
     };
 }
 
-impl_bitwidth!(u8 u16 u32 u64);
+impl_bitwidth!(u8 u16 u32 u64 usize);
 
 pub trait Max {
     const MAX: Self;
@@ -89,7 +89,7 @@ macro_rules! impl_max {
     };
 }
 
-impl_max!(u8 i8 u16 i16 u32 i32 u64 i64);
+impl_max!(u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
 pub trait Min {
     const MIN: Self;
@@ -105,7 +105,7 @@ macro_rules! impl_min {
     };
 }
 
-impl_min!(u8 i8 u16 i16 u32 i32 u64 i64);
+impl_min!(u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
 pub trait ConstZero {
     const ZERO: Self;
@@ -120,7 +120,7 @@ macro_rules! impl_constzero {
         )+
     };
 }
-impl_constzero!(u8 i8 u16 i16 u32 i32 u64 i64);
+impl_constzero!(u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
 #[cfg(test)]
 mod tests;

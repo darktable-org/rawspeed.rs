@@ -17,4 +17,4 @@ macro_rules! impl_binary_op {
     };
 }
 
-impl_binary_op!(wrapping_add as WrappingAdd for u8 u16 u32 u64);
+impl_binary_op!(wrapping_add as WrappingAdd for u8 u16 u32 u64 usize);

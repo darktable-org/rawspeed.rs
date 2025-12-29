@@ -1,6 +1,6 @@
 use crate::{
+    bound_coord::BoundRowIndex,
     coord_common::{RowCount, RowIndex},
-    wrapping_coord::BoundRowIndex,
 };
 
 #[test]
