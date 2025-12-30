@@ -136,6 +136,22 @@ impl core::ops::Deref for RowIndex {
     }
 }
 
+#[expect(clippy::missing_trait_methods)]
+impl PartialEq<RowCount> for RowIndex {
+    #[inline]
+    fn eq(&self, other: &RowCount) -> bool {
+        (**self).eq(&**other)
+    }
+}
+
+#[expect(clippy::missing_trait_methods)]
+impl PartialOrd<RowCount> for RowIndex {
+    #[inline]
+    fn partial_cmp(&self, other: &RowCount) -> Option<core::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ColIndex {
     col: usize,

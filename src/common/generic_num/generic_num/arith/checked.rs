@@ -17,5 +17,5 @@ macro_rules! impl_binary_op {
     };
 }
 
-impl_binary_op!(checked_add as CheckedAdd for u8 i8 u16 i16 u32 i32 u64 i64);
-impl_binary_op!(checked_rem as CheckedRem for u8 i8 u16 i16 u32 i32 u64 i64);
+impl_binary_op!(checked_add as CheckedAdd for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
+impl_binary_op!(checked_rem as CheckedRem for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
