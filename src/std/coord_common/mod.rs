@@ -262,6 +262,22 @@ impl core::ops::Deref for ColOffset {
     }
 }
 
+#[expect(clippy::missing_trait_methods)]
+impl PartialEq<RowLength> for ColIndex {
+    #[inline]
+    fn eq(&self, other: &RowLength) -> bool {
+        (**self).eq(&**other)
+    }
+}
+
+#[expect(clippy::missing_trait_methods)]
+impl PartialOrd<RowLength> for ColIndex {
+    #[inline]
+    fn partial_cmp(&self, other: &RowLength) -> Option<core::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CoordOffset2D {
     row: RowOffset,
