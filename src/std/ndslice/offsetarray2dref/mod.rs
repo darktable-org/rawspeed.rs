@@ -25,7 +25,7 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> usize {
+    pub const fn row_length(&self) -> RowLength {
         self.data.row_length()
     }
 
@@ -49,7 +49,7 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
         let row = self.get_row(index.row())?;
 
         let col = BoundColIndex::new(
-            RowLength::new(self.data.row_length()),
+            RowLength::new(*self.data.row_length()),
             index.col(),
         )?;
         let col = WrappingColIndex::from(col) + self.origin.col();

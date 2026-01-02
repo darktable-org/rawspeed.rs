@@ -206,7 +206,7 @@ where
         }
         let min_pitch = MinimalOutputRowPitch::new(NumBytes::new(
             bit_order.predict_exact_bitstream_bytelen(
-                input.row_length(),
+                *input.row_length(),
                 item_bitlen,
             ),
         ));

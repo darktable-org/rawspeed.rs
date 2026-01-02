@@ -37,8 +37,8 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> usize {
-        self.row_length.val()
+    pub const fn row_length(&self) -> RowLength {
+        self.row_length
     }
 
     #[inline]
@@ -50,10 +50,7 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     pub const fn dims(&self) -> Dimensions2D {
-        Dimensions2D::new(
-            RowLength::new(self.row_length()),
-            RowCount::new(self.num_rows()),
-        )
+        Dimensions2D::new(self.row_length(), RowCount::new(self.num_rows()))
     }
 
     #[inline]
@@ -66,7 +63,7 @@ impl<'a, T> Array2DRefMut<'a, T> {
             {
                 let full_row =
                     self.slice.chunks_exact(*self.pitch()).nth(*row)?;
-                full_row.get(..self.row_length())
+                full_row.get(..*self.row_length())
             }
             .unwrap(),
         )
@@ -83,7 +80,7 @@ impl<'a, T> Array2DRefMut<'a, T> {
                 let row_len = self.row_length();
                 let full_row =
                     self.slice.chunks_exact_mut(*self.pitch()).nth(*row)?;
-                full_row.get_mut(..row_len)
+                full_row.get_mut(..*row_len)
             }
             .unwrap(),
         )

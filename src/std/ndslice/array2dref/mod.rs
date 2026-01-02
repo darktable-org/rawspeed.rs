@@ -35,8 +35,8 @@ impl<'a, T> Array2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> usize {
-        self.row_length.val()
+    pub const fn row_length(&self) -> RowLength {
+        self.row_length
     }
 
     #[inline]
@@ -55,7 +55,7 @@ impl<'a, T> Array2DRef<'a, T> {
             {
                 let full_row =
                     self.slice.chunks_exact(*self.pitch()).nth(*row)?;
-                full_row.get(..self.row_length())
+                full_row.get(..*self.row_length())
             }
             .unwrap(),
         )
