@@ -182,7 +182,7 @@ fn slice_too_large_for_single_row_test() {
 }
 
 #[test]
-fn elt_oob_test() {
+fn elt_oob_1x1_test() {
     let mut storage = vec![];
     for i in 1..=1 {
         storage.push(i);
@@ -215,7 +215,97 @@ fn elt_oob_test() {
 }
 
 #[test]
-fn padded_elt_oob_test() {
+fn elt_oob_1x2_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
+            .copied(),
+        Some(1)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(1)))
+            .copied(),
+        Some(2)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(2)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(0)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(2)))
+            .copied(),
+        None
+    );
+}
+
+#[test]
+fn elt_oob_2x1_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
+            .copied(),
+        Some(1)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(0)))
+            .copied(),
+        Some(2)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(2), ColIndex::new(0)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(2), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+}
+
+#[test]
+fn padded_elt_oob_1x1_test() {
     let storage = vec![1, 0];
     let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
     assert_eq!(
@@ -245,7 +335,91 @@ fn padded_elt_oob_test() {
 }
 
 #[test]
-fn index_oob_00_test() {
+fn padded_elt_oob_1x2_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
+            .copied(),
+        Some(1)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(1)))
+            .copied(),
+        Some(2)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(2)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(0)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(2)))
+            .copied(),
+        None
+    );
+}
+
+#[test]
+fn padded_elt_oob_2x1_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
+            .copied(),
+        Some(1)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(0)))
+            .copied(),
+        Some(2)
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(1), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(2), ColIndex::new(0)))
+            .copied(),
+        None
+    );
+    assert_eq!(
+        input
+            .get_elt(Coord2D::new(RowIndex::new(2), ColIndex::new(1)))
+            .copied(),
+        None
+    );
+}
+
+#[test]
+fn index_oob_1x1_00_test() {
     let mut storage = vec![];
     for i in 1..=1 {
         storage.push(i);
@@ -256,7 +430,7 @@ fn index_oob_00_test() {
 
 #[test]
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
-fn index_oob_01_test() {
+fn index_oob_1x1_01_test() {
     let mut storage = vec![];
     for i in 1..=1 {
         storage.push(i);
@@ -267,7 +441,7 @@ fn index_oob_01_test() {
 
 #[test]
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
-fn index_oob_10_test() {
+fn index_oob_1x1_10_test() {
     let mut storage = vec![];
     for i in 1..=1 {
         storage.push(i);
@@ -278,7 +452,7 @@ fn index_oob_10_test() {
 
 #[test]
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
-fn index_oob_11_test() {
+fn index_oob_1x1_11_test() {
     let mut storage = vec![];
     for i in 1..=1 {
         storage.push(i);
@@ -288,7 +462,137 @@ fn index_oob_11_test() {
 }
 
 #[test]
-fn padded_index_oob_00_test() {
+fn index_oob_1x2_00_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
+}
+
+#[test]
+fn index_oob_1x2_01_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))], 2);
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_1x2_02_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_1x2_10_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_1x2_11_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_1x2_12_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
+}
+
+#[test]
+fn index_oob_2x1_00_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_2x1_01_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
+}
+
+#[test]
+fn index_oob_2x1_10_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    assert_eq!(input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))], 2);
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_2x1_11_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_2x1_20_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(0))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn index_oob_2x1_21_test() {
+    let mut storage = vec![];
+    for i in 1..=2 {
+        storage.push(i);
+    }
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(1))];
+}
+
+//
+
+#[test]
+fn padded_index_oob_1x1_00_test() {
     let storage = vec![1, 0];
     let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
@@ -296,7 +600,7 @@ fn padded_index_oob_00_test() {
 
 #[test]
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
-fn padded_index_oob_01_test() {
+fn padded_index_oob_1x1_01_test() {
     let storage = vec![1, 0];
     let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
     let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
@@ -304,7 +608,7 @@ fn padded_index_oob_01_test() {
 
 #[test]
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
-fn padded_index_oob_10_test() {
+fn padded_index_oob_1x1_10_test() {
     let storage = vec![1, 0];
     let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
@@ -312,8 +616,100 @@ fn padded_index_oob_10_test() {
 
 #[test]
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
-fn padded_index_oob_11_test() {
+fn padded_index_oob_1x1_11_test() {
     let storage = vec![1, 0];
     let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
+}
+
+#[test]
+fn padded_index_oob_1x2_00_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
+}
+
+#[test]
+fn padded_index_oob_1x2_01_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))], 2);
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_1x2_02_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_1x2_10_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_1x2_11_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_1x2_12_test() {
+    let storage = vec![1, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
+}
+
+#[test]
+fn padded_index_oob_2x1_00_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_2x1_01_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
+}
+
+#[test]
+fn padded_index_oob_2x1_10_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    assert_eq!(input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))], 2);
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_2x1_11_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_2x1_20_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(0))];
+}
+
+#[test]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+fn padded_index_oob_2x1_21_test() {
+    let storage = vec![1, 0, 2, 0];
+    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(1))];
 }
