@@ -29,8 +29,8 @@ impl<'a, T> Array2DRef<'a, T> {
         }
     }
 
-    const fn pitch(&self) -> usize {
-        self.pitch.val()
+    const fn pitch(&self) -> RowPitch {
+        self.pitch
     }
 
     #[inline]
@@ -42,7 +42,7 @@ impl<'a, T> Array2DRef<'a, T> {
     #[inline]
     #[must_use]
     pub const fn num_rows(&self) -> usize {
-        self.slice.len().checked_div(self.pitch()).unwrap()
+        self.slice.len().checked_div(self.pitch().val()).unwrap()
     }
 
     #[inline]
@@ -54,7 +54,7 @@ impl<'a, T> Array2DRef<'a, T> {
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(self.pitch()).nth(*row)?;
+                    self.slice.chunks_exact(*self.pitch()).nth(*row)?;
                 full_row.get(..self.row_length())
             }
             .unwrap(),
