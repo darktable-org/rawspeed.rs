@@ -18,6 +18,7 @@ use rawspeed_std::coord_common::{
 };
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
+use rawspeed_std_ndslice::offsetarray2dref::OffsetArray2DRef;
 
 fn parse_as_bitorder(s: &str) -> Option<BitOrder> {
     match s {
@@ -275,8 +276,15 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>> {
-        self.camera.cfa.as_ref().map(|cfa| cfa.mat())
+    fn cfa(
+        &self,
+        origin: Coord2D,
+    ) -> Option<OffsetArray2DRef<'_, ColorVariant>> {
+        const ZERO_POINT: Coord2D =
+            Coord2D::new(RowIndex::new(0), ColIndex::new(0));
+        let offset = (origin - ZERO_POINT)?;
+        let cfa = self.camera.cfa.as_ref().map(|cfa| cfa.mat())?;
+        Some(OffsetArray2DRef::new(cfa, offset))
     }
 
     #[inline]

@@ -6,6 +6,7 @@ use rawspeed_metadata_colorfilterarray::colorfilterarray::{
 use rawspeed_std::coord_common::{Coord2D, Dimensions2D};
 use rawspeed_std_ndslice::{
     array2dref::Array2DRef, array2drefmut::Array2DRefMut,
+    offsetarray2dref::OffsetArray2DRef,
 };
 
 #[derive(Debug, PartialEq)]
@@ -46,10 +47,18 @@ pub trait RawDemuxer {
     fn wb_coeffs(&self) -> Option<()>;
     fn colormatrix(&self) -> Option<Array2DRef<'_, i16>>;
     fn is_cfa(&self) -> bool;
-    fn cfa(&self) -> Option<Array2DRef<'_, ColorVariant>>;
+    fn cfa(
+        &self,
+        origin: Coord2D,
+    ) -> Option<OffsetArray2DRef<'_, ColorVariant>>;
     #[inline]
-    fn filters(&self) -> Result<DCrawFilter, DCrawFilterError> {
-        self.cfa().ok_or(DCrawFilterError::BadDims)?.try_into()
+    fn filters(
+        &self,
+        origin: Coord2D,
+    ) -> Result<DCrawFilter, DCrawFilterError> {
+        self.cfa(origin)
+            .ok_or(DCrawFilterError::BadDims)?
+            .try_into()
     }
     fn bpp(&self) -> usize;
     fn cpp(&self) -> usize;

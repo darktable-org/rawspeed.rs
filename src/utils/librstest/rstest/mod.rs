@@ -132,8 +132,11 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         },
         isCFA = u8::from(demux.is_cfa()),
         cfa = {
+            const ZERO_POINT: Coord2D =
+                Coord2D::new(RowIndex::new(0), ColIndex::new(0));
             let mut repr = String::new();
-            if let Some(cfa) = demux.cfa() {
+            let pos = demux.crop_offset().unwrap_or(ZERO_POINT);
+            if let Some(cfa) = demux.cfa(pos) {
                 for row in 0..*cfa.num_rows() {
                     for col in 0..*cfa.row_length() {
                         if col != 0 {
@@ -161,7 +164,10 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             repr
         },
         filters = {
-            match demux.filters() {
+            const ZERO_POINT: Coord2D =
+                Coord2D::new(RowIndex::new(0), ColIndex::new(0));
+            let pos = demux.crop_offset().unwrap_or(ZERO_POINT);
+            match demux.filters(pos) {
                 Ok(f) => format!("0x{:x}", f.filter()),
                 Err(e) => match e {
                     DCrawFilterError::BadDims => "0x1",
@@ -185,9 +191,9 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             format!("{}x{}", *dim.row_len(), *dim.row_count())
         },
         cropOffset = {
-            let pos = demux
-                .crop_offset()
-                .unwrap_or(Coord2D::new(RowIndex::new(0), ColIndex::new(0)));
+            const ZERO_POINT: Coord2D =
+                Coord2D::new(RowIndex::new(0), ColIndex::new(0));
+            let pos = demux.crop_offset().unwrap_or(ZERO_POINT);
             format!("{}x{}", *pos.col(), *pos.row())
         },
         blackAreas = {
