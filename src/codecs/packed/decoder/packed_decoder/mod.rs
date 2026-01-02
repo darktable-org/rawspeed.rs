@@ -116,7 +116,7 @@ where
         u64: From<<BitOrder::StreamFlow as BitStreamCache>::Storage>,
     {
         assert_eq!(self.input.num_rows(), self.output.num_rows());
-        for row in 0..self.input.num_rows() {
+        for row in 0..*self.input.num_rows() {
             self.unpack_row::<BitOrder>(RowIndex::new(row));
         }
     }

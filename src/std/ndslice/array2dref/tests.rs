@@ -10,7 +10,7 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<Option<T>>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<Option<T>> = vec![];
         for col in 0..*input.row_length() {
             elts.push(
@@ -32,7 +32,7 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<T>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<T> = vec![];
         for col in 0..*input.row_length() {
             elts.push(

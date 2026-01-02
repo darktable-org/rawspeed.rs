@@ -37,10 +37,10 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for CFA2 {
         let mat = cfa.body.mat();
         let real_height = mat.num_rows();
         let real_width = mat.row_length();
-        if Ok(real_height) != (**cfa.height).try_into() {
+        if Ok(*real_height) != (**cfa.height).try_into() {
             return Err(format!(
                 "unexpected CFA matrix row count, got {} expected {}",
-                real_height, **cfa.height
+                *real_height, **cfa.height
             ));
         }
         if Ok(*real_width) != (**cfa.width).try_into() {
@@ -50,8 +50,8 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for CFA2 {
             ));
         }
         let mut data =
-            Vec::with_capacity(real_width.checked_mul(real_height).unwrap());
-        for row in 0..real_height {
+            Vec::with_capacity(real_width.checked_mul(*real_height).unwrap());
+        for row in 0..*real_height {
             for col in 0..*real_width {
                 let e =
                     mat[Coord2D::new(RowIndex::new(row), ColIndex::new(col))];

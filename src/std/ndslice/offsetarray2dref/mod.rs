@@ -31,14 +31,14 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> usize {
+    pub const fn num_rows(&self) -> RowCount {
         self.data.num_rows()
     }
 
     #[inline]
     #[must_use]
     fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
-        let row = BoundRowIndex::new(RowCount::new(self.data.num_rows()), row)?;
+        let row = BoundRowIndex::new(self.data.num_rows(), row)?;
         let row = WrappingRowIndex::from(row) + self.origin.row();
         self.data.get_row(**row)
     }

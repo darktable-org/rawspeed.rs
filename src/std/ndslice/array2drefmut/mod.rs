@@ -43,20 +43,20 @@ impl<'a, T> Array2DRefMut<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> usize {
-        self.slice.len().checked_div(self.pitch().val()).unwrap()
+    pub const fn num_rows(&self) -> RowCount {
+        RowCount::new(self.slice.len().checked_div(self.pitch().val()).unwrap())
     }
 
     #[inline]
     #[must_use]
     pub const fn dims(&self) -> Dimensions2D {
-        Dimensions2D::new(self.row_length(), RowCount::new(self.num_rows()))
+        Dimensions2D::new(self.row_length(), self.num_rows())
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&[T]> {
-        if *row >= self.num_rows() {
+        if *row >= *self.num_rows() {
             return None;
         }
         Some(
@@ -72,7 +72,7 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     pub fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
-        if *row >= self.num_rows() {
+        if *row >= *self.num_rows() {
             return None;
         }
         Some(

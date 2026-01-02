@@ -1,4 +1,5 @@
 use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::RowCount;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
@@ -41,14 +42,14 @@ impl<'a, T> Array2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> usize {
-        self.slice.len().checked_div(self.pitch().val()).unwrap()
+    pub const fn num_rows(&self) -> RowCount {
+        RowCount::new(self.slice.len().checked_div(self.pitch().val()).unwrap())
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
-        if *row >= self.num_rows() {
+        if *row >= *self.num_rows() {
             return None;
         }
         Some(
