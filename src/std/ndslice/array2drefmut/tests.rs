@@ -10,9 +10,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<Option<T>>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<Option<T>> = vec![];
-        for col in 0..input.row_length() {
+        for col in 0..*input.row_length() {
             elts.push(
                 input
                     .get_elt(Coord2D::new(
@@ -34,9 +34,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<Option<T>>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<Option<T>> = vec![];
-        for col in 0..input.row_length() {
+        for col in 0..*input.row_length() {
             elts.push(
                 input
                     .get_elt_mut(Coord2D::new(
@@ -56,9 +56,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<T>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<T> = vec![];
-        for col in 0..input.row_length() {
+        for col in 0..*input.row_length() {
             elts.push(
                 input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))],
             );
@@ -73,9 +73,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<T>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<T> = vec![];
-        for col in 0..input.row_length() {
+        for col in 0..*input.row_length() {
             elts.push(
                 input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))],
             );
@@ -225,8 +225,8 @@ fn basic_mut_test() {
     storage.resize(6, String::new());
     let mut input =
         Array2DRefMut::new(&mut storage, RowLength::new(3), RowPitch::new(3));
-    for row in 0..input.num_rows() {
-        for col in 0..input.row_length() {
+    for row in 0..*input.num_rows() {
+        for col in 0..*input.row_length() {
             if let Some(dst) = input.get_elt_mut(Coord2D::new(
                 RowIndex::new(row),
                 ColIndex::new(col),
@@ -254,8 +254,8 @@ fn basic_padded_mut_test() {
     storage.resize(8, String::new());
     let mut input =
         Array2DRefMut::new(&mut storage, RowLength::new(3), RowPitch::new(4));
-    for row in 0..input.num_rows() {
-        for col in 0..input.row_length() {
+    for row in 0..*input.num_rows() {
+        for col in 0..*input.row_length() {
             if let Some(dst) = input.get_elt_mut(Coord2D::new(
                 RowIndex::new(row),
                 ColIndex::new(col),
@@ -285,8 +285,8 @@ fn basic_index_mut_test() {
     storage.resize(6, String::new());
     let mut input =
         Array2DRefMut::new(&mut storage, RowLength::new(3), RowPitch::new(3));
-    for row in 0..input.num_rows() {
-        for col in 0..input.row_length() {
+    for row in 0..*input.num_rows() {
+        for col in 0..*input.row_length() {
             input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))] =
                 format!("row {row} col {col}").to_owned();
         }
@@ -310,8 +310,8 @@ fn basic_padded_index_mut_test() {
     storage.resize(8, String::new());
     let mut input =
         Array2DRefMut::new(&mut storage, RowLength::new(3), RowPitch::new(4));
-    for row in 0..input.num_rows() {
-        for col in 0..input.row_length() {
+    for row in 0..*input.num_rows() {
+        for col in 0..*input.row_length() {
             input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))] =
                 format!("row {row} col {col}").to_owned();
         }

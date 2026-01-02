@@ -1,4 +1,5 @@
 use rawspeed_std::coord_common::Coord2D;
+use rawspeed_std::coord_common::RowCount;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std::coord_common::RowLength;
 use rawspeed_std::coord_common::RowPitch;
@@ -29,33 +30,33 @@ impl<'a, T> Array2DRef<'a, T> {
         }
     }
 
-    const fn pitch(&self) -> usize {
-        self.pitch.val()
+    const fn pitch(&self) -> RowPitch {
+        self.pitch
     }
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> usize {
-        self.row_length.val()
+    pub const fn row_length(&self) -> RowLength {
+        self.row_length
     }
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> usize {
-        self.slice.len().checked_div(self.pitch()).unwrap()
+    pub const fn num_rows(&self) -> RowCount {
+        RowCount::new(self.slice.len().checked_div(self.pitch().val()).unwrap())
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
-        if *row >= self.num_rows() {
+        if *row >= *self.num_rows() {
             return None;
         }
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(self.pitch()).nth(*row)?;
-                full_row.get(..self.row_length())
+                    self.slice.chunks_exact(*self.pitch()).nth(*row)?;
+                full_row.get(..*self.row_length())
             }
             .unwrap(),
         )

@@ -37,8 +37,8 @@ impl From<Array2DRef<'_, ColorVariant>> for ColorVariantArray<bool> {
     #[inline]
     fn from(cfa: Array2DRef<'_, ColorVariant>) -> Self {
         let mut seen = ColorVariantArray::<bool>::default();
-        for row in 0..cfa.num_rows() {
-            for col in 0..cfa.row_length() {
+        for row in 0..*cfa.num_rows() {
+            for col in 0..*cfa.row_length() {
                 let i = Coord2D::new(RowIndex::new(row), ColIndex::new(col));
                 let color = cfa[i];
                 seen[color] = true;
@@ -226,13 +226,13 @@ impl TryFrom<Array2DRef<'_, ColorVariant>> for DCrawFilter {
     fn try_from(
         cfa: Array2DRef<'_, ColorVariant>,
     ) -> Result<Self, Self::Error> {
-        if cfa.num_rows() == 6 && cfa.row_length() == 6 {
+        if *cfa.num_rows() == 6 && *cfa.row_length() == 6 {
             return Err(DCrawFilterError::XTrans);
         }
-        if !(cfa.num_rows() > 0
-            && cfa.row_length() > 0
-            && cfa.num_rows() <= 8
-            && cfa.row_length() <= 2
+        if !(*cfa.num_rows() > 0
+            && *cfa.row_length() > 0
+            && *cfa.num_rows() <= 8
+            && *cfa.row_length() <= 2
             && cfa.num_rows().is_power_of_two()
             && cfa.row_length().is_power_of_two())
         {
@@ -243,8 +243,8 @@ impl TryFrom<Array2DRef<'_, ColorVariant>> for DCrawFilter {
         for x in 0..2 {
             for y in 0..8 {
                 let pos = Coord2D::new(
-                    RowIndex::new(y % cfa.num_rows()),
-                    ColIndex::new(x % cfa.row_length()),
+                    RowIndex::new(y % *cfa.num_rows()),
+                    ColIndex::new(x % *cfa.row_length()),
                 );
                 let color = cfa[pos];
                 let c: u32 = DCrawFilter::get_dcraw_color_index(color, basis)

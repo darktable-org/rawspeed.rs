@@ -31,42 +31,39 @@ impl<'a, T> Array2DRefMut<'a, T> {
         }
     }
 
-    const fn pitch(&self) -> usize {
-        self.pitch.val()
+    const fn pitch(&self) -> RowPitch {
+        self.pitch
     }
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> usize {
-        self.row_length.val()
+    pub const fn row_length(&self) -> RowLength {
+        self.row_length
     }
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> usize {
-        self.slice.len().checked_div(self.pitch()).unwrap()
+    pub const fn num_rows(&self) -> RowCount {
+        RowCount::new(self.slice.len().checked_div(self.pitch().val()).unwrap())
     }
 
     #[inline]
     #[must_use]
     pub const fn dims(&self) -> Dimensions2D {
-        Dimensions2D::new(
-            RowLength::new(self.row_length()),
-            RowCount::new(self.num_rows()),
-        )
+        Dimensions2D::new(self.row_length(), self.num_rows())
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&[T]> {
-        if *row >= self.num_rows() {
+        if *row >= *self.num_rows() {
             return None;
         }
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(self.pitch()).nth(*row)?;
-                full_row.get(..self.row_length())
+                    self.slice.chunks_exact(*self.pitch()).nth(*row)?;
+                full_row.get(..*self.row_length())
             }
             .unwrap(),
         )
@@ -75,15 +72,15 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     pub fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
-        if *row >= self.num_rows() {
+        if *row >= *self.num_rows() {
             return None;
         }
         Some(
             {
                 let row_len = self.row_length();
                 let full_row =
-                    self.slice.chunks_exact_mut(self.pitch()).nth(*row)?;
-                full_row.get_mut(..row_len)
+                    self.slice.chunks_exact_mut(*self.pitch()).nth(*row)?;
+                full_row.get_mut(..*row_len)
             }
             .unwrap(),
         )

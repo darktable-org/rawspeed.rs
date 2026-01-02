@@ -206,7 +206,7 @@ where
         }
         let min_pitch = MinimalOutputRowPitch::new(NumBytes::new(
             bit_order.predict_exact_bitstream_bytelen(
-                input.row_length(),
+                *input.row_length(),
                 item_bitlen,
             ),
         ));
@@ -261,7 +261,7 @@ where
         <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,
         u64: From<T>,
     {
-        for row in 0..self.input.num_rows() {
+        for row in 0..*self.input.num_rows() {
             let real_pitch = self.pack_row::<BitOrder>(RowIndex::new(row))?;
             assert_eq!(real_pitch, self.pitch.base);
 

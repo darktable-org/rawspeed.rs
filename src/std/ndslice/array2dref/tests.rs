@@ -10,9 +10,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<Option<T>>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<Option<T>> = vec![];
-        for col in 0..input.row_length() {
+        for col in 0..*input.row_length() {
             elts.push(
                 input
                     .get_elt(Coord2D::new(
@@ -32,9 +32,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<T>> = vec![];
-    for row in 0..input.num_rows() {
+    for row in 0..*input.num_rows() {
         let mut elts: Vec<T> = vec![];
-        for col in 0..input.row_length() {
+        for col in 0..*input.row_length() {
             elts.push(
                 input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))],
             );
