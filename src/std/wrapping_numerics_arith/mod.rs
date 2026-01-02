@@ -6,7 +6,32 @@ use rawspeed_common_generic_num::generic_num::{
     common::{CastUnsigned, ConstZero, Integer, Max, Min},
 };
 
+#[derive(Debug, Clone, Copy)]
 struct SumAndCarry<T>((T, bool));
+
+struct SumWithZeroCarry<T>(T);
+
+impl<T> core::ops::Deref for SumWithZeroCarry<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+struct HasNonZeroCarry;
+
+impl<T> TryFrom<SumAndCarry<T>> for SumWithZeroCarry<T> {
+    type Error = HasNonZeroCarry;
+
+    fn try_from(value: SumAndCarry<T>) -> Result<Self, Self::Error> {
+        let (lhs, carry) = (value.0.0, value.0.1);
+        if carry {
+            return Err(HasNonZeroCarry);
+        }
+        Ok(Self(lhs))
+    }
+}
 
 impl<T> core::ops::Sub<T> for SumAndCarry<T>
 where
@@ -48,15 +73,14 @@ where
         + core::ops::Add<Output = T>
         + Max
         + CheckedRem<Output = Option<T>>,
+    SumWithZeroCarry<T>: TryFrom<SumAndCarry<T>>,
 {
     type Output = T;
 
     fn rem(self, rhs: T) -> Self::Output {
-        let (lhs, carry) = (self.0.0, self.0.1);
-        if !carry {
+        if let Ok(lhs) = SumWithZeroCarry::try_from(self) {
             return lhs.checked_rem(rhs).unwrap();
         }
-
         assert!(rhs >= (T::MAX >> 1) + T::from(2_u8));
         self - rhs
     }
