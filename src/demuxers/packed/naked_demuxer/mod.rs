@@ -220,7 +220,7 @@ impl RawDemuxer for NakedDemuxer<'_> {
 
     #[inline]
     fn canonical_alias(&self) -> &str {
-        self.model()
+        self.canonical_model()
     }
 
     #[inline]
