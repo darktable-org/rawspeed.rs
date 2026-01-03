@@ -1,6 +1,10 @@
 use crate::colorfilterarray::ColorVariant;
-use rawspeed_std::coord_common::{ColIndex, Coord2D, RowIndex};
-use rawspeed_std_ndslice::array2dref::Array2DRef;
+use rawspeed_std::coord_common::{
+    ColIndex, ColOffset, Coord2D, CoordOffset2D, RowIndex, RowOffset,
+};
+use rawspeed_std_ndslice::{
+    array2dref::Array2DRef, offsetarray2dref::OffsetArray2DRef,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 struct ColorVariantArray<T> {
@@ -33,9 +37,9 @@ impl<T> core::ops::IndexMut<ColorVariant> for ColorVariantArray<T> {
     }
 }
 
-impl From<Array2DRef<'_, ColorVariant>> for ColorVariantArray<bool> {
+impl From<OffsetArray2DRef<'_, ColorVariant>> for ColorVariantArray<bool> {
     #[inline]
-    fn from(cfa: Array2DRef<'_, ColorVariant>) -> Self {
+    fn from(cfa: OffsetArray2DRef<'_, ColorVariant>) -> Self {
         let mut seen = ColorVariantArray::<bool>::default();
         for row in 0..*cfa.num_rows() {
             for col in 0..*cfa.row_length() {
@@ -152,12 +156,12 @@ impl From<ColorBasis> for ColorBasisComponents {
     }
 }
 
-impl TryFrom<Array2DRef<'_, ColorVariant>> for ColorBasis {
+impl TryFrom<OffsetArray2DRef<'_, ColorVariant>> for ColorBasis {
     type Error = ColorBasisError;
 
     #[inline]
     fn try_from(
-        cfa: Array2DRef<'_, ColorVariant>,
+        cfa: OffsetArray2DRef<'_, ColorVariant>,
     ) -> Result<Self, Self::Error> {
         let used_colors: ColorVariantArray<bool> = cfa.into();
         ColorBasis::bases()
@@ -219,12 +223,12 @@ impl DCrawFilter {
     }
 }
 
-impl TryFrom<Array2DRef<'_, ColorVariant>> for DCrawFilter {
+impl TryFrom<OffsetArray2DRef<'_, ColorVariant>> for DCrawFilter {
     type Error = DCrawFilterError;
 
     #[inline]
     fn try_from(
-        cfa: Array2DRef<'_, ColorVariant>,
+        cfa: OffsetArray2DRef<'_, ColorVariant>,
     ) -> Result<Self, Self::Error> {
         if *cfa.num_rows() == 6 && *cfa.row_length() == 6 {
             return Err(DCrawFilterError::XTrans);
@@ -257,6 +261,20 @@ impl TryFrom<Array2DRef<'_, ColorVariant>> for DCrawFilter {
             }
         }
         Ok(DCrawFilter { filter: ret })
+    }
+}
+
+impl TryFrom<Array2DRef<'_, ColorVariant>> for DCrawFilter {
+    type Error = DCrawFilterError;
+
+    #[inline]
+    fn try_from(
+        cfa: Array2DRef<'_, ColorVariant>,
+    ) -> Result<Self, Self::Error> {
+        let zero_offset =
+            CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0));
+        let cfa = OffsetArray2DRef::new(cfa, zero_offset);
+        cfa.try_into()
     }
 }
 
