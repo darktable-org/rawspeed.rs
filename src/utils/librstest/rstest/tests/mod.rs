@@ -123,7 +123,7 @@ const REF_HASH: &str = concat!(
     "mode: A Mode\n",
     "canonical_make: Canonical Make\n",
     "canonical_model: Canonical Model\n",
-    "canonical_alias: Model\n",
+    "canonical_alias: Canonical Model\n",
     "canonical_id: Canonical ID\n",
     "isoSpeed: 0\n",
     "blackLevel: 16\n",
