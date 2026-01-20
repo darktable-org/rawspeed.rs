@@ -5,6 +5,7 @@ use super::{
 };
 
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderJPEG;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 
@@ -16,26 +17,27 @@ where
     W: std::io::Write,
     u32: From<u8>
         + Bitwidth
-        + From<<BitOrderJPEG as BitStreamTraits>::ChunkType>
+        + From<<<BitOrderJPEG as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output>
         + core::ops::Shl<usize>
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     <BitOrderJPEG as BitStreamTraits>::StreamFlow: BitStreamCache,
-    <BitOrderJPEG as BitStreamTraits>::ChunkType:
+    <<BitOrderJPEG as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output:
         Bitwidth + SwapBytes + TryFrom<u64>,
 {
     #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
         type T = BitOrderJPEG;
+        type ChunkType =<<BitOrderJPEG as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output;
 
         assert!(self.cache.fill_level() >= u32::BITWIDTH);
 
         let stream_chunk_bitwidth: usize =
-            <T as BitStreamTraits>::ChunkType::BITWIDTH;
+            ChunkType::BITWIDTH;
 
         assert!(u32::BITWIDTH == stream_chunk_bitwidth);
 
-        let Ok(chunk) = <<T as BitStreamTraits>::ChunkType>::try_from(
+        let Ok(chunk) = <ChunkType>::try_from(
             self.cache.peek(stream_chunk_bitwidth),
         ) else {
             panic!("lossless cast failed?")

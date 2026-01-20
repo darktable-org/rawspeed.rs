@@ -132,15 +132,15 @@ where
     <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output: CopyFromSlice,
     T::ChunkByteArrayType:
             Default + core::ops::IndexMut<RangeFull>            + FromNeBytes,
-    T::ChunkType: Bitwidth
+    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
-    u64: From<T::ChunkType>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
+    u64: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
 {
     #[inline]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
-        let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
+        let stream_chunk_bitwidth: usize = <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH;
         assert!(stream_chunk_bitwidth >= 1);
         assert!(stream_chunk_bitwidth.is_multiple_of(8));
 
@@ -156,7 +156,6 @@ where
                 [i * (stream_chunk_bitwidth / 8)..(i + 1) * (stream_chunk_bitwidth / 8)];
             let chunk = LoadFromSlice::<T::ChunkByteArrayType>::load_from_slice(slice);
             let chunk = chunk.from_ne_bytes();
-            let chunk: T::ChunkType = chunk.into();
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
             self.cache.push(chunk.into(), stream_chunk_bitwidth);
@@ -178,11 +177,11 @@ where
     T::ChunkByteArrayType:
             Default + core::ops::IndexMut<RangeFull>
             + FromNeBytes,
-    T::ChunkType: Bitwidth
+    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
-    u64: From<T::ChunkType>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<T::ChunkType>,
+    u64: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+    <T::StreamFlow as BitStreamCache>::Storage: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
 {
     #[inline]
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize {
@@ -204,7 +203,7 @@ where
     T::ChunkByteArrayType:
             Default + core::ops::IndexMut<RangeFull>
             + FromNeBytes,
-    T::ChunkType: Bitwidth
+    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
     u64:  From<

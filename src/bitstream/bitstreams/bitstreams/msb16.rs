@@ -15,7 +15,6 @@ impl BitStreamTraits for BitOrderMSB16 {
 
     const FIXED_SIZE_CHUNKS: bool = true;
 
-    type ChunkType = u16;
     type ChunkByteArrayType = [u8; 2];
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;

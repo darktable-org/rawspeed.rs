@@ -3,6 +3,7 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheBase;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
@@ -41,10 +42,11 @@ where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::ChunkType: Bitwidth
+    T::ChunkByteArrayType: FromNeBytes,
+    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<T::ChunkType>,
+    u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
 {
     #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
@@ -61,7 +63,8 @@ where
 
         assert!(self.cache.fill_level() >= cache.size());
 
-        let stream_chunk_bitwidth: usize = T::ChunkType::BITWIDTH;
+        let stream_chunk_bitwidth: usize =
+            <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH;
 
         assert!(cache.size() >= stream_chunk_bitwidth);
         assert!(cache.size().is_multiple_of(stream_chunk_bitwidth));
@@ -69,9 +72,11 @@ where
         assert!(num_chunks_needed >= 1);
 
         for _i in 0..num_chunks_needed {
-            let Ok(chunk) = <T::ChunkType>::try_from(
-                self.cache.peek(stream_chunk_bitwidth),
-            ) else {
+            let Ok(chunk) =
+                <<T::ChunkByteArrayType as FromNeBytes>::Output>::try_from(
+                    self.cache.peek(stream_chunk_bitwidth),
+                )
+            else {
                 panic!("lossless cast failed?")
             };
             self.cache.skip(stream_chunk_bitwidth);
@@ -89,10 +94,11 @@ where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::ChunkType: Bitwidth
+    T::ChunkByteArrayType: FromNeBytes,
+    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<T::ChunkType>,
+    u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
 {
     #[inline]
     fn drain_impl(&mut self) -> std::io::Result<()> {
@@ -106,10 +112,11 @@ where
     Self: BitVacuumerDrainImpl,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::ChunkType: Bitwidth
+    T::ChunkByteArrayType: FromNeBytes,
+    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<T::ChunkType>,
+    u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
     <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
 {
     #[inline]

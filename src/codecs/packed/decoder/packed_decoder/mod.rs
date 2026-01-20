@@ -75,7 +75,7 @@ where
         >>::Output: CopyFromSlice,
         BitOrder::ChunkByteArrayType:
             Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-        BitOrder::ChunkType: Bitwidth
+        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
             + From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>
             + SwapBytes,
         u64: From<<BitOrder::StreamFlow as BitStreamCache>::Storage>,
@@ -110,7 +110,7 @@ where
         >>::Output: CopyFromSlice,
         BitOrder::ChunkByteArrayType:
             Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-        BitOrder::ChunkType: Bitwidth
+        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
             + From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>
             + SwapBytes,
         u64: From<<BitOrder::StreamFlow as BitStreamCache>::Storage>,

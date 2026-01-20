@@ -1,4 +1,4 @@
-use rawspeed_common_generic_num::generic_num::common::Bitwidth;
+use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
 use rawspeed_memory_endianness::endianness::Endianness;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -17,7 +17,6 @@ pub trait BitStreamTraits {
     const TAG: BitOrder;
     type StreamFlow;
     const FIXED_SIZE_CHUNKS: bool;
-    type ChunkType;
     type ChunkByteArrayType;
     const CHUNK_ENDIANNESS: Endianness;
     const MIN_LOAD_STEP_BYTE_MULTIPLE: u32;
@@ -30,7 +29,6 @@ const fn predict_bitstream_bytelen<BS>(
 ) -> usize
 where
     BS: BitStreamTraits,
-    BS::ChunkType: Bitwidth,
 {
     const {
         assert!(BS::FIXED_SIZE_CHUNKS);
