@@ -41,11 +41,9 @@ where
     >>::Output: CopyFromSlice,
     <T as BitStreamTraits>::ChunkByteArrayType:
         Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-    <T as BitStreamTraits>::ChunkType: Bitwidth
-        + From<
-            <<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output,
-        > + SwapBytes,
-    u64: From<<T as BitStreamTraits>::ChunkType>,
+    <<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
+        + From<<<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output> + SwapBytes,
+    u64: From<<<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output>,
 {
     #[inline]
     fn fill_cache_impl(
@@ -54,15 +52,15 @@ where
     ) -> usize {
         let chunk = LoadFromSlice::<[u8; 4]>::load_from_slice(&input[0..4]);
         if chunk.iter().all(|byte| *byte != 0xFF_u8) {
+            type ChunkType = <<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output;
             let chunk = chunk.from_ne_bytes();
-            let chunk: <T as BitStreamTraits>::ChunkType = chunk;
             let chunk = chunk.get_byte_swapped(
                 <T as BitStreamTraits>::CHUNK_ENDIANNESS
                     != get_host_endianness(),
             );
             self.cache.push(
                 chunk.into(),
-                <T as BitStreamTraits>::ChunkType::BITWIDTH,
+                ChunkType::BITWIDTH,
             );
             return 4;
         }

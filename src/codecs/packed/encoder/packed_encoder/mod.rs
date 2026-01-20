@@ -5,6 +5,7 @@ use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_std::coord_common::RowIndex;
@@ -228,10 +229,11 @@ where
     where
         BitOrder: BitOrderTrait + BitStreamTraits,
         BitOrder::StreamFlow: bitstreamcache::BitStreamCache + Default,
-        BitOrder::ChunkType: Bitwidth
+        BitOrder::ChunkByteArrayType: FromNeBytes,
+        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
             + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
             + SwapBytes,
-        u32: From<BitOrder::ChunkType>,
+        u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl,
         <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,
@@ -252,10 +254,11 @@ where
     where
         BitOrder: BitOrderTrait + BitStreamTraits,
         BitOrder::StreamFlow: bitstreamcache::BitStreamCache + Default,
-        BitOrder::ChunkType: Bitwidth
+        BitOrder::ChunkByteArrayType: FromNeBytes,
+        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
             + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
             + SwapBytes,
-        u32: From<BitOrder::ChunkType>,
+        u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl,
         <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,

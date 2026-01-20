@@ -15,10 +15,12 @@ impl BitStreamTraits for BitOrderMSB32 {
 
     const FIXED_SIZE_CHUNKS: bool = true;
 
-    type ChunkType = u32;
-    type ChunkByteArrayType = [u8; 4];
+    type MCUByteArrayType = [u8; 4];
+
+    type ChunkByteArrayType = Self::MCUByteArrayType;
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;
-
-    const MIN_LOAD_STEP_BYTE_MULTIPLE: u32 = 4;
 }
+
+#[cfg(test)]
+pub mod tests;
