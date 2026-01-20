@@ -17,5 +17,16 @@ rawspeed-bitstream-bitstreamcache = { path = "../bitstreamcache" }
 rawspeed-common-generic_num = { path = "../../common/generic_num" }
 rawspeed-memory-endianness = { path = "../../memory/endianness" }
 
+[dev-dependencies]
+rawspeed-bitstream-bitstreams = { path = "../bitstreams" }
+rawspeed-bitstream-bitstream-decoder = { path = "../bitstream/decoder" }
+rawspeed-bitstream-bitstreamcache = { path = "../bitstreamcache" }
+rawspeed-common-generic_num = { path = "../../common/generic_num" }
+rawspeed-memory-endianness = { path = "../../memory/endianness" }
+rawspeed-memory-fixed_length_load = { path = "../../memory/fixed_length_load" }
+rawspeed-memory-variable_length_load = { path = "../../memory/variable_length_load" }
+rawspeed-std = { path = "../../std" }
+rawspeed-std-ndslice = { path = "../../std/ndslice" }
+
 [lib]
 path = "mod.rs"

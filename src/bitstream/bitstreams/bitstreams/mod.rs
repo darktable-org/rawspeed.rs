@@ -17,9 +17,9 @@ pub trait BitStreamTraits {
     const TAG: BitOrder;
     type StreamFlow;
     const FIXED_SIZE_CHUNKS: bool;
+    type MCUByteArrayType;
     type ChunkByteArrayType;
     const CHUNK_ENDIANNESS: Endianness;
-    const MIN_LOAD_STEP_BYTE_MULTIPLE: u32;
 }
 
 #[inline]
@@ -79,3 +79,6 @@ pub use lsb::BitOrderLSB;
 pub use msb::BitOrderMSB;
 pub use msb16::BitOrderMSB16;
 pub use msb32::BitOrderMSB32;
+
+#[cfg(test)]
+pub mod tests;
