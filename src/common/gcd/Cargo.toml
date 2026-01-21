@@ -1,0 +1,19 @@
+[package]
+name = "rawspeed-common-gcd"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-common-generic_num = { path = "../generic_num" }
+
+[lib]
+path = "mod.rs"
