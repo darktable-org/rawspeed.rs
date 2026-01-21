@@ -20,6 +20,7 @@ macro_rules! impl_binary_op {
 impl_binary_op!(checked_add as CheckedAdd for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 impl_binary_op!(checked_sub as CheckedSub for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 impl_binary_op!(checked_mul as CheckedMul for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
+impl_binary_op!(checked_div as CheckedDiv for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 impl_binary_op!(checked_rem as CheckedRem for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
 macro_rules! impl_shift_op {
