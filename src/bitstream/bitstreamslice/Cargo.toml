@@ -1,0 +1,19 @@
+[package]
+name = "rawspeed-bitstream-bitstreamslice"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rawspeed-bitstream-bitstreams = { path = "../bitstreams" }
+
+[lib]
+path = "mod.rs"
