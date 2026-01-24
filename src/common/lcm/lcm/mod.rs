@@ -142,6 +142,31 @@ mod via_gcd {
     }
 }
 
+pub mod constant {
+    macro_rules! _lcm {
+        ($a:expr, $b:expr) => {{
+            let (a, b) = ($a, $b);
+            let (a, b) = { if a > b { (a, b) } else { (b, a) } };
+            if b == 0 {
+                Some(0)
+            } else {
+                let mut i = 1;
+                loop {
+                    let Some(d) = a.checked_mul(i) else {
+                        break None;
+                    };
+                    if d.is_multiple_of(b) {
+                        break Some(d);
+                    }
+                    i += 1;
+                }
+            }
+        }};
+    }
+    #[cfg_attr(not(test), expect(unused_imports))]
+    pub(crate) use _lcm as lcm;
+}
+
 pub use via_gcd::LCM;
 
 #[cfg(test)]

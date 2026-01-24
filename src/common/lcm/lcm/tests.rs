@@ -1,19 +1,17 @@
-use crate::lcm::via_gcd;
-
-use super::{intersect, naive};
+use super::{constant, intersect, naive, via_gcd};
 
 macro_rules! test {
-    ($fn:ident: $(lcm ($lhs:expr, $rhs:expr) == $res:expr,)+) => {
+    (($fn:expr): $(lcm ($lhs:expr, $rhs:expr) == $res:expr,)+) => {
         $(
-            assert_eq!(<u8 as $fn::LCM>::lcm($lhs, $rhs), Some($res));
+            assert_eq!($fn($lhs, $rhs), Some($res));
         )+
     };
 }
 
 macro_rules! impl_test {
-    ($fn:ident) => {
+    ($fn:expr) => {
         test!(
-            $fn:
+            ($fn):
             lcm(0, 0) == 0,
             lcm(0, 1) == 0,
             lcm(0, 2) == 0,
@@ -70,18 +68,21 @@ macro_rules! impl_test {
 #[test]
 #[expect(clippy::cognitive_complexity)]
 fn naive_test() {
-    impl_test!(naive);
+    impl_test!(<u8 as naive::LCM>::lcm);
 }
 
 #[test]
 #[expect(clippy::cognitive_complexity)]
 fn intersect_test() {
-    impl_test!(intersect);
+    impl_test!(<u8 as intersect::LCM>::lcm);
 }
+
 #[test]
-#[expect(clippy::cognitive_complexity)]
-fn via_gcd_test() {
-    impl_test!(via_gcd);
+fn const_time_lcm_test() {
+    #[derive(Default)]
+    struct Ty([u8; constant::lcm!(2_u8, 3).unwrap() as usize]);
+    let q: Ty = Ty::default();
+    assert_eq!(q.0.len(), 6);
 }
 
 #[test]
@@ -92,8 +93,10 @@ fn equivalency_test() {
             let naive = <u8 as naive::LCM>::lcm(a, b);
             let intersect = <u8 as intersect::LCM>::lcm(a, b);
             let via_gcd = <u8 as via_gcd::LCM>::lcm(a, b);
+            let constant = constant::lcm!(a, b);
             assert_eq!(naive, intersect);
             assert_eq!(intersect, via_gcd);
+            assert_eq!(via_gcd, constant);
         }
     }
 }
