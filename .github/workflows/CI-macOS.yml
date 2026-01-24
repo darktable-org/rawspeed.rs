@@ -91,7 +91,7 @@ jobs:
           rustup component add ${RUST_COMPONENTS}
           fi
           if [ "${RUST_CRATES}" != "" ]; then
-          cargo install ${RUST_CRATES}
+          cargo install --locked ${RUST_CRATES}
           fi
       - name: Run cargo check
         timeout-minutes: 1

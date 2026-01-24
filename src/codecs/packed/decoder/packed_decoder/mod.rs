@@ -58,7 +58,8 @@ where
     #[inline]
     fn unpack_row<BitOrder>(&mut self, row: RowIndex)
     where
-        BitOrder: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        BitOrder:
+            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
         <BitOrder::MaxProcessByteArray as core::ops::Index<
             core::ops::RangeFull,
@@ -82,7 +83,8 @@ where
     {
         let bytes = self.input.get_row(row).unwrap();
         let row = self.output.get_row_mut(row).unwrap();
-        let mut bs = BitStreamerBase::<BitOrder>::new(bytes);
+        let mut bs =
+            BitStreamerBase::<BitOrder>::new(bytes.try_into().unwrap());
         for item in row.iter_mut() {
             bs.fill(self.item_bitlen).unwrap();
             *item = bs.peek_bits_no_fill(self.item_bitlen).try_into().unwrap();
@@ -93,7 +95,8 @@ where
     #[inline]
     fn unpack_impl<BitOrder>(&mut self)
     where
-        BitOrder: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        BitOrder:
+            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
         <BitOrder::MaxProcessByteArray as core::ops::Index<
             core::ops::RangeFull,

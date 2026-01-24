@@ -2,7 +2,7 @@ use super::{BitOrder, BitOrderTrait, BitStreamTraits, Endianness};
 
 use rawspeed_bitstream_bitstreamcache::bitstreamcache;
 
-#[expect(missing_debug_implementations)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
 pub struct BitOrderLSB;
 
@@ -21,6 +21,3 @@ impl BitStreamTraits for BitOrderLSB {
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;
 }
-
-#[cfg(test)]
-pub mod tests;

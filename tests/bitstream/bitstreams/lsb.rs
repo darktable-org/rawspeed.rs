@@ -1,6 +1,7 @@
-use crate::bitstreams::tests::derive_mcu_bytesize;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderLSB;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+
+use crate::derive_mcu_bytesize::derive_mcu_bytesize;
 
 #[test]
 fn mcu_size_test() {

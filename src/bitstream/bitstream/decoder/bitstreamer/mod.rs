@@ -4,6 +4,7 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
@@ -21,7 +22,7 @@ pub trait BitStreamerTraits {
 #[derive(Debug)]
 pub struct BitStreamerReplenisher<'a, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
@@ -33,16 +34,16 @@ where
 
 impl<'a, T> BitStreamerReplenisher<'a, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
 {
     #[must_use]
     #[inline]
-    pub const fn new(input: &'a [u8]) -> Self {
+    pub const fn new(input: BitStreamSlice<'a, T>) -> Self {
         Self {
-            input,
+            input: input.get_bytes(),
             pos: 0,
             _phantom_data: PhantomData,
         }
@@ -92,7 +93,7 @@ where
 
 pub trait BitStreamerDefaultCacheFillImpl<T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
 {
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize;
 }
@@ -101,7 +102,7 @@ pub trait BitStreamerUseDefaultCacheFillImpl {}
 
 pub trait BitStreamerCacheFillImpl<T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
 {
     fn fill_cache_impl(&mut self, input: T::MaxProcessByteArray) -> usize;
 }
@@ -109,7 +110,7 @@ where
 #[derive(Debug)]
 pub struct BitStreamerBase<'a, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     T::MaxProcessByteArray: Default + core::ops::IndexMut<RangeFull>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
@@ -122,7 +123,7 @@ where
 
 impl<T> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
@@ -166,7 +167,7 @@ where
 
 impl<T> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits + BitStreamerUseDefaultCacheFillImpl,
+    T: Clone + Copy + BitOrderTrait + BitOrderTrait + BitStreamTraits + BitStreamerTraits + BitStreamerUseDefaultCacheFillImpl,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
         CopyFromSlice + VariableLengthLoad,
     T::StreamFlow: BitStreamCache,
@@ -191,7 +192,7 @@ where
 
 impl<'a, T> BitStreamerBase<'a, T>
 where
-    T: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     Self: BitStreamerCacheFillImpl<T>,
     <T::MaxProcessByteArray as core::ops::Index<RangeFull>>::Output:
     CopyFromSlice + VariableLengthLoad,
@@ -212,7 +213,7 @@ where
 {
     #[inline]
     #[must_use]
-    pub fn new(input: &'a [u8]) -> Self
+    pub fn new(input: BitStreamSlice<'a, T>) -> Self
     {
         Self {
             replenisher: BitStreamerReplenisher::new(input),

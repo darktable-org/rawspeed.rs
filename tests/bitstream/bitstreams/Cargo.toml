@@ -1,0 +1,27 @@
+[package]
+name = "rawspeed-test-bitstream-bitstreams"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+rawspeed-bitstream-bitstream-decoder = { path = "../../../src/bitstream/bitstream/decoder" }
+rawspeed-bitstream-bitstreamcache = { path = "../../../src/bitstream/bitstreamcache" }
+rawspeed-bitstream-bitstreams = { path = "../../../src/bitstream/bitstreams" }
+rawspeed-bitstream-bitstreamslice = { path = "../../../src/bitstream/bitstreamslice" }
+rawspeed-common-generic_num = { path = "../../../src/common/generic_num" }
+rawspeed-memory-endianness = { path = "../../../src/memory/endianness" }
+rawspeed-memory-fixed_length_load = { path = "../../../src/memory/fixed_length_load" }
+rawspeed-memory-variable_length_load = { path = "../../../src/memory/variable_length_load" }
+
+[[test]]
+name = "rawspeed-test-bitstream-bitstreams"
+path = "mod.rs"

@@ -122,5 +122,46 @@ macro_rules! impl_constzero {
 }
 impl_constzero!(u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
+pub trait IsMultipleOf {
+    #[must_use]
+    #[expect(clippy::wrong_self_convention)]
+    fn is_multiple_of(self, other: Self) -> bool;
+}
+
+macro_rules! impl_is_multiple_of {
+    ($($t:ty)+) => {
+        $(
+            impl IsMultipleOf for $t {
+                #[inline]
+                fn is_multiple_of(self, other: Self) -> bool {
+                    self.is_multiple_of(other)
+                }
+            }
+        )+
+    };
+}
+
+impl_is_multiple_of!(u8 u16 u32 u64 usize);
+
+pub trait TrailingZeros {
+    #[must_use]
+    fn trailing_zeros(self) -> u32;
+}
+
+macro_rules! impl_trailing_zeros {
+    ($($t:ty)+) => {
+        $(
+            impl TrailingZeros for $t {
+                #[inline]
+                fn trailing_zeros(self) -> u32 {
+                    self.trailing_zeros()
+                }
+            }
+        )+
+    };
+}
+
+impl_trailing_zeros!(u8 u16 u32 u64 usize);
+
 #[cfg(test)]
 mod tests;
