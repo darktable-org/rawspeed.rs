@@ -228,13 +228,22 @@ where
 
     #[must_use]
     #[inline]
+    pub const fn new_unchecked(input: &'a [u8]) -> Self {
+        Self {
+            input,
+            _phantom: core::marker::PhantomData,
+        }
+    }
+
+    #[must_use]
+    #[inline]
     pub const fn mcu_count(&self) -> usize {
         self.input.len().checked_div(Self::MCU_SIZE).unwrap()
     }
 
     #[must_use]
     #[inline]
-    pub const fn get_bytes(&self) -> &[u8] {
+    pub const fn get_bytes(&self) -> &'a [u8] {
         self.input
     }
 

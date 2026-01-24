@@ -15,6 +15,7 @@ workspace = true
 [dependencies]
 rawspeed-bitstream-bitstreamcache = { path = "../../bitstreamcache" }
 rawspeed-bitstream-bitstreams = { path = "../../bitstreams" }
+rawspeed-bitstream-bitstreamslice = { path = "../../bitstreamslice" }
 rawspeed-common-generic_num = { path = "../../../common/generic_num" }
 rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 rawspeed-memory-fixed_length_load = { path = "../../../memory/fixed_length_load" }

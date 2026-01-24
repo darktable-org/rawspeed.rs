@@ -4,6 +4,7 @@ use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
@@ -15,7 +16,7 @@ use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLo
 #[must_use]
 pub fn derive_mcu_bytesize<BitOrder>() -> usize
 where
-        BitOrder: BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        BitOrder: Clone +Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
         <BitOrder::MaxProcessByteArray as core::ops::Index<
             core::ops::RangeFull,
@@ -54,11 +55,13 @@ where
             assert_eq!(elts.len(), mcu_bytesize);
             elts
         };
-        let mut full_bs = BitStreamerBase::<BitOrder>::new(&input);
+        let mut full_bs = BitStreamerBase::<BitOrder>::new(
+            BitStreamSlice::new_unchecked(input.as_slice()),
+        );
         let _first_mcu = mcu_getter(&mut full_bs);
         let second_mcu = mcu_getter(&mut full_bs);
         let mut new_bs = BitStreamerBase::<BitOrder>::new(
-            input.get(mcu_bytesize..).unwrap(),
+            BitStreamSlice::new_unchecked(input.get(mcu_bytesize..).unwrap()),
         );
         let new_first_mcu = mcu_getter(&mut new_bs);
         if new_first_mcu == second_mcu {
