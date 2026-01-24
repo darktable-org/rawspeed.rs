@@ -79,6 +79,3 @@ pub use lsb::BitOrderLSB;
 pub use msb::BitOrderMSB;
 pub use msb16::BitOrderMSB16;
 pub use msb32::BitOrderMSB32;
-
-#[cfg(test)]
-pub mod tests;

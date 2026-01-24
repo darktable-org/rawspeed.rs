@@ -21,6 +21,3 @@ impl BitStreamTraits for BitOrderMSB {
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Big;
 }
-
-#[cfg(test)]
-pub mod tests;

@@ -21,6 +21,3 @@ impl BitStreamTraits for BitOrderLSB {
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;
 }
-
-#[cfg(test)]
-pub mod tests;

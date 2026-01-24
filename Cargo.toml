@@ -34,6 +34,7 @@ members = [
     "src/std/ndslice",
     "src/utils/librstest",
     "src/utils/rstest",
+    "tests/bitstream/bitstreams",
     "tests/metadata/camerasxml_parser",
 ]
 
