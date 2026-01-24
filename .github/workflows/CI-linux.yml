@@ -337,7 +337,7 @@ jobs:
           eatmydata rustup component add ${RUST_COMPONENTS}
           fi
           if [ "${RUST_CRATES}" != "" ]; then
-          eatmydata cargo install ${RUST_CRATES}
+          eatmydata cargo install --locked ${RUST_CRATES}
           fi
       - name: Fetch/Checkout msvc-wine git repo
         timeout-minutes: 1
