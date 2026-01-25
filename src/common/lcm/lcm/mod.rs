@@ -106,10 +106,10 @@ mod intersect {
 
 mod via_gcd {
     use super::maxmin;
+    use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
     use rawspeed_common_gcd::gcd::GCD;
     use rawspeed_common_generic_num::generic_num::{
-        arith::{CheckedDiv, CheckedMul},
-        common::ConstZero,
+        arith::CheckedMul, common::ConstZero,
     };
 
     pub trait LCM {
@@ -125,7 +125,7 @@ mod via_gcd {
             + ConstZero
             + Ord
             + GCD
-            + CheckedDiv<Output = Option<T>>
+            + CheckedDivExact<Output = Option<T>>
             + CheckedMul<Output = Option<T>>,
     {
         type Output = Self;
@@ -136,7 +136,7 @@ mod via_gcd {
                 return Some(T::ZERO);
             }
             let gcd = <T as GCD>::gcd(a, b);
-            let a_steps = b.checked_div(gcd).unwrap();
+            let a_steps = CheckedDivExact::checked_div_exact(b, gcd).unwrap();
             a.checked_mul(a_steps)
         }
     }

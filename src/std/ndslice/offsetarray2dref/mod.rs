@@ -31,7 +31,7 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> RowCount {
+    pub fn num_rows(&self) -> RowCount {
         self.data.num_rows()
     }
 

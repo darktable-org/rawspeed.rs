@@ -1,11 +1,12 @@
 use crate::layoutfulbox::{LayoutfulBox, LayoutfulBoxError};
+use rawspeed_common_exact_ops::exact_ops::shl::CheckedShlExact;
 use rawspeed_std::coord_common::{Align, ByteMultiple};
 
 fn runtime_align_of<T>(x: &T) -> Align {
     let ptr: *const T = x;
     let addr = ptr as usize;
     let num_tz = addr.trailing_zeros();
-    let align = 1_usize.checked_shl(num_tz).unwrap();
+    let align = CheckedShlExact::checked_shl_exact(1_usize, num_tz).unwrap();
     Align::new(ByteMultiple::new(align)).unwrap()
 }
 
@@ -130,7 +131,8 @@ where
 {
     for align in 0..=20 {
         for len in 1..=64 {
-            let align = 1_usize.checked_shl(align).unwrap();
+            let align =
+                CheckedShlExact::checked_shl_exact(1_usize, align).unwrap();
             let mut buf = LayoutfulBox::<T>::new(
                 core::alloc::Layout::array::<T>(len)
                     .unwrap()

@@ -16,6 +16,7 @@ workspace = true
 rawspeed-memory-layoutfulbox = { path = "../layoutfulbox" }
 rawspeed-std = { path = "../../std" }
 rawspeed-std-ndslice = { path = "../../std/ndslice" }
+rawspeed-common-exact_ops = { path = "../../common/exact_ops" }
 
 [lib]
 path = "mod.rs"

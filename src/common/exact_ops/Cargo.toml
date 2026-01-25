@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-std-ndslice"
+name = "rawspeed-common-exact_ops"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,8 +13,6 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-std = { path = "../" }
-rawspeed-common-exact_ops = { path = "../../common/exact_ops" }
 
 [lib]
 path = "mod.rs"

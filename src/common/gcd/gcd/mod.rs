@@ -1,6 +1,5 @@
-use rawspeed_common_generic_num::generic_num::{
-    arith::CheckedShr, common::TrailingZeros,
-};
+use rawspeed_common_exact_ops::exact_ops::shr::CheckedShrExact;
+use rawspeed_common_generic_num::generic_num::common::TrailingZeros;
 
 #[must_use]
 #[inline]
@@ -15,10 +14,10 @@ where
 #[inline]
 fn decompose_binary<T>(val: T) -> (T, u32)
 where
-    T: Clone + Copy + TrailingZeros + CheckedShr<Output = Option<T>>,
+    T: Clone + Copy + TrailingZeros + CheckedShrExact<Output = Option<T>>,
 {
     let val_tz = val.trailing_zeros();
-    let val = val.checked_shr(val_tz).unwrap();
+    let val = CheckedShrExact::checked_shr_exact(val, val_tz).unwrap();
     (val, val_tz)
 }
 
@@ -116,8 +115,11 @@ mod euclid {
 
 mod binary {
     use super::{decompose_binary, maxmin};
+    use rawspeed_common_exact_ops::exact_ops::{
+        shl::CheckedShlExact, shr::CheckedShrExact,
+    };
     use rawspeed_common_generic_num::generic_num::{
-        arith::{CheckedMul, CheckedShl, CheckedShr, CheckedSub},
+        arith::{CheckedMul, CheckedSub},
         common::{ConstZero, TrailingZeros},
     };
 
@@ -133,9 +135,9 @@ mod binary {
             + Ord
             + ConstZero
             + TrailingZeros
-            + CheckedShr<Output = Option<T>>
+            + CheckedShrExact<Output = Option<T>>
             + CheckedSub<Output = Option<T>>
-            + CheckedShl<Output = Option<T>>
+            + CheckedShlExact<Output = Option<T>>
             + CheckedMul<Output = Option<T>>
             + From<u8>,
     {
@@ -156,8 +158,10 @@ mod binary {
                 a = a.checked_sub(b).unwrap();
                 (a, _) = decompose_binary(a);
             }
-            a.checked_mul(T::from(1_u8).checked_shl(d).unwrap())
-                .unwrap()
+            a.checked_mul(
+                CheckedShlExact::checked_shl_exact(T::from(1_u8), d).unwrap(),
+            )
+            .unwrap()
         }
     }
 }
