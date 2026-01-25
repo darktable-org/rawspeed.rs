@@ -12,6 +12,21 @@ use rawspeed_memory_fixed_length_load::fixed_length_load::CopyFromSlice;
 use rawspeed_memory_fixed_length_load::fixed_length_load::LoadFromSlice;
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
 
+fn round_down_to_multiple_of(val: usize, mult: usize) -> usize {
+    assert_ne!(mult, 0);
+    mult * (val / mult)
+}
+
+fn get_as_valid_bitstreamslice<T>(input: &[u8]) -> BitStreamSlice<'_, T>
+where
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+{
+    let mcu_size = size_of::<<T as BitStreamTraits>::MCUByteArrayType>();
+    let len = round_down_to_multiple_of(input.len(), mcu_size);
+    let input = input.get(..len).unwrap();
+    input.try_into().unwrap()
+}
+
 #[inline]
 #[must_use]
 pub fn derive_mcu_bytesize<BitOrder>() -> usize
@@ -56,12 +71,12 @@ where
             elts
         };
         let mut full_bs = BitStreamerBase::<BitOrder>::new(
-            BitStreamSlice::new_unchecked(input.as_slice()),
+            get_as_valid_bitstreamslice(input.as_slice()),
         );
         let _first_mcu = mcu_getter(&mut full_bs);
         let second_mcu = mcu_getter(&mut full_bs);
         let mut new_bs = BitStreamerBase::<BitOrder>::new(
-            BitStreamSlice::new_unchecked(input.get(mcu_bytesize..).unwrap()),
+            get_as_valid_bitstreamslice(input.get(mcu_bytesize..).unwrap()),
         );
         let new_first_mcu = mcu_getter(&mut new_bs);
         if new_first_mcu == second_mcu {

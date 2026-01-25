@@ -163,6 +163,7 @@ std_instead_of_alloc = { level = "allow", priority = 0 }
 single_call_fn = { level = "allow", priority = 0 }
 trivially_copy_pass_by_ref = { level = "allow", priority = 0 }
 pattern_type_mismatch = { level = "allow", priority = 0 }
+pub_with_shorthand = { level = "allow", priority = 0 }
 
 [profile.release]
 panic = 'abort'
