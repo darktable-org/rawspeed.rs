@@ -1,6 +1,7 @@
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
+use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 
 #[derive(Debug, Clone, Copy)]
 struct ByteIndex {
@@ -228,8 +229,9 @@ where
 
     #[must_use]
     #[inline]
-    pub const fn mcu_count(&self) -> usize {
-        self.input.len().checked_div(Self::MCU_SIZE).unwrap()
+    pub fn mcu_count(&self) -> usize {
+        CheckedDivExact::checked_div_exact(self.input.len(), Self::MCU_SIZE)
+            .unwrap()
     }
 
     #[must_use]

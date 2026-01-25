@@ -1,3 +1,4 @@
+use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 use rawspeed_std::coord_common::Coord2D;
 use rawspeed_std::coord_common::RowCount;
 use rawspeed_std::coord_common::RowIndex;
@@ -42,8 +43,14 @@ impl<'a, T> Array2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn num_rows(&self) -> RowCount {
-        RowCount::new(self.slice.len().checked_div(self.pitch().val()).unwrap())
+    pub fn num_rows(&self) -> RowCount {
+        RowCount::new(
+            CheckedDivExact::checked_div_exact(
+                self.slice.len(),
+                self.pitch().val(),
+            )
+            .unwrap(),
+        )
     }
 
     #[inline]
