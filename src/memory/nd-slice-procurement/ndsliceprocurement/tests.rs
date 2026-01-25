@@ -2,6 +2,7 @@ use crate::ndsliceprocurement::EltCount;
 use crate::ndsliceprocurement::{
     NDSliceProcurementRequest, NDSliceProcurementRequestError,
 };
+use rawspeed_common_exact_ops::exact_ops::shl::CheckedShlExact;
 use rawspeed_std::coord_common::RowPitch;
 use rawspeed_std::coord_common::{
     Align, ByteMultiple, ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex,
@@ -12,7 +13,7 @@ fn runtime_align_of<T>(x: &T) -> Align {
     let ptr: *const T = x;
     let addr = ptr as usize;
     let num_tz = addr.trailing_zeros();
-    let align = 1_usize.checked_shl(num_tz).unwrap();
+    let align = CheckedShlExact::checked_shl_exact(1_usize, num_tz).unwrap();
     Align::new(ByteMultiple::new(align)).unwrap()
 }
 
@@ -194,12 +195,20 @@ fn basic_test<T>() {
                 let extra_row_padding = EltCount::new(extra_row_padding);
                 for row_alignment in 0..=1 {
                     let row_alignment = Align::new(ByteMultiple::new(
-                        1_usize.checked_shl(row_alignment).unwrap(),
+                        CheckedShlExact::checked_shl_exact(
+                            1_usize,
+                            row_alignment,
+                        )
+                        .unwrap(),
                     ))
                     .unwrap();
                     for base_alignment in 0..=1 {
                         let base_alignment = Align::new(ByteMultiple::new(
-                            1_usize.checked_shl(base_alignment).unwrap(),
+                            CheckedShlExact::checked_shl_exact(
+                                1_usize,
+                                base_alignment,
+                            )
+                            .unwrap(),
                         ))
                         .unwrap();
                         test_config::<T>(

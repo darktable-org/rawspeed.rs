@@ -115,9 +115,11 @@ mod euclid {
 
 mod binary {
     use super::{decompose_binary, maxmin};
-    use rawspeed_common_exact_ops::exact_ops::shr::CheckedShrExact;
+    use rawspeed_common_exact_ops::exact_ops::{
+        shl::CheckedShlExact, shr::CheckedShrExact,
+    };
     use rawspeed_common_generic_num::generic_num::{
-        arith::{CheckedMul, CheckedShl, CheckedSub},
+        arith::{CheckedMul, CheckedSub},
         common::{ConstZero, TrailingZeros},
     };
 
@@ -135,7 +137,7 @@ mod binary {
             + TrailingZeros
             + CheckedShrExact<Output = Option<T>>
             + CheckedSub<Output = Option<T>>
-            + CheckedShl<Output = Option<T>>
+            + CheckedShlExact<Output = Option<T>>
             + CheckedMul<Output = Option<T>>
             + From<u8>,
     {
@@ -156,8 +158,10 @@ mod binary {
                 a = a.checked_sub(b).unwrap();
                 (a, _) = decompose_binary(a);
             }
-            a.checked_mul(T::from(1_u8).checked_shl(d).unwrap())
-                .unwrap()
+            a.checked_mul(
+                CheckedShlExact::checked_shl_exact(T::from(1_u8), d).unwrap(),
+            )
+            .unwrap()
         }
     }
 }
