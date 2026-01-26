@@ -107,20 +107,21 @@ macro_rules! impl_min {
 
 impl_min!(u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
-pub trait ConstZero {
-    const ZERO: Self;
-}
-
-macro_rules! impl_constzero {
-    ($($t:ty)+) => {
+macro_rules! impl_literal_constant {
+    (trait $trait:ident with $name:ident = $value:literal for $($t:ty)+) => {
+        pub trait $trait {
+            const $name: Self;
+        }
         $(
-            impl ConstZero for $t {
-                const ZERO: Self = 0;
+            impl $trait for $t {
+                const $name: Self = $value;
             }
         )+
     };
 }
-impl_constzero!(u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
+
+impl_literal_constant!(trait ConstZero with ZERO = 0 for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
+impl_literal_constant!(trait ConstOne with ONE = 1 for u8 i8 u16 i16 u32 i32 u64 i64 usize isize);
 
 pub trait IsMultipleOf {
     #[must_use]

@@ -1,7 +1,9 @@
+use rawspeed_common_generic_num::generic_num::common::ConstZero;
+
 #[derive(Debug)]
 pub struct SVec<T, const N: usize>
 where
-    T: Copy + From<u8>,
+    T: Copy + ConstZero,
 {
     buf: [T; N],
     size: usize,
@@ -9,7 +11,7 @@ where
 
 impl<T, const N: usize> SVec<T, N>
 where
-    T: Copy + From<u8>,
+    T: Copy + ConstZero,
 {
     #[inline]
     #[must_use]
@@ -52,12 +54,12 @@ where
 
 impl<T, const N: usize> Default for SVec<T, N>
 where
-    T: Copy + From<u8>,
+    T: Copy + ConstZero,
 {
     #[inline]
     fn default() -> Self {
         Self {
-            buf: [0_u8.into(); N],
+            buf: [T::ZERO; N],
             size: 0,
         }
     }
@@ -65,7 +67,7 @@ where
 
 impl<T, const N: usize> core::ops::Index<core::ops::RangeFull> for SVec<T, N>
 where
-    T: Copy + From<u8>,
+    T: Copy + ConstZero,
 {
     type Output = [T];
 
