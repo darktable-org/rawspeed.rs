@@ -17,10 +17,6 @@ rawspeed-bitstream-bitstream-decoder = { path = "../../../src/bitstream/bitstrea
 rawspeed-bitstream-bitstreamcache = { path = "../../../src/bitstream/bitstreamcache" }
 rawspeed-bitstream-bitstreams = { path = "../../../src/bitstream/bitstreams" }
 rawspeed-bitstream-bitstreamslice = { path = "../../../src/bitstream/bitstreamslice" }
-rawspeed-common-generic_num = { path = "../../../src/common/generic_num" }
-rawspeed-memory-endianness = { path = "../../../src/memory/endianness" }
-rawspeed-memory-fixed_length_load = { path = "../../../src/memory/fixed_length_load" }
-rawspeed-memory-variable_length_load = { path = "../../../src/memory/variable_length_load" }
 
 [[test]]
 name = "rawspeed-test-bitstream-bitstreams"

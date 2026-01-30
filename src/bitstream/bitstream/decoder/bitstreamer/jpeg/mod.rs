@@ -1,19 +1,16 @@
 use super::BitStreamerBase;
 use super::BitStreamerCacheFillImpl;
 use super::BitStreamerTraits;
-use super::CopyFromSlice;
 use super::FromNeBytes;
 use super::LoadFromSlice;
 
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache as _;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderJPEG;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common_generic_num::generic_num::common::Bitwidth;
-use rawspeed_memory_endianness::endianness::SwapBytes;
+use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
+use rawspeed_memory_endianness::endianness::SwapBytes as _;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
-use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
 
 impl BitStreamerTraits for BitOrderJPEG {
     const TAG: BitOrder = BitOrder::JPEG;
@@ -23,33 +20,13 @@ impl BitStreamerTraits for BitOrderJPEG {
 
 type T = BitOrderJPEG;
 
-impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
-where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        core::ops::RangeFull,
-    >>::Output: CopyFromSlice + VariableLengthLoad,
-    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
-    <T as BitStreamerTraits>::MaxProcessByteArray: Default
-        + core::ops::IndexMut<core::ops::RangeFull>
-        + core::ops::Index<core::ops::Range<usize>>,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        core::ops::Range<usize>,
-    >>::Output: LoadFromSlice<<T as BitStreamTraits>::ChunkByteArrayType>,
-    <<T as BitStreamTraits>::ChunkByteArrayType as core::ops::Index<
-        core::ops::RangeFull,
-    >>::Output: CopyFromSlice,
-    <T as BitStreamTraits>::ChunkByteArrayType:
-        Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-    <<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
-        + From<<<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output> + SwapBytes,
-    u64: From<<<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output>,
-{
+impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
     #[inline]
     fn fill_cache_impl(
         &mut self,
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
+        use crate::bitstreamer::BitStreamerReplenisher as _;
         let chunk = LoadFromSlice::<[u8; 4]>::load_from_slice(&input[0..4]);
         if chunk.iter().all(|byte| *byte != 0xFF_u8) {
             type ChunkType = <<T as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output;
@@ -58,10 +35,7 @@ where
                 <T as BitStreamTraits>::CHUNK_ENDIANNESS
                     != get_host_endianness(),
             );
-            self.cache.push(
-                chunk.into(),
-                ChunkType::BITWIDTH,
-            );
+            self.cache.push(chunk.into(), ChunkType::BITWIDTH);
             return 4;
         }
         let mut p = 0;
