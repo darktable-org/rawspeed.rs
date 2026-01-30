@@ -1,17 +1,14 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerBase;
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerCacheFillImpl;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisher;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisherStorage;
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
-use rawspeed_memory_endianness::endianness::SwapBytes;
-use rawspeed_memory_fixed_length_load::fixed_length_load::CopyFromSlice;
-use rawspeed_memory_fixed_length_load::fixed_length_load::LoadFromSlice;
-use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
@@ -58,28 +55,12 @@ where
     #[inline]
     fn unpack_row<BitOrder>(&mut self, row: RowIndex)
     where
-        BitOrder:
-            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-        BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        <BitOrder::MaxProcessByteArray as core::ops::Index<
-            core::ops::RangeFull,
-        >>::Output: CopyFromSlice + VariableLengthLoad,
-        BitOrder::StreamFlow: Default + BitStreamCache,
-        BitOrder::MaxProcessByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull>
-            + core::ops::Index<core::ops::Range<usize>>,
-        <BitOrder::MaxProcessByteArray as core::ops::Index<
-            core::ops::Range<usize>,
-        >>::Output: LoadFromSlice<BitOrder::ChunkByteArrayType>,
-        <BitOrder::ChunkByteArrayType as core::ops::Index<
-            core::ops::RangeFull,
-        >>::Output: CopyFromSlice,
-        BitOrder::ChunkByteArrayType:
-            Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
-            + From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>
-            + SwapBytes,
-        u64: From<<BitOrder::StreamFlow as BitStreamCache>::Storage>,
+        BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        for<'z> BitStreamerBase<'z, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
+        for<'z> BitStreamerReplenisherStorage<'z, BitOrder>:
+            BitStreamerReplenisher<'z, BitOrder>,
+        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
+        u64: From<<<BitOrder as BitStreamTraits>::StreamFlow as  BitStreamCache>::Storage>,
     {
         let bytes = self.input.get_row(row).unwrap();
         let row = self.output.get_row_mut(row).unwrap();
@@ -95,28 +76,12 @@ where
     #[inline]
     fn unpack_impl<BitOrder>(&mut self)
     where
-        BitOrder:
-            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-        BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        <BitOrder::MaxProcessByteArray as core::ops::Index<
-            core::ops::RangeFull,
-        >>::Output: CopyFromSlice + VariableLengthLoad,
-        BitOrder::StreamFlow: Default + BitStreamCache,
-        BitOrder::MaxProcessByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull>
-            + core::ops::Index<core::ops::Range<usize>>,
-        <BitOrder::MaxProcessByteArray as core::ops::Index<
-            core::ops::Range<usize>,
-        >>::Output: LoadFromSlice<BitOrder::ChunkByteArrayType>,
-        <BitOrder::ChunkByteArrayType as core::ops::Index<
-            core::ops::RangeFull,
-        >>::Output: CopyFromSlice,
-        BitOrder::ChunkByteArrayType:
-            Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
-            + From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>
-            + SwapBytes,
-        u64: From<<BitOrder::StreamFlow as BitStreamCache>::Storage>,
+        BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        for<'z> BitStreamerBase<'z, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
+        for<'z> BitStreamerReplenisherStorage<'z, BitOrder>:
+            BitStreamerReplenisher<'z, BitOrder>,
+        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
+        u64: From<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
     {
         assert_eq!(self.input.num_rows(), self.output.num_rows());
         for row in 0..*self.input.num_rows() {

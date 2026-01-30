@@ -3,7 +3,7 @@ use crate::{
 };
 use rawspeed_common_generic_num::generic_num::{
     arith::{BorrowingSub, CarryingAdd, CheckedAdd, CheckedRem, WrappingAdd},
-    common::{CastUnsigned, ConstZero, Integer, Max, Min},
+    common::{CastUnsigned, ConstOne, ConstZero, Integer, Max, Min},
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -38,7 +38,8 @@ where
     T: core::fmt::Debug
         + Copy
         + PartialOrd
-        + From<u8>
+        + ConstZero
+        + From<bool>
         + BorrowingSub<Output = (T, bool)>,
 {
     type Output = T;
@@ -47,16 +48,15 @@ where
         let (lhs, carry) = (self.0.0, self.0.1);
         assert!(carry);
 
-        let lhs_hi = u8::from(carry);
-        let (mut lhs_hi, mut lhs_lo): (T, T) = (lhs_hi.into(), lhs);
-        let (rhs_hi, rhs_lo): (T, T) = (0.into(), rhs);
+        let (mut lhs_hi, mut lhs_lo): (T, T) = (carry.into(), lhs);
+        let (rhs_hi, rhs_lo): (T, T) = (T::ZERO, rhs);
 
         let mut borrow = false;
         (lhs_lo, borrow) = lhs_lo.borrowing_sub(rhs_lo, borrow);
         assert!(borrow);
         (lhs_hi, borrow) = lhs_hi.borrowing_sub(rhs_hi, borrow);
         assert!(!borrow);
-        assert_eq!(lhs_hi, 0.into());
+        assert_eq!(lhs_hi, T::ZERO);
         assert!(lhs_lo < rhs);
         lhs_lo
     }
@@ -68,7 +68,9 @@ where
     T: core::fmt::Debug
         + Copy
         + PartialOrd
-        + From<u8>
+        + ConstZero
+        + ConstOne
+        + From<bool>
         + core::ops::Shr<i32, Output = T>
         + core::ops::Add<Output = T>
         + Max
@@ -81,7 +83,7 @@ where
         if let Ok(lhs) = SumWithZeroCarry::try_from(self) {
             return lhs.checked_rem(rhs).unwrap();
         }
-        assert!(rhs >= (T::MAX >> 1) + T::from(2_u8));
+        assert!(rhs >= (T::MAX >> 1) + T::ONE + T::ONE);
         self - rhs
     }
 }

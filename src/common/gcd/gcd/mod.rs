@@ -120,7 +120,7 @@ mod binary {
     };
     use rawspeed_common_generic_num::generic_num::{
         arith::{CheckedMul, CheckedSub},
-        common::{ConstZero, TrailingZeros},
+        common::{ConstOne, ConstZero, TrailingZeros},
     };
 
     pub trait GCD {
@@ -134,12 +134,12 @@ mod binary {
             + Copy
             + Ord
             + ConstZero
+            + ConstOne
             + TrailingZeros
             + CheckedShrExact<Output = Option<T>>
             + CheckedSub<Output = Option<T>>
             + CheckedShlExact<Output = Option<T>>
-            + CheckedMul<Output = Option<T>>
-            + From<u8>,
+            + CheckedMul<Output = Option<T>>,
     {
         #[inline]
         fn gcd(a: Self, b: Self) -> Self {
@@ -159,7 +159,7 @@ mod binary {
                 (a, _) = decompose_binary(a);
             }
             a.checked_mul(
-                CheckedShlExact::checked_shl_exact(T::from(1_u8), d).unwrap(),
+                CheckedShlExact::checked_shl_exact(T::ONE, d).unwrap(),
             )
             .unwrap()
         }
