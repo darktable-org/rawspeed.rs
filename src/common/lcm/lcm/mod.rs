@@ -143,6 +143,7 @@ mod via_gcd {
 }
 
 pub mod constant {
+    #[macro_export]
     macro_rules! _lcm {
         ($a:expr, $b:expr) => {{
             let (a, b) = ($a, $b);
@@ -163,10 +164,10 @@ pub mod constant {
             }
         }};
     }
-    #[cfg_attr(not(test), expect(unused_imports))]
-    pub(crate) use _lcm as lcm;
+    pub use _lcm as lcm;
 }
 
+pub use constant::lcm;
 pub use via_gcd::LCM;
 
 #[cfg(test)]

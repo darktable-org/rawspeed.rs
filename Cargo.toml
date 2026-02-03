@@ -9,6 +9,7 @@ members = [
     "src/bitstream/bitstreamslice",
     "src/bitstream/bytestream/decoder",
     "src/bitstream/bytestream/encoder",
+    "src/bitstream/packedbitstream",
     "src/codecs/packed/decoder",
     "src/codecs/packed/encoder",
     "src/common",
