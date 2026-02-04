@@ -47,3 +47,6 @@ mod range;
 
 #[cfg(test)]
 mod range_inclusive;
+
+#[cfg(test)]
+mod range_from;

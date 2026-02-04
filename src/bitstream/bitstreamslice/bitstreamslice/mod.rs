@@ -190,6 +190,30 @@ where
     }
 }
 
+impl<T> ConvertibleIntoByteRange<T> for core::ops::RangeFrom<MCUIndex<T>>
+where
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+{
+    type Output = core::ops::RangeFrom<usize>;
+}
+
+impl<T> TryFrom<MCURange<T, core::ops::RangeFrom<MCUIndex<T>>>>
+    for core::ops::RangeFrom<usize>
+where
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+{
+    type Error = MCUIndexByteOverflow;
+
+    #[inline]
+    fn try_from(
+        range: MCURange<T, core::ops::RangeFrom<MCUIndex<T>>>,
+    ) -> Result<Self, Self::Error> {
+        let range = range.range;
+        let start = *ByteIndex::try_from(range.start)?;
+        Ok(core::ops::RangeFrom { start })
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
 pub enum BitStreamSliceError {
