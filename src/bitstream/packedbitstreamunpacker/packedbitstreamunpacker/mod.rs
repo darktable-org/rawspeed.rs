@@ -7,7 +7,7 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
 use rawspeed_bitstream_packedbitstreamslice::packedbitstreamslice::{
-    PackedBitstreamSlice, PackingDescription,
+    BitPackingLayout, PackedBitstreamSlice,
 };
 
 #[derive(Debug)]
@@ -35,11 +35,12 @@ pub enum PackedBitstreamUnpackerError {
 impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
     PackedBitstreamUnpacker<BitOrder, ITEM_PACKED_BITLEN>
 where
-    BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    BitOrder: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitPackingLayout<ITEM_PACKED_BITLEN>,
 {
-    const DSC: PackingDescription<BitOrder, ITEM_PACKED_BITLEN> =
-        PackingDescription::new();
-
     #[expect(clippy::needless_pass_by_value)]
     #[inline]
     pub fn new<'a>(
@@ -56,11 +57,13 @@ where
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
         }
-        if slice.get_slice().get_bytes().len() != Self::DSC.packed_mcu_bytelen()
-        {
+        let package_bytelen = <BitOrder as BitPackingLayout<
+            ITEM_PACKED_BITLEN,
+        >>::PACKED_MCU_BYTELEN;
+        if slice.get_slice().get_bytes().len() != package_bytelen {
             return Err(PackedBitstreamUnpackerError::WrongSize(
                 PackedBitstreamUnpackerWrongSizeError {
-                    expected: Self::DSC.packed_mcu_bytelen(),
+                    expected: package_bytelen,
                     actual: slice.get_slice().get_bytes().len(),
                 },
             ));
@@ -83,7 +86,7 @@ where
     #[must_use]
     #[inline]
     pub const fn len() -> usize {
-        Self::DSC.packed_item_count()
+        <BitOrder as BitPackingLayout<ITEM_PACKED_BITLEN>>::PACKED_ITEM_COUNT
     }
 
     #[must_use]

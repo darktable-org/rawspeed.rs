@@ -4,18 +4,39 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_common_lcm::lcm::lcm;
 
+pub trait BitPackingLayout<const ITEM_PACKED_BITLEN: usize> {
+    const PACKED_MCU_BYTELEN: usize;
+    const PACKED_ITEM_COUNT: usize;
+    const PACKED_ITEM_BITLEN: usize;
+}
+
+impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
+    BitPackingLayout<ITEM_PACKED_BITLEN> for BitOrder
+where
+    BitOrder: BitOrderTrait + BitStreamTraits,
+{
+    const PACKED_MCU_BYTELEN: usize =
+        PackingDescriptionImpl::<BitOrder, ITEM_PACKED_BITLEN>::new()
+            .packed_mcu_bytelen;
+    const PACKED_ITEM_COUNT: usize =
+        PackingDescriptionImpl::<BitOrder, ITEM_PACKED_BITLEN>::new()
+            .packed_item_count;
+    const PACKED_ITEM_BITLEN: usize =
+        PackingDescriptionImpl::<BitOrder, ITEM_PACKED_BITLEN>::new()
+            .packed_item_bitlen;
+}
+
 #[derive(Debug)]
-#[non_exhaustive]
-pub struct PackingDescription<BitOrder, const ITEM_PACKED_BITLEN: usize> {
+// #[non_exhaustive]
+pub struct PackingDescriptionImpl<BitOrder, const ITEM_PACKED_BITLEN: usize> {
     packed_mcu_bytelen: usize,
     packed_item_count: usize,
-    #[expect(dead_code)]
     packed_item_bitlen: usize,
     _phantom: core::marker::PhantomData<BitOrder>,
 }
 
 impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
-    PackingDescription<BitOrder, ITEM_PACKED_BITLEN>
+    PackingDescriptionImpl<BitOrder, ITEM_PACKED_BITLEN>
 {
     #[must_use]
     #[inline]
@@ -39,22 +60,10 @@ impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
             _phantom: core::marker::PhantomData,
         }
     }
-
-    #[must_use]
-    #[inline]
-    pub const fn packed_mcu_bytelen(&self) -> usize {
-        self.packed_mcu_bytelen
-    }
-
-    #[must_use]
-    #[inline]
-    pub const fn packed_item_count(&self) -> usize {
-        self.packed_item_count
-    }
 }
 
 impl<BitOrder, const ITEM_PACKED_BITLEN: usize> Default
-    for PackingDescription<BitOrder, ITEM_PACKED_BITLEN>
+    for PackingDescriptionImpl<BitOrder, ITEM_PACKED_BITLEN>
 where
     BitOrder: BitOrderTrait + BitStreamTraits,
 {
@@ -67,7 +76,11 @@ where
 #[derive(Debug)]
 pub struct PackedBitstreamSlice<'a, BitOrder, const ITEM_PACKED_BITLEN: usize>
 where
-    BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    BitOrder: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitPackingLayout<ITEM_PACKED_BITLEN>,
 {
     slice: BitStreamSlice<'a, BitOrder>,
 }
@@ -90,9 +103,6 @@ impl<'a, BitOrder, const ITEM_PACKED_BITLEN: usize>
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
 {
-    const DSC: PackingDescription<BitOrder, ITEM_PACKED_BITLEN> =
-        PackingDescription::new();
-
     #[inline]
     pub const fn new(
         slice: BitStreamSlice<'a, BitOrder>,
@@ -103,25 +113,18 @@ where
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
         }
-        if !slice
-            .get_bytes()
-            .len()
-            .is_multiple_of(Self::DSC.packed_mcu_bytelen)
-        {
+        let packed_mcu_bytelen = <BitOrder as BitPackingLayout<
+            ITEM_PACKED_BITLEN,
+        >>::PACKED_MCU_BYTELEN;
+        if !slice.get_bytes().len().is_multiple_of(packed_mcu_bytelen) {
             return Err(PackedBitstreamSliceError::WrongSize(
                 PackedBitstreamSliceWrongSizeError {
-                    expected_multiplicity: Self::DSC.packed_mcu_bytelen,
+                    expected_multiplicity: packed_mcu_bytelen,
                     actual_len: slice.get_bytes().len(),
                 },
             ));
         }
         Ok(Self { slice })
-    }
-
-    #[must_use]
-    #[inline]
-    pub const fn len() -> usize {
-        Self::DSC.packed_item_count
     }
 
     #[must_use]
