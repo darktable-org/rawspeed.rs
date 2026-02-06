@@ -399,7 +399,7 @@ jobs:
       - name: Initialize CodeQL (for CodeQL static analysis)
         timeout-minutes: 1
         if: env.WITH_CODEQL == 'true'
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           source-root: ${{ env.SRC_DIR}}
           languages: rust
@@ -526,9 +526,8 @@ jobs:
       - name: Perform CodeQL static analysis
         timeout-minutes: 5
         if: env.WITH_CODEQL == 'true'
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
-          source-root: ${{ env.SRC_DIR}}
           checkout_path: ${{ env.SRC_DIR}}
       - name: Perform SonarQube static analysis
         timeout-minutes: 1
