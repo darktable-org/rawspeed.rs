@@ -1,37 +1,32 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderMSB16;
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_bitstream_packedbitstreamslice::packedbitstreamslice::PackedBitstreamSlice;
 
-use crate::packedbitstream::{
-    PackedBitstreamSlice, PackedBitstreamSliceError,
-    PackedBitstreamSliceWrongSizeError,
+use crate::packedbitstreamunpacker::{
+    PackedBitstreamUnpacker, PackedBitstreamUnpackerError,
+    PackedBitstreamUnpackerWrongSizeError,
 };
 
 type T = BitOrderMSB16;
 
 #[test]
-fn unsufficient_test() {
-    let input: [_; 4] = core::array::from_fn(|_| 0);
-    let bss = BitStreamSlice::<T>::new(&input).unwrap();
-    assert_eq!(
-        PackedBitstreamSlice::<_, 3>::new(bss).err(),
-        Some(PackedBitstreamSliceError::WrongSize(
-            PackedBitstreamSliceWrongSizeError {
-                actual: 4,
-                expected: 6
-            }
-        ))
-    );
+fn sufficient_for_1_packed_mcu_test() {
+    let input: [_; 6] = core::array::from_fn(|_| 0);
+    let s = BitStreamSlice::<T>::new(&input).unwrap();
+    let s = PackedBitstreamSlice::<T, 3>::new(s).unwrap();
+    PackedBitstreamUnpacker::new(s).unwrap();
 }
 
 #[test]
-fn too_much_test() {
-    let input: [_; 8] = core::array::from_fn(|_| 0);
-    let bss = BitStreamSlice::<T>::new(&input).unwrap();
+fn sufficient_for_2_packed_mcu_test() {
+    let input: [_; 12] = core::array::from_fn(|_| 0);
+    let s = BitStreamSlice::<T>::new(&input).unwrap();
+    let s = PackedBitstreamSlice::<T, 3>::new(s).unwrap();
     assert_eq!(
-        PackedBitstreamSlice::<_, 3>::new(bss).err(),
-        Some(PackedBitstreamSliceError::WrongSize(
-            PackedBitstreamSliceWrongSizeError {
-                actual: 8,
+        PackedBitstreamUnpacker::new(s).err(),
+        Some(PackedBitstreamUnpackerError::WrongSize(
+            PackedBitstreamUnpackerWrongSizeError {
+                actual: 12,
                 expected: 6
             }
         ))
