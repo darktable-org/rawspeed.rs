@@ -2,7 +2,8 @@ macro_rules! test {
     (unpack $bytes:tt as $N:literal-bits: $items:tt) => {
         let input = $bytes;
         let bss = BitStreamSlice::<T>::new(&input).unwrap();
-        let q = PackedBitstreamSlice::<_, $N>::new(bss).unwrap();
+        let pbss = PackedBitstreamSlice::<_, $N>::new(bss).unwrap();
+        let q = PackedBitstreamUnpacker::new(pbss).unwrap();
         assert_eq!(q.as_slice(), $items);
     };
 }

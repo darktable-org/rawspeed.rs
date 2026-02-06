@@ -1,8 +1,3 @@
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
-    BitStreamerReplenisherStorage, BitStreamerTraits,
-};
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
@@ -10,6 +5,7 @@ use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_common_lcm::lcm::lcm;
 
 #[derive(Debug)]
+#[non_exhaustive]
 pub struct PackingDescription<BitOrder, const ITEM_PACKED_BITLEN: usize> {
     packed_mcu_bytelen: usize,
     packed_item_count: usize,
@@ -43,6 +39,18 @@ impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
             _phantom: core::marker::PhantomData,
         }
     }
+
+    #[must_use]
+    #[inline]
+    pub const fn packed_mcu_bytelen(&self) -> usize {
+        self.packed_mcu_bytelen
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn packed_item_count(&self) -> usize {
+        self.packed_item_count
+    }
 }
 
 impl<BitOrder, const ITEM_PACKED_BITLEN: usize> Default
@@ -57,19 +65,18 @@ where
 }
 
 #[derive(Debug)]
-pub struct PackedBitstreamSlice<BitOrder, const ITEM_PACKED_BITLEN: usize>
+pub struct PackedBitstreamSlice<'a, BitOrder, const ITEM_PACKED_BITLEN: usize>
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
 {
-    storage: [u16; 32],
-    _phantom: core::marker::PhantomData<BitOrder>,
+    slice: BitStreamSlice<'a, BitOrder>,
 }
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
 pub struct PackedBitstreamSliceWrongSizeError {
-    expected: usize,
-    actual: usize,
+    expected_multiplicity: usize,
+    actual_len: usize,
 }
 
 #[non_exhaustive]
@@ -78,8 +85,8 @@ pub enum PackedBitstreamSliceError {
     WrongSize(PackedBitstreamSliceWrongSizeError),
 }
 
-impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
-    PackedBitstreamSlice<BitOrder, ITEM_PACKED_BITLEN>
+impl<'a, BitOrder, const ITEM_PACKED_BITLEN: usize>
+    PackedBitstreamSlice<'a, BitOrder, ITEM_PACKED_BITLEN>
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
 {
@@ -87,41 +94,28 @@ where
         PackingDescription::new();
 
     #[inline]
-    pub fn new<'a>(
+    pub const fn new(
         slice: BitStreamSlice<'a, BitOrder>,
     ) -> Result<Self, PackedBitstreamSliceError>
-        where
-            BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-            BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-            BitStreamerReplenisherStorage<'a, BitOrder>: BitStreamerReplenisher<'a, BitOrder>,
-            <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-            u64: From<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
-            u16: TryFrom<u64>
-      {
+    where
+        BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
         }
-        if slice.get_bytes().len() != Self::DSC.packed_mcu_bytelen {
+        if !slice
+            .get_bytes()
+            .len()
+            .is_multiple_of(Self::DSC.packed_mcu_bytelen)
+        {
             return Err(PackedBitstreamSliceError::WrongSize(
                 PackedBitstreamSliceWrongSizeError {
-                    expected: Self::DSC.packed_mcu_bytelen,
-                    actual: slice.get_bytes().len(),
+                    expected_multiplicity: Self::DSC.packed_mcu_bytelen,
+                    actual_len: slice.get_bytes().len(),
                 },
             ));
         }
-        let mut storage = core::array::from_fn(|_| 0_u16);
-        let items = storage.get_mut(..Self::len()).unwrap();
-        let mut bs = BitStreamerBase::<BitOrder>::new(slice);
-        for item in items.iter_mut() {
-            bs.fill(ITEM_PACKED_BITLEN).unwrap();
-            let bits = bs.peek_bits_no_fill(ITEM_PACKED_BITLEN);
-            bs.skip_bits_no_fill(ITEM_PACKED_BITLEN);
-            *item = bits.try_into().unwrap();
-        }
-        Ok(Self {
-            storage,
-            _phantom: core::marker::PhantomData,
-        })
+        Ok(Self { slice })
     }
 
     #[must_use]
@@ -132,8 +126,8 @@ where
 
     #[must_use]
     #[inline]
-    pub fn as_slice(&self) -> &[u16] {
-        self.storage.get(..Self::len()).unwrap()
+    pub const fn get_slice(&self) -> BitStreamSlice<'a, BitOrder> {
+        self.slice
     }
 }
 
