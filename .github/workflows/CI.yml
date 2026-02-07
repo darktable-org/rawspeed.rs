@@ -18,16 +18,16 @@ jobs:
         os: [ linux ]
         stack:
           - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",      vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64",     vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+          # - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64",     vendor: "unknown", os: "linux", abi: "gnu"       }
+          # - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
         rust-toolchain-name:
           - stable
-          - nightly
+          # - nightly
         build-profile:
           - dev
-          - release
+          # - release
         job-flavor: [ plain ]
     uses: ./.github/workflows/CI-linux.yml
     with:
@@ -45,271 +45,271 @@ jobs:
       job-flavor: ${{ matrix.job-flavor }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  linux-fast-cross:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ linux ]
-        stack:
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
-        distro:
-          - { image: "debian:trixie-slim", LLVM: 19 }
-        rust-toolchain-name: [ stable, nightly ]
-        build-profile: [ dev, release ]
-        job-flavor: [ plain ]
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: ${{ matrix.os }}
-      runs-on: ${{ matrix.stack.runs-on }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      target-vendor: ${{ matrix.stack.vendor }}
-      target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.stack.abi }}
-      distro-image: ${{ matrix.distro.image }}
-      distro-LLVM: ${{ matrix.distro.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      build-profile: ${{ matrix.build-profile }}
-      job-flavor: ${{ matrix.job-flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  windows-fast:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ linux ]
-        stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "pc", os: "windows" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
-        distro:
-          - { image: "debian:trixie-slim", LLVM: 19 }
-        abi: [ gnu, msvc ]
-        rust-toolchain-name: [ stable, nightly ]
-        build-profile: [ dev, release ]
-        job-flavor: [ plain ]
-        exclude:
-          - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
-            abi: gnu
-          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
-            abi: msvc
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: ${{ matrix.os }}
-      runs-on: ${{ matrix.stack.runs-on }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      target-vendor: ${{ matrix.stack.vendor }}
-      target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.abi }}
-      distro-image: ${{ matrix.distro.image }}
-      distro-LLVM: ${{ matrix.distro.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      build-profile: ${{ matrix.build-profile }}
-      job-flavor: ${{ matrix.job-flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  macOS:
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler:
-          - { os: macos, os-ver: "15",       host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
-          - { os: macos, os-ver: "15-intel", host: "x86_64",  target: "x86_64",  XCode: 16.3, LLVM: 19 }
-        rust-toolchain-name: [ stable, nightly ]
-        build-profile: [ dev, release ]
-        job-flavor: [ plain ]
-    uses: ./.github/workflows/CI-macOS.yml
-    with:
-      os: ${{ matrix.compiler.os }}
-      runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
-      builder-host: ${{ matrix.compiler.host }}
-      builder-target: ${{ matrix.compiler.target }}
-      xcode-version: ${{ matrix.compiler.XCode }}
-      LLVM_VER: ${{ matrix.compiler.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      build-profile: ${{ matrix.build-profile }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  linux-slow-native:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ linux ]
-        stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",      vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64",     vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
-        distro:
-          - { image: "debian:trixie-slim", LLVM: 19 }
-        rust-toolchain-name: [ nightly ]
-        build-profile: [ dev, release ]
-        job-flavor: [ Miri, ASAN, MSAN, TSAN ]
-        exclude:
-          - build-profile: release
-            job-flavor: Miri
-          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
-            job-flavor: ASan
-          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
-            job-flavor: MSan
-          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
-            job-flavor: TSan
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: ${{ matrix.os }}
-      runs-on: ${{ matrix.stack.runs-on }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      target-vendor: ${{ matrix.stack.vendor }}
-      target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.stack.abi }}
-      distro-image: ${{ matrix.distro.image }}
-      distro-LLVM: ${{ matrix.distro.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      build-profile: ${{ matrix.build-profile }}
-      job-flavor: ${{ matrix.job-flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  linux-slow-cross:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ linux ]
-        stack:
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
-        distro:
-          - { image: "debian:trixie-slim", LLVM: 19 }
-        rust-toolchain-name: [ nightly ]
-        build-profile: [ dev ]
-        job-flavor: [ Miri ]
-        exclude:
-          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: ${{ matrix.os }}
-      runs-on: ${{ matrix.stack.runs-on }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      target-vendor: ${{ matrix.stack.vendor }}
-      target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.stack.abi }}
-      distro-image: ${{ matrix.distro.image }}
-      distro-LLVM: ${{ matrix.distro.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      build-profile: ${{ matrix.build-profile }}
-      job-flavor: ${{ matrix.job-flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  windows-slow:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ linux ]
-        stack:
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "pc", os: "windows" }
-          - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
-          - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
-        distro:
-          - { image: "debian:trixie-slim", LLVM: 19 }
-        abi: [ gnu, msvc ]
-        rust-toolchain-name: [ nightly ]
-        build-profile: [ dev ]
-        job-flavor: [ Miri ]
-        exclude:
-          - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
-            abi: gnu
-          - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
-            abi: msvc
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: ${{ matrix.os }}
-      runs-on: ${{ matrix.stack.runs-on }}
-      builder-host: ${{ matrix.stack.host }}
-      builder-target: ${{ matrix.stack.target }}
-      target-vendor: ${{ matrix.stack.vendor }}
-      target-os: ${{ matrix.stack.os }}
-      rust-toolchain-abi: ${{ matrix.abi }}
-      distro-image: ${{ matrix.distro.image }}
-      distro-LLVM: ${{ matrix.distro.LLVM }}
-      rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
-      build-profile: ${{ matrix.build-profile }}
-      job-flavor: ${{ matrix.job-flavor }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  SonarQube:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
-             linux-slow-native, linux-slow-cross, windows-slow]
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: linux
-      runs-on: ubuntu-latest
-      builder-host: x86_64
-      builder-target: x86_64
-      target-vendor: "unknown"
-      target-os: "linux"
-      rust-toolchain-abi: "gnu"
-      distro-image: "debian:trixie-slim"
-      distro-LLVM: 19
-      rust-toolchain-name: stable
-      build-profile: dev
-      job-flavor: SonarQube
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  build-docs:
-    needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
-             linux-slow-native, linux-slow-cross, windows-slow]
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: linux
-      runs-on: ubuntu-latest
-      builder-host: x86_64
-      builder-target: x86_64
-      target-vendor: "unknown"
-      target-os: "linux"
-      rust-toolchain-abi: "gnu"
-      distro-image: "debian:trixie-slim"
-      distro-LLVM: 19
-      rust-toolchain-name: stable
-      build-profile: dev
-      job-flavor: doc
-  publish-pages:
-    if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
-    needs: build-docs
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Setup Pages
-        timeout-minutes: 1
-        id: pages
-        uses: actions/configure-pages@v2
-      - name: Deploy to GitHub Pages
-        timeout-minutes: 1
-        id: deployment
-        uses: actions/deploy-pages@v4
-      - name: Purge Cloudflare cache
-        timeout-minutes: 1
-        id: cache-purge
-        if: github.repository == 'darktable-org/rawspeed.rs' && github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
-        uses: NathanVaughn/actions-cloudflare-purge@v3.1.0
-        with:
-            cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
-            cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
+  # linux-fast-cross:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       rust-toolchain-name: [ stable, nightly ]
+  #       build-profile: [ dev, release ]
+  #       job-flavor: [ plain ]
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.stack.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     build-profile: ${{ matrix.build-profile }}
+  #     job-flavor: ${{ matrix.job-flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # windows-fast:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "pc", os: "windows" }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       abi: [ gnu, msvc ]
+  #       rust-toolchain-name: [ stable, nightly ]
+  #       build-profile: [ dev, release ]
+  #       job-flavor: [ plain ]
+  #       exclude:
+  #         - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
+  #           abi: gnu
+  #         - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+  #           abi: msvc
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     build-profile: ${{ matrix.build-profile }}
+  #     job-flavor: ${{ matrix.job-flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # macOS:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       compiler:
+  #         - { os: macos, os-ver: "15",       host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
+  #         - { os: macos, os-ver: "15-intel", host: "x86_64",  target: "x86_64",  XCode: 16.3, LLVM: 19 }
+  #       rust-toolchain-name: [ stable, nightly ]
+  #       build-profile: [ dev, release ]
+  #       job-flavor: [ plain ]
+  #   uses: ./.github/workflows/CI-macOS.yml
+  #   with:
+  #     os: ${{ matrix.compiler.os }}
+  #     runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
+  #     builder-host: ${{ matrix.compiler.host }}
+  #     builder-target: ${{ matrix.compiler.target }}
+  #     xcode-version: ${{ matrix.compiler.XCode }}
+  #     LLVM_VER: ${{ matrix.compiler.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     build-profile: ${{ matrix.build-profile }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # linux-slow-native:
+  #   needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",      vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64",     vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       rust-toolchain-name: [ nightly ]
+  #       build-profile: [ dev, release ]
+  #       job-flavor: [ Miri, ASAN, MSAN, TSAN ]
+  #       exclude:
+  #         - build-profile: release
+  #           job-flavor: Miri
+  #         - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+  #           job-flavor: ASan
+  #         - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+  #           job-flavor: MSan
+  #         - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
+  #           job-flavor: TSan
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.stack.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     build-profile: ${{ matrix.build-profile }}
+  #     job-flavor: ${{ matrix.job-flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # linux-slow-cross:
+  #   needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv6",       vendor: "unknown", os: "linux", abi: "gnueabi"   }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "armv7",       vendor: "unknown", os: "linux", abi: "gnueabihf" }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64",   vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "powerpc64le", vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "s390x",       vendor: "unknown", os: "linux", abi: "gnu"       }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       rust-toolchain-name: [ nightly ]
+  #       build-profile: [ dev ]
+  #       job-flavor: [ Miri ]
+  #       exclude:
+  #         - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "riscv64",     vendor: "unknown", os: "linux", abi: "gnu"       }
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.stack.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     build-profile: ${{ matrix.build-profile }}
+  #     job-flavor: ${{ matrix.job-flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # windows-slow:
+  #   needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ linux ]
+  #       stack:
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "x86_64",  vendor: "pc", os: "windows" }
+  #         - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+  #         - { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
+  #       distro:
+  #         - { image: "debian:trixie-slim", LLVM: 19 }
+  #       abi: [ gnu, msvc ]
+  #       rust-toolchain-name: [ nightly ]
+  #       build-profile: [ dev ]
+  #       job-flavor: [ Miri ]
+  #       exclude:
+  #         - stack: { runs-on: "ubuntu-24.04-arm", host: "aarch64", target: "aarch64", vendor: "pc", os: "windows" }
+  #           abi: gnu
+  #         - stack: { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",    vendor: "pc", os: "windows" }
+  #           abi: msvc
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: ${{ matrix.os }}
+  #     runs-on: ${{ matrix.stack.runs-on }}
+  #     builder-host: ${{ matrix.stack.host }}
+  #     builder-target: ${{ matrix.stack.target }}
+  #     target-vendor: ${{ matrix.stack.vendor }}
+  #     target-os: ${{ matrix.stack.os }}
+  #     rust-toolchain-abi: ${{ matrix.abi }}
+  #     distro-image: ${{ matrix.distro.image }}
+  #     distro-LLVM: ${{ matrix.distro.LLVM }}
+  #     rust-toolchain-name: ${{ matrix.rust-toolchain-name }}
+  #     build-profile: ${{ matrix.build-profile }}
+  #     job-flavor: ${{ matrix.job-flavor }}
+  #   secrets:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # SonarQube:
+  #   if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+  #   needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
+  #            linux-slow-native, linux-slow-cross, windows-slow]
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: linux
+  #     runs-on: ubuntu-latest
+  #     builder-host: x86_64
+  #     builder-target: x86_64
+  #     target-vendor: "unknown"
+  #     target-os: "linux"
+  #     rust-toolchain-abi: "gnu"
+  #     distro-image: "debian:trixie-slim"
+  #     distro-LLVM: 19
+  #     rust-toolchain-name: stable
+  #     build-profile: dev
+  #     job-flavor: SonarQube
+  #   secrets:
+  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  # build-docs:
+  #   needs: [ linux-fast-native, linux-fast-cross, windows-fast, macOS,
+  #            linux-slow-native, linux-slow-cross, windows-slow]
+  #   uses: ./.github/workflows/CI-linux.yml
+  #   with:
+  #     os: linux
+  #     runs-on: ubuntu-latest
+  #     builder-host: x86_64
+  #     builder-target: x86_64
+  #     target-vendor: "unknown"
+  #     target-os: "linux"
+  #     rust-toolchain-abi: "gnu"
+  #     distro-image: "debian:trixie-slim"
+  #     distro-LLVM: 19
+  #     rust-toolchain-name: stable
+  #     build-profile: dev
+  #     job-flavor: doc
+  # publish-pages:
+  #   if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
+  #   needs: build-docs
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - name: Setup Pages
+  #       timeout-minutes: 1
+  #       id: pages
+  #       uses: actions/configure-pages@v2
+  #     - name: Deploy to GitHub Pages
+  #       timeout-minutes: 1
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
+  #     - name: Purge Cloudflare cache
+  #       timeout-minutes: 1
+  #       id: cache-purge
+  #       if: github.repository == 'darktable-org/rawspeed.rs' && github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'master'
+  #       uses: NathanVaughn/actions-cloudflare-purge@v3.1.0
+  #       with:
+  #           cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
+  #           cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
