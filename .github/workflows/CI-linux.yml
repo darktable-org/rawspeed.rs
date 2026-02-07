@@ -40,9 +40,6 @@ on:
     secrets:
       CODECOV_TOKEN:
       SONAR_TOKEN:
-    outputs:
-      rustfmt-artifact-url:
-        value: ${{ jobs.linux.outputs.rustfmt-artifact-url }}
 
 env:
   DEBIAN_FRONTEND: noninteractive
@@ -56,8 +53,6 @@ jobs:
   linux:
     runs-on: ${{ inputs.runs-on }}
     name: ${{ inputs.runs-on }} (${{ inputs.builder-host }}, for ${{ inputs.builder-target}}) // ${{ inputs.distro-image }}, LLVM ${{ inputs.distro-LLVM }}, Rust ${{ inputs.rust-toolchain-name }}, profile ${{ inputs.build-profile }}, job flavor ${{ inputs.job-flavor }}
-    outputs:
-      rustfmt-artifact-url: ${{ steps.rustfmt-upload.outputs.artifact-url }}
     steps:
       - name: Start the container
         timeout-minutes: 1
@@ -203,8 +198,7 @@ jobs:
             git \
             gpg \
           "
-          if    [ "${{ inputs.job-flavor }}" != "RustFmt" ] \
-             && [ "${{ inputs.job-flavor }}" != "doc" ] \
+          if    [ "${{ inputs.job-flavor }}" != "doc" ] \
              && [ "${{ inputs.job-flavor }}" != "SonarQube" ]; then
           PACKAGES="${PACKAGES} \
             clang-${{ inputs.distro-LLVM }} \
@@ -329,11 +323,7 @@ jobs:
           eatmydata rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           eatmydata rustup default ${{ inputs.rust-toolchain-name }}
           eatmydata rustup target add ${{ env.RUST_TARGET }}
-          if [ "${{ inputs.job-flavor }}" = "RustFmt" ]; then
-          RUST_COMPONENTS="${RUST_COMPONENTS} \
-            rustfmt \
-          "
-          elif [ "${{ inputs.job-flavor }}" = "doc" ]; then
+          if [ "${{ inputs.job-flavor }}" = "doc" ]; then
           /bin/true
           elif [ "${{ inputs.job-flavor }}" = "SonarQube" ]; then
           /bin/true
@@ -438,29 +428,6 @@ jobs:
         with:
           source-root: ${{ env.SRC_DIR}}
           languages: rust
-      - name: Verify that the source code is properly formatted
-        id: rustfmt
-        timeout-minutes: 1
-        if: inputs.job-flavor == 'RustFmt'
-        shell: podman exec --interactive --tty container sh "{0}"
-        run: |
-          set -xe
-          . "$HOME/.cargo/env"
-          cd "${{ env.SRC_DIR }}"
-          cargo fmt --all
-          git diff -p -U8 > "${GITHUB_WORKSPACE}/rustfmt.patch"
-          git diff --stat --exit-code
-      - name: Upload rustfmt patch
-        id: rustfmt-upload
-        timeout-minutes: 1
-        if: inputs.job-flavor == 'RustFmt' && failure() && steps.rustfmt.conclusion == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: rustfmt.patch
-          path: ${{ github.workspace }}/rustfmt.patch
-          if-no-files-found: error
-          compression-level: 9
-          overwrite: true
       - name: Run cargo check
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain'

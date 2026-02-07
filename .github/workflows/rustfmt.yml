@@ -11,22 +11,153 @@ concurrency:
 
 permissions: {}
 
+env:
+  distro-image: "debian:trixie-slim"
+  rust-toolchain-name: stable
+  SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+
 jobs:
   rustfmt-check:
-    uses: ./.github/workflows/CI-linux.yml
-    with:
-      os: linux
-      runs-on: "ubuntu-latest"
-      builder-host: x86_64
-      builder-target: x86_64
-      target-vendor: "unknown"
-      target-os: "linux"
-      rust-toolchain-abi: "gnu"
-      distro-image: "debian:trixie-slim"
-      distro-LLVM: 19
-      rust-toolchain-name: stable
-      build-profile: dev
-      job-flavor: RustFmt
+    runs-on: ubuntu-latest
+    outputs:
+      rustfmt-artifact-url: ${{ steps.rustfmt-upload.outputs.artifact-url }}
+    steps:
+      - name: Start the container
+        timeout-minutes: 1
+        shell: eatmydata sh "{0}"
+        run: |
+          set -xe
+          USER=`whoami`
+          sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER
+          export IMAGE=${{ env.distro-image }}
+          podman pull ${IMAGE}
+          podman run \
+            --name container \
+            --image-volume=tmpfs \
+            --tmpfs=/run \
+            --tmpfs=/tmp:exec \
+            --tmpfs=/var/tmp \
+            --volume=/home/runner:/home/runner \
+            --volume=${{ github.workspace }}:${{ github.workspace }}:exec \
+            --workdir=${{ github.workspace }} \
+            --interactive \
+            --tty \
+            --detach \
+            ${IMAGE} \
+            /usr/bin/sh \
+          ;
+      - name: Configure APT
+        timeout-minutes: 1
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          tee /etc/dpkg/dpkg.cfg.d/force-unsafe-io > /dev/null <<EOT
+          force-unsafe-io
+          EOT
+          tee /etc/apt/apt.conf.d/tmpfs > /dev/null <<EOT
+          Dir::Cache::Archives "/tmp/apt/archives";
+          APT::ExtractTemplates::TempDir "/tmp/apt/temp";
+          EOT
+          mkdir -p /tmp/apt/archives
+          tee /etc/apt/apt.conf.d/80retry > /dev/null <<EOT
+          Acquire::Retries "10";
+          EOT
+          tee /etc/apt/apt.conf.d/80recommends > /dev/null <<EOT
+          APT::Install-Recommends "false";
+          EOT
+          tee /etc/apt/apt.conf.d/80suggests > /dev/null <<EOT
+          APT::Install-Suggests "false";
+          EOT
+          tee /etc/apt/apt.conf.d/80forceyes > /dev/null <<EOT
+          APT::Get::Assume-Yes "true";
+          EOT
+          tee /etc/apt/apt.conf.d/80fixmissing > /dev/null <<EOT
+          APT::Get::Fix-Missing "true";
+          EOT
+          rm -rf /etc/apt/sources.list*
+          if [ "${{ env.distro-image }}" = "debian:trixie-slim" ]; then
+          tee /etc/apt/sources.list > /dev/null <<EOT
+          deb http://deb.debian.org/debian trixie main
+          deb http://deb.debian.org/debian trixie-updates main
+          deb http://deb.debian.org/debian-security trixie-security main
+          deb http://deb.debian.org/debian trixie-backports main
+          EOT
+          else
+            exit 1
+          fi
+      - name: Install eatmydata
+        timeout-minutes: 1
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          rm -rf /var/lib/apt/lists/*
+          apt update
+          apt install eatmydata
+          rm -rf /var/lib/apt/lists/*
+      - name: Install the packages
+        timeout-minutes: 2
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          rm -rf /var/lib/apt/lists/*
+          apt update
+          eatmydata apt upgrade
+          eatmydata apt install \
+            ca-certificates \
+            curl \
+            git \
+          ;
+          eatmydata apt clean
+          rm -rf /var/lib/apt/lists/*
+      - name: Install Rust toolchain and rustfmt
+        timeout-minutes: 4
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none --profile minimal -y
+          . "$HOME/.cargo/env"
+          eatmydata rustup toolchain install ${{ env.rust-toolchain-name }} --allow-downgrade --profile minimal
+          eatmydata rustup default ${{ env.rust-toolchain-name }}
+          eatmydata rustup component add rustfmt
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+          set-safe-directory: ${{ github.workspace }}
+      - name: Switch to the Pull Request's merge commit
+        timeout-minutes: 1
+        if: github.event_name == 'pull_request_target'
+        env:
+          PR: ${{ github.event.number }}
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          cd "${{ env.SRC_DIR }}"
+          git fetch origin pull/${{ env.PR }}/merge:pr/${{ env.PR }}/merge
+          git switch pr/${{ env.PR }}/merge
+      - name: Verify that the source code is properly formatted
+        id: rustfmt
+        timeout-minutes: 1
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo fmt --all
+          git diff -p -U8 > "${{ github.workspace }}/rustfmt.patch"
+          git diff --stat --exit-code
+      - name: Upload rustfmt patch
+        id: rustfmt-upload
+        timeout-minutes: 1
+        if: failure() && steps.rustfmt.conclusion == 'failure'
+        uses: actions/upload-artifact@v6
+        with:
+          name: rustfmt.patch
+          path: ${{ github.workspace }}/rustfmt.patch
+          if-no-files-found: error
+          compression-level: 9
+          overwrite: true
   rustfmt-complain:
     needs: [ rustfmt-check ]
     if: always() && github.event_name == 'pull_request_target' && needs.rustfmt-check.outputs.rustfmt-artifact-url != ''
@@ -36,7 +167,7 @@ jobs:
     steps:
       - name: Create comment
         timeout-minutes: 1
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.number }}
           body: |
