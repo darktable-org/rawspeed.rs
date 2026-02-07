@@ -69,17 +69,64 @@ jobs:
             --tmpfs=/run \
             --tmpfs=/tmp:exec \
             --tmpfs=/var/tmp \
-            --volume=/home/runner:/home/runner \
-            --volume=${{ github.workspace }}:${{ github.workspace }}:exec \
-            --workdir=${{ github.workspace }} \
+            --volume=/home/runner/work:/home/runner/work \
+            --volume=${{ github.workspace }}:${{ github.workspace }} \
+            --workdir=/root \
             --interactive \
             --tty \
             --detach \
             ${IMAGE} \
             /usr/bin/sh \
           ;
+      - name: Configure APT
+        timeout-minutes: 1
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          tee /etc/dpkg/dpkg.cfg.d/force-unsafe-io > /dev/null <<EOT
+          force-unsafe-io
+          EOT
+          tee /etc/apt/apt.conf.d/tmpfs > /dev/null <<EOT
+          Dir::Cache::Archives "/tmp/apt/archives";
+          APT::ExtractTemplates::TempDir "/tmp/apt/temp";
+          EOT
+          mkdir -p /tmp/apt/archives
+          tee /etc/apt/apt.conf.d/80retry > /dev/null <<EOT
+          Acquire::Retries "10";
+          EOT
+          tee /etc/apt/apt.conf.d/80recommends > /dev/null <<EOT
+          APT::Install-Recommends "false";
+          EOT
+          tee /etc/apt/apt.conf.d/80suggests > /dev/null <<EOT
+          APT::Install-Suggests "false";
+          EOT
+          tee /etc/apt/apt.conf.d/80forceyes > /dev/null <<EOT
+          APT::Get::Assume-Yes "true";
+          EOT
+          tee /etc/apt/apt.conf.d/80fixmissing > /dev/null <<EOT
+          APT::Get::Fix-Missing "true";
+          EOT
+          rm -rf /etc/apt/sources.list*
+          if [ "${{ inputs.distro-image }}" = "debian:trixie-slim" ]; then
+          tee /etc/apt/sources.list > /dev/null <<EOT
+          deb http://deb.debian.org/debian trixie main
+          deb http://deb.debian.org/debian trixie-updates main
+          deb http://deb.debian.org/debian-security trixie-security main
+          deb http://deb.debian.org/debian trixie-backports main
+          EOT
+          else
+            exit 1
+          fi
+      - name: Install eatmydata
+        timeout-minutes: 1
+        shell: podman exec --interactive --tty container sh "{0}"
+        run: |
+          set -xe
+          rm -rf /var/lib/apt/lists/*
+          apt update
+          apt install eatmydata
       - name: Configure necessary env variables
-        timeout-minutes: 10
+        timeout-minutes: 1
         shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
@@ -134,58 +181,6 @@ jobs:
           ENDIANNESS=little
           fi
           echo "ENDIANNESS=$(echo ${ENDIANNESS})" >> "${{ github.workspace }}/github-env"
-      - name: Propagate `$GITHUB_ENV`
-        timeout-minutes: 1
-        run: |
-          cat "${{ github.workspace }}/github-env" >> $GITHUB_ENV
-      - name: Configure APT
-        timeout-minutes: 1
-        shell: podman exec --interactive --tty container sh "{0}"
-        run: |
-          set -xe
-          tee /etc/dpkg/dpkg.cfg.d/force-unsafe-io > /dev/null <<EOT
-          force-unsafe-io
-          EOT
-          tee /etc/apt/apt.conf.d/tmpfs > /dev/null <<EOT
-          Dir::Cache::Archives "/tmp/apt/archives";
-          APT::ExtractTemplates::TempDir "/tmp/apt/temp";
-          EOT
-          mkdir -p /tmp/apt/archives
-          tee /etc/apt/apt.conf.d/80retry > /dev/null <<EOT
-          Acquire::Retries "10";
-          EOT
-          tee /etc/apt/apt.conf.d/80recommends > /dev/null <<EOT
-          APT::Install-Recommends "false";
-          EOT
-          tee /etc/apt/apt.conf.d/80suggests > /dev/null <<EOT
-          APT::Install-Suggests "false";
-          EOT
-          tee /etc/apt/apt.conf.d/80forceyes > /dev/null <<EOT
-          APT::Get::Assume-Yes "true";
-          EOT
-          tee /etc/apt/apt.conf.d/80fixmissing > /dev/null <<EOT
-          APT::Get::Fix-Missing "true";
-          EOT
-          rm -rf /etc/apt/sources.list*
-          if [ "${{ inputs.distro-image }}" = "debian:trixie-slim" ]; then
-          tee /etc/apt/sources.list > /dev/null <<EOT
-          deb http://deb.debian.org/debian trixie main
-          deb http://deb.debian.org/debian trixie-updates main
-          deb http://deb.debian.org/debian-security trixie-security main
-          deb http://deb.debian.org/debian trixie-backports main
-          EOT
-          else
-            exit 1
-          fi
-      - name: Install eatmydata
-        timeout-minutes: 1
-        shell: podman exec --interactive --tty container sh "{0}"
-        run: |
-          set -xe
-          rm -rf /var/lib/apt/lists/*
-          apt update
-          apt install eatmydata
-          rm -rf /var/lib/apt/lists/*
       - name: Configure for native compilation
         timeout-minutes: 1
         shell: podman exec --interactive --tty container sh "{0}"
@@ -224,6 +219,10 @@ jobs:
           ln -s /usr/local/bin/clang++ /usr/local/bin/g++
           ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
           echo "PACKAGES=\"$(echo ${PACKAGES})\"" >> "${{ github.workspace }}/github-env"
+      - name: Propagate `$GITHUB_ENV`
+        timeout-minutes: 1
+        run: |
+          cat "${{ github.workspace }}/github-env" >> $GITHUB_ENV
       - name: Configure for same-os cross-arch compilation
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain' && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
@@ -245,12 +244,12 @@ jobs:
           # LLD/clang does not support powerpc64 ELFv1 ABI
           LINKER="${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}-gcc"
           fi
-          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          mkdir -p "${{ github.workspace }}/.cargo" && tee -a "${{ github.workspace }}/.cargo/config.toml" > /dev/null <<EOT
           [target.${{ env.RUST_TARGET }}]
           linker = "${LINKER}"
           EOT
           if [ "${{ inputs.builder-target }}" != "i686" ]; then
-          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          mkdir -p "${{ github.workspace }}/.cargo" && tee -a "${{ github.workspace }}/.cargo/config.toml" > /dev/null <<EOT
           runner = "qemu-${{ env.LIBC6_ARCH }} -L /usr/${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}"
           EOT
           fi
@@ -289,12 +288,12 @@ jobs:
             python3 msitools \
           "
           fi
-          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          mkdir -p "${{ github.workspace }}/.cargo" && tee -a "${{ github.workspace }}/.cargo/config.toml" > /dev/null <<EOT
           [target.${{ env.RUST_TARGET }}]
           runner = "wine"
           EOT
           if [ "${{ inputs.rust-toolchain-abi }}" = "msvc" ]; then
-          mkdir -p "$HOME/.cargo" && tee -a "$HOME/.cargo/config.toml" > /dev/null <<EOT
+          mkdir -p "${{ github.workspace }}/.cargo" && tee -a "${{ github.workspace }}/.cargo/config.toml" > /dev/null <<EOT
           linker = "lld-link"
           EOT
           fi
@@ -304,9 +303,7 @@ jobs:
         shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
-          rm -rf /var/lib/apt/lists/*
           . "${{ github.workspace }}/github-env"
-          apt update
           eatmydata apt upgrade
           eatmydata apt install ${PACKAGES}
           eatmydata apt clean
@@ -316,6 +313,7 @@ jobs:
         shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
+          . "${{ github.workspace }}/github-env"
           RUST_COMPONENTS=""
           RUST_CRATES=""
           eatmydata curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none --profile minimal -y
@@ -362,6 +360,37 @@ jobs:
           if [ "${RUST_CRATES}" != "" ]; then
           eatmydata cargo install --locked ${RUST_CRATES}
           fi
+      - name: Stop the container
+        timeout-minutes: 1
+        shell: eatmydata sh "{0}"
+        run: |
+          set -xe
+          podman commit container container_img
+          podman stop container
+          podman rm container
+      - name: Start the container
+        timeout-minutes: 1
+        shell: eatmydata sh "{0}"
+        run: |
+          set -xe
+          USER=`whoami`
+          sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER
+          podman run \
+            --read-only \
+            --name container \
+            --image-volume=tmpfs \
+            --tmpfs=/run \
+            --tmpfs=/tmp:exec \
+            --tmpfs=/var/tmp \
+            --volume=/home/runner/work:/home/runner/work \
+            --volume=${{ github.workspace }}:${{ github.workspace }}:exec \
+            --workdir=${{ github.workspace }} \
+            --interactive \
+            --tty \
+            --detach \
+            container_img \
+            /usr/bin/sh \
+          ;
       - name: Fetch/Checkout msvc-wine git repo
         timeout-minutes: 1
         if: inputs.target-os == 'windows' && inputs.rust-toolchain-abi == 'msvc'
@@ -410,17 +439,6 @@ jobs:
             data/cameras.xml
           fetch-depth: 1
           set-safe-directory: ${{ github.workspace }}
-      - name: Switch to the Pull Request's merge commit
-        timeout-minutes: 1
-        if: github.event_name == 'pull_request_target'
-        env:
-          PR: ${{ github.event.number }}
-        shell: podman exec --interactive --tty container sh "{0}"
-        run: |
-          set -xe
-          cd "${{ env.SRC_DIR }}"
-          git fetch origin pull/${PR}/merge:pr/${PR}/merge
-          git switch pr/${PR}/merge
       - name: Initialize CodeQL (for CodeQL static analysis)
         timeout-minutes: 1
         if: env.WITH_CODEQL == 'true'
