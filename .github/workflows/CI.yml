@@ -22,8 +22,12 @@ jobs:
           - { runs-on: "ubuntu-latest",    host: "x86_64",  target: "i686",        vendor: "unknown", os: "linux", abi: "gnu"       }
         distro:
           - { image: "debian:trixie-slim", LLVM: 19 }
-        rust-toolchain-name: [ stable, nightly ]
-        build-profile: [ dev, release ]
+        rust-toolchain-name:
+          - stable
+          - nightly
+        build-profile:
+          - dev
+          - release
         job-flavor: [ plain ]
     uses: ./.github/workflows/CI-linux.yml
     with:
