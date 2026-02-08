@@ -34,6 +34,7 @@ members = [
     "src/metadata/xmltokendesparsifier",
     "src/metadata/xmltokenizer",
     "src/misc/md5",
+    "benches/misc/md5",
     "src/parsers",
     "src/parsers/rawparser",
     "src/std",
