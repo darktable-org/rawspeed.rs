@@ -1,0 +1,33 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: true
+        type: string
+
+env:
+  SRC_DIR: ${{ github.workspace }}/rawspeed.rs
+
+jobs:
+  linux:
+    runs-on: ${{ inputs.runs-on }}
+    name: Run CodeQL Static Analysis
+    steps:
+      - name: Fetch/Checkout RawSpeed.RS git repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          path: 'rawspeed.rs'
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          set-safe-directory: ${{ github.workspace }}
+      - name: Initialize CodeQL (for CodeQL static analysis)
+        timeout-minutes: 1
+        uses: github/codeql-action/init@v4
+        with:
+          source-root: ${{ env.SRC_DIR }}
+          languages: rust
+      - name: Perform CodeQL static analysis
+        timeout-minutes: 10
+        uses: github/codeql-action/analyze@v4
+        with:
+          checkout_path: ${{ env.SRC_DIR }}
