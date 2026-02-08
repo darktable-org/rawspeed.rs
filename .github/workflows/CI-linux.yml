@@ -44,10 +44,14 @@ on:
 env:
   DEBIAN_FRONTEND: noninteractive
   RUSTFLAGS: "-Dwarnings"
+  RUSTDOCFLAGS: ""
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.job-flavor == 'plain' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
-  WITH_CODEQL: ${{ inputs.builder-host != 'aarch64' && inputs.job-flavor == 'plain' }}
+
+defaults:
+  run:
+    shell: podman exec --env GITHUB_ENV --env RUSTFLAGS --env RUSTDOCFLAGS --interactive --tty container sh -u "{0}"
 
 jobs:
   linux:
@@ -56,7 +60,7 @@ jobs:
     steps:
       - name: Start the container
         timeout-minutes: 1
-        shell: eatmydata sh "{0}"
+        shell: eatmydata sh -u "{0}"
         run: |
           set -xe
           USER=`whoami`
@@ -80,11 +84,10 @@ jobs:
           ;
       - name: Configure necessary env variables
         timeout-minutes: 10
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           WITH_CODE_COVERAGE=${{ env.CODE_COVERAGE_SUPPORTED == 'true' && (inputs.builder-host == inputs.builder-target || (env.ENDIANNESS == 'big' && inputs.builder-target != 's390x')) && (github.event_name == 'pull_request' || env.CODECOV_TOKEN_EXISTS == 'true') }}
-          echo "WITH_CODE_COVERAGE=$(echo ${WITH_CODE_COVERAGE})" >> "${{ github.workspace }}/github-env"
+          echo "WITH_CODE_COVERAGE=$(echo ${WITH_CODE_COVERAGE})" >> "${GITHUB_ENV}"
           if    [ "${{ inputs.builder-target }}" = "x86_64" ]      \
              || [ "${{ inputs.builder-target }}" = "aarch64" ]     \
              || [ "${{ inputs.builder-target }}" = "i686" ]        \
@@ -101,9 +104,9 @@ jobs:
           else
           exit 1
           fi
-          echo "RUST_TARGET_ARCH=$(echo ${RUST_TARGET_ARCH})" >> "${{ github.workspace }}/github-env"
+          echo "RUST_TARGET_ARCH=$(echo ${RUST_TARGET_ARCH})" >> "${GITHUB_ENV}"
           RUST_TARGET=${RUST_TARGET_ARCH}-${{ inputs.target-vendor }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }}
-          echo "RUST_TARGET=$(echo ${RUST_TARGET})" >> "${{ github.workspace }}/github-env"
+          echo "RUST_TARGET=$(echo ${RUST_TARGET})" >> "${GITHUB_ENV}"
           if [ "${{ inputs.builder-target }}" = "i686" ]; then
           LIBC6_ARCH=i386
           elif [ "${{ inputs.builder-target }}" = "powerpc64" ]; then
@@ -117,7 +120,7 @@ jobs:
           else
           LIBC6_ARCH=${{ inputs.builder-target }}
           fi
-          echo "LIBC6_ARCH=$(echo ${LIBC6_ARCH})" >> "${{ github.workspace }}/github-env"
+          echo "LIBC6_ARCH=$(echo ${LIBC6_ARCH})" >> "${GITHUB_ENV}"
           if [ "${{ inputs.builder-target }}" = "armv6" ]; then
           GCC_ARCH=arm
           elif [ "${{ inputs.builder-target }}" = "armv7" ]; then
@@ -125,7 +128,7 @@ jobs:
           else
           GCC_ARCH=${{ inputs.builder-target }}
           fi
-          echo "GCC_ARCH=$(echo ${GCC_ARCH})" >> "${{ github.workspace }}/github-env"
+          echo "GCC_ARCH=$(echo ${GCC_ARCH})" >> "${GITHUB_ENV}"
           if    [ "${{ inputs.builder-target }}" = "s390x" ]      \
              || [ "${{ inputs.builder-target }}" = "powerpc64" ];
           then
@@ -133,14 +136,9 @@ jobs:
           else
           ENDIANNESS=little
           fi
-          echo "ENDIANNESS=$(echo ${ENDIANNESS})" >> "${{ github.workspace }}/github-env"
-      - name: Propagate `$GITHUB_ENV`
-        timeout-minutes: 1
-        run: |
-          cat "${{ github.workspace }}/github-env" >> $GITHUB_ENV
+          echo "ENDIANNESS=$(echo ${ENDIANNESS})" >> "${GITHUB_ENV}"
       - name: Configure APT
         timeout-minutes: 1
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           tee /etc/dpkg/dpkg.cfg.d/force-unsafe-io > /dev/null <<EOT
@@ -179,7 +177,6 @@ jobs:
           fi
       - name: Install eatmydata
         timeout-minutes: 1
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
@@ -188,10 +185,9 @@ jobs:
           rm -rf /var/lib/apt/lists/*
       - name: Configure for native compilation
         timeout-minutes: 1
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
-          . "${{ github.workspace }}/github-env"
+          PACKAGES="${{ env.PACKAGES }}"
           PACKAGES="${PACKAGES} \
             ca-certificates \
             curl \
@@ -223,14 +219,13 @@ jobs:
           ln -s /usr/local/bin/clang++ /usr/local/bin/c++
           ln -s /usr/local/bin/clang++ /usr/local/bin/g++
           ln -s /usr/local/bin/ld.lld /usr/local/bin/ld
-          echo "PACKAGES=\"$(echo ${PACKAGES})\"" >> "${{ github.workspace }}/github-env"
+          echo "PACKAGES=$(echo ${PACKAGES})" >> "${GITHUB_ENV}"
       - name: Configure for same-os cross-arch compilation
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain' && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
-          . "${{ github.workspace }}/github-env"
+          PACKAGES="${{ env.PACKAGES }}"
           PACKAGES="${PACKAGES} \
             gcc-${{ env.GCC_ARCH }}-${{ inputs.target-os }}-${{ inputs.rust-toolchain-abi }} \
             libc6-dev-${{ env.LIBC6_ARCH }}-cross \
@@ -260,14 +255,13 @@ jobs:
             libc6:i386 \
           "
           fi
-          echo "PACKAGES=\"$(echo ${PACKAGES})\"" >> "${{ github.workspace }}/github-env"
+          echo "PACKAGES=$(echo ${PACKAGES})" >> "${GITHUB_ENV}"
       - name: Configure for cross-os same-arch compilation
         timeout-minutes: 1
         if: inputs.target-os == 'windows'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
-          . "${{ github.workspace }}/github-env"
+          PACKAGES="${{ env.PACKAGES }}"
           if [ "${{ inputs.builder-target }}" = "i686" ]; then
           eatmydata dpkg --add-architecture i386
           fi
@@ -298,22 +292,19 @@ jobs:
           linker = "lld-link"
           EOT
           fi
-          echo "PACKAGES=\"$(echo ${PACKAGES})\"" >> "${{ github.workspace }}/github-env"
+          echo "PACKAGES=$(echo ${PACKAGES})" >> "${GITHUB_ENV}"
       - name: Install the packages
         timeout-minutes: 2
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
-          . "${{ github.workspace }}/github-env"
           apt update
           eatmydata apt upgrade
-          eatmydata apt install ${PACKAGES}
+          eatmydata apt install ${{ env.PACKAGES }}
           eatmydata apt clean
           rm -rf /var/lib/apt/lists/*
       - name: Install Rust toolchain and targets and crates
         timeout-minutes: 4
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           RUST_COMPONENTS=""
@@ -374,7 +365,6 @@ jobs:
       - name: Perform msvc-wine stuff
         timeout-minutes: 2
         if: inputs.target-os == 'windows' && inputs.rust-toolchain-abi == 'msvc'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -415,23 +405,14 @@ jobs:
         if: github.event_name == 'pull_request_target'
         env:
           PR: ${{ github.event.number }}
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           cd "${{ env.SRC_DIR }}"
           git fetch origin pull/${PR}/merge:pr/${PR}/merge
           git switch pr/${PR}/merge
-      - name: Initialize CodeQL (for CodeQL static analysis)
-        timeout-minutes: 1
-        if: env.WITH_CODEQL == 'true'
-        uses: github/codeql-action/init@v4
-        with:
-          source-root: ${{ env.SRC_DIR}}
-          languages: rust
       - name: Run cargo check
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -440,7 +421,6 @@ jobs:
       - name: Run Clippy
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -449,7 +429,6 @@ jobs:
       - name: Build
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -458,7 +437,6 @@ jobs:
       - name: Run tests
         timeout-minutes: 2
         if: inputs.job-flavor == 'plain'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -469,7 +447,6 @@ jobs:
         if: env.WITH_CODE_COVERAGE == 'true'
         env:
           RUSTFLAGS: "-C instrument-coverage"
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -479,7 +456,6 @@ jobs:
       - name: Aggregate code coverage
         timeout-minutes: 1
         if: env.WITH_CODE_COVERAGE == 'true'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -506,7 +482,6 @@ jobs:
       - name: Run tests under Miri
         timeout-minutes: 20
         if: inputs.job-flavor == 'Miri'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -515,10 +490,11 @@ jobs:
       - name: Run tests under Sanitizer
         timeout-minutes: 3
         if: inputs.job-flavor == 'ASAN' || inputs.job-flavor == 'MSAN' || inputs.job-flavor == 'TSAN'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
+          BUILD_ARGS=""
+          FLAGS=""
           BUILD_ARGS="${BUILD_ARGS} -Z build-std"
           if [ "${{ inputs.job-flavor }}" = "ASAN" ]; then
           FLAGS="${FLAGS} -Zsanitizer=address"
@@ -534,12 +510,6 @@ jobs:
           export ${{ inputs.job-flavor }}_OPTIONS="allocator_may_return_null=1"
           cd "${{ env.SRC_DIR }}"
           cargo test --all-targets $BUILD_ARGS --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}-sanitized
-      - name: Perform CodeQL static analysis
-        timeout-minutes: 5
-        if: env.WITH_CODEQL == 'true'
-        uses: github/codeql-action/analyze@v4
-        with:
-          checkout_path: ${{ env.SRC_DIR}}
       - name: Perform SonarQube static analysis
         timeout-minutes: 1
         if: inputs.job-flavor == 'SonarQube'
@@ -555,7 +525,6 @@ jobs:
       - name: Build docs
         timeout-minutes: 1
         if: inputs.job-flavor == 'doc'
-        shell: podman exec --interactive --tty container sh "{0}"
         run: |
           set -xe
           . "$HOME/.cargo/env"
