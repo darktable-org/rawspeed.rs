@@ -381,7 +381,9 @@ jobs:
           PYTHONUNBUFFERED=1 ./vsdownload.py --accept-license --dest /opt/msvc
           ./install.sh /opt/msvc
           tee -a "$HOME/.cargo/env" > /dev/null <<EOT
-          BIN=/opt/msvc/bin/${MSVC_ARCH} . $(pwd)/msvcenv-native.sh
+          BIN=/opt/msvc/bin/${MSVC_ARCH}
+          export PATH=\$BIN:$PATH
+          BIN=\$BIN . $(pwd)/msvcenv-native.sh
           EOT
       - name: Fetch/Checkout RawSpeed.RS git repo
         timeout-minutes: 1
