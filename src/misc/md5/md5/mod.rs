@@ -168,29 +168,33 @@ impl MD5State {
     }
 
     #[inline]
+    #[expect(clippy::many_single_char_names)]
+    fn round<S>(&mut self, r: MD5Round, step: &StepParams, schedule: S)
+    where
+        S: Fn(usize) -> u32,
+    {
+        let [a, b, c, d] = self.0;
+        let expr = r.get_expr(*self);
+        let a = a
+            .wrapping_add(expr)
+            .wrapping_add(step.t)
+            .wrapping_add(schedule(step.k))
+            .rotate_left(step.s)
+            .wrapping_add(b);
+        self.0 = [d, a, b, c];
+    }
+
+    #[inline]
     fn md5_compress(&mut self, block: &MD5Block) {
-        let mut schedule: [u32; 16] = Default::default();
-
-        for (s, bytes) in schedule.iter_mut().zip(block.0.chunks_exact(32 / 8))
-        {
-            *s = u32::from_le_bytes(bytes.try_into().unwrap());
-        }
-
-        let round_impl = |r: MD5Round, tmp: MD5State, step: &StepParams| {
-            let [a, b, _rest @ ..] = tmp.0;
-            let expr = r.get_expr(tmp);
-            let a = a
-                .wrapping_add(expr)
-                .wrapping_add(step.t)
-                .wrapping_add(*schedule.get(step.k).unwrap());
-            b.wrapping_add(a.rotate_left(step.s))
+        let schedule = |k: usize| -> u32 {
+            let bytes = block.0.chunks_exact(32 / 8).nth(k).unwrap();
+            u32::from_le_bytes(bytes.try_into().unwrap())
         };
 
         let mut tmp = *self;
         for (round, steps) in STAGES.iter().enumerate() {
             for step in steps {
-                tmp.0[0] = round_impl(MD5Round(round), tmp, step);
-                tmp.0.rotate_right(1);
+                tmp.round(MD5Round(round), step, schedule);
             }
         }
 
