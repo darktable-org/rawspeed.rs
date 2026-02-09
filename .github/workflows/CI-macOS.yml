@@ -4,6 +4,9 @@ on:
       os:
         required: true
         type: string
+      os-ver:
+        required: true
+        type: string
       runs-on:
         required: true
         type: string
@@ -32,6 +35,7 @@ env:
   RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
+  MACOSX_DEPLOYMENT_TARGET: ${{ inputs.os-ver }}
 
 jobs:
   macOS:

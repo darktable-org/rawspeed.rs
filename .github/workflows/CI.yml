@@ -126,6 +126,7 @@ jobs:
     uses: ./.github/workflows/CI-macOS.yml
     with:
       os: ${{ matrix.compiler.os }}
+      os-ver: ${{ matrix.compiler.os-ver }}
       runs-on: ${{ matrix.compiler.os }}-${{ matrix.compiler.os-ver }}
       builder-host: ${{ matrix.compiler.host }}
       builder-target: ${{ matrix.compiler.target }}
