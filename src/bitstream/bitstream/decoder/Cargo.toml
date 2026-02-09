@@ -23,3 +23,4 @@ rawspeed-memory-variable_length_load = { path = "../../../memory/variable_length
 
 [lib]
 path = "mod.rs"
+bench = false

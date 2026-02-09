@@ -19,3 +19,4 @@ rawspeed-memory-fixed_length_load = { path = "../../../memory/fixed_length_load"
 
 [lib]
 path = "mod.rs"
+bench = false

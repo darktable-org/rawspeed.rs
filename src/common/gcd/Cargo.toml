@@ -18,3 +18,4 @@ rawspeed-common-exact_ops = { path = "../exact_ops" }
 
 [lib]
 path = "mod.rs"
+bench = false

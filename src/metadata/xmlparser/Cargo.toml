@@ -17,3 +17,4 @@ rawspeed-metadata-xmltokendesparsifier = { path = "../xmltokendesparsifier" }
 
 [lib]
 path = "mod.rs"
+bench = false

@@ -25,3 +25,4 @@ rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
 
 [lib]
 path = "mod.rs"
+bench = false

@@ -93,27 +93,119 @@ jobs:
           if [ "${RUST_CRATES}" != "" ]; then
           cargo install --locked ${RUST_CRATES}
           fi
-      - name: Run cargo check
+      - name: Run cargo fetch
         timeout-minutes: 1
         run: |
           set -xe
           . "$HOME/.cargo/env"
-          cd "$SRC_DIR"
-          cargo check --profile ${{ inputs.build-profile }} --all-targets --all-features
-      - name: Run Clippy
+          cd "${{ env.SRC_DIR }}"
+          cargo fetch
+          echo "CARGO_NET_OFFLINE=true" >> "$HOME/.cargo/env"
+      - name: Run cargo check (libs)
         timeout-minutes: 1
         run: |
           set -xe
           . "$HOME/.cargo/env"
-          cd "$SRC_DIR"
-          cargo clippy --profile ${{ inputs.build-profile }} --all-targets --all-features
-      - name: Build
+          cd "${{ env.SRC_DIR }}"
+          cargo check --profile ${{ inputs.build-profile }} --all-features --lib
+      - name: Run cargo check (tests)
         timeout-minutes: 1
         run: |
           set -xe
           . "$HOME/.cargo/env"
-          cd "$SRC_DIR"
-          cargo build --profile ${{ inputs.build-profile }}
+          cd "${{ env.SRC_DIR }}"
+          cargo check --profile ${{ inputs.build-profile }} --all-features --tests
+      - name: Run cargo check (bins)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo check --profile ${{ inputs.build-profile }} --all-features --bins
+      - name: Run cargo check (benches)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo check --profile ${{ inputs.build-profile }} --all-features --benches
+      - name: Run cargo check (... rest)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo check --profile ${{ inputs.build-profile }} --all-features --all-targets
+      - name: Run Clippy (libs)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo clippy --profile ${{ inputs.build-profile }} --all-features --lib
+      - name: Run Clippy (tests)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo clippy --profile ${{ inputs.build-profile }} --all-features --tests
+      - name: Run Clippy (bins)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo clippy --profile ${{ inputs.build-profile }} --all-features --bins
+      - name: Run Clippy (benches)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo clippy --profile ${{ inputs.build-profile }} --all-features --benches
+      - name: Run Clippy (... rest)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo clippy --profile ${{ inputs.build-profile }} --all-features --all-targets
+      - name: Run cargo build (libs)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo build --profile ${{ inputs.build-profile }} --all-features --lib
+      - name: Run cargo build (tests)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo build --profile ${{ inputs.build-profile }} --all-features --tests
+      - name: Run cargo build (bins)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo build --profile ${{ inputs.build-profile }} --all-features --bins
+      - name: Run cargo build (benches)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo build --profile ${{ inputs.build-profile }} --all-features --benches
+      - name: Run cargo build (... rest)
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo build --profile ${{ inputs.build-profile }} --all-features --all-targets
       - name: Run tests
         timeout-minutes: 1
         run: |

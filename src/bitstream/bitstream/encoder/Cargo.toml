@@ -20,3 +20,4 @@ rawspeed-memory-endianness = { path = "../../../memory/endianness" }
 
 [lib]
 path = "mod.rs"
+bench = false

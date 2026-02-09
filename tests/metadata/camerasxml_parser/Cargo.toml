@@ -18,3 +18,4 @@ rawspeed-utils-librstest = { path = "../../../src/utils/librstest" }
 
 [lib]
 path = "xmllint.rs"
+bench = false
