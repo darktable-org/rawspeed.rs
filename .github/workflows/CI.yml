@@ -119,8 +119,8 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - { os: macos, os-ver: "15",       host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
-          - { os: macos, os-ver: "15-intel", host: "x86_64",  target: "x86_64",  XCode: 16.3, LLVM: 19 }
+          - { os: macos, os-ver: "26",       host: "aarch64", target: "aarch64", XCode: 16.3, LLVM: 19 }
+          - { os: macos, os-ver: "26-intel", host: "x86_64",  target: "x86_64",  XCode: 16.3, LLVM: 19 }
         rust-toolchain-name: [ stable, nightly ]
         build-profile: [ dev, release ]
         job-flavor: [ plain ]
