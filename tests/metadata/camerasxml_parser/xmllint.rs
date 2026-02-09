@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     #[test]
-    #[cfg(not(miri))]
+    #[cfg_attr(miri, ignore)]
     fn xmllint() -> Result<(), Box<dyn core::error::Error>> {
         use rawspeed_metadata_camerasxml_parser::camerasxml_parser;
         let camerasxml_path =

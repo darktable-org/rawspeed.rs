@@ -23,7 +23,7 @@ fn run_test(lhs: BoundUnsigned<T>, rhs: T) {
 }
 
 #[test]
-#[cfg(not(miri))]
+#[cfg_attr(miri, ignore)]
 fn add_test_exhaustive() {
     for bound in u8::MIN..=u8::MAX {
         let Some(bound) = Bound::new(bound) else {

@@ -35,7 +35,7 @@ fn run_test(lhs: BoundUnsigned<T>, rhs: U) {
 }
 
 #[test]
-#[cfg(not(miri))]
+#[cfg_attr(miri, ignore)]
 fn exhaustive_test() {
     for bound in T::MIN..=T::MAX {
         let Some(bound) = Bound::new(bound) else {
