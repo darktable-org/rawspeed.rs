@@ -21,3 +21,4 @@ rawspeed-bitstream-bitstreamslice = { path = "../../../src/bitstream/bitstreamsl
 [[test]]
 name = "rawspeed-test-bitstream-bitstreams"
 path = "mod.rs"
+bench = false

@@ -17,3 +17,4 @@ rawspeed-metadata-xmltokenizer = { path = "../xmltokenizer" }
 
 [lib]
 path = "mod.rs"
+bench = false

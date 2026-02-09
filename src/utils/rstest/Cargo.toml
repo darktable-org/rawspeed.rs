@@ -18,3 +18,4 @@ rawspeed-utils-librstest = { path = "../librstest" }
 [[bin]]
 name = "rstest"
 path = "mod.rs"
+bench = false

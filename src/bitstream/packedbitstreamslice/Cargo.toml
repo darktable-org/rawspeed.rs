@@ -19,3 +19,4 @@ rawspeed-common-lcm = { path = "../../common/lcm" }
 
 [lib]
 path = "mod.rs"
+bench = false

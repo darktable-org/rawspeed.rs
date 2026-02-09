@@ -21,3 +21,4 @@ rawspeed-bitstream-packedbitstreamslice = { path = "../packedbitstreamslice" }
 
 [lib]
 path = "mod.rs"
+bench = false

@@ -19,3 +19,4 @@ rawspeed-metadata-camerasxml_parser = { path = "../camerasxml_parser" }
 
 [lib]
 path = "mod.rs"
+bench = false
