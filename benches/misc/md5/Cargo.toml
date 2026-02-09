@@ -1,0 +1,22 @@
+[package]
+name = "rawspeed-bench-md5"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+rawspeed-misc-md5 = { path = "../../../src/misc/md5" }
+criterion = { version = "0.8.2", default-features = false, features = [] }
+
+[[bench]]
+name = "rawspeed-bench-md5"
+path = "mod.rs"
+harness = false

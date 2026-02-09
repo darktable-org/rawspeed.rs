@@ -4,6 +4,9 @@ on:
       os:
         required: true
         type: string
+      os-ver:
+        required: true
+        type: string
       runs-on:
         required: true
         type: string
@@ -32,6 +35,7 @@ env:
   RUSTFLAGS: "-Dwarnings"
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
+  MACOSX_DEPLOYMENT_TARGET: ${{ inputs.os-ver }}
 
 jobs:
   macOS:
@@ -251,3 +255,10 @@ jobs:
           files: ${{ env.SRC_DIR }}/codecov.json
           root_dir: ${{ env.SRC_DIR }}
           fail_ci_if_error: true
+      - name: Dry-run benchmarks
+        timeout-minutes: 1
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "$SRC_DIR"
+          cargo bench --profile ${{ inputs.build-profile }} --benches -- --quick --warm-up-time 1e-9 --measurement-time 1e-9 --noplot

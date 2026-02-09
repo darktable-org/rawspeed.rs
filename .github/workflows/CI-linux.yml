@@ -595,7 +595,7 @@ jobs:
           cd "${{ env.SRC_DIR }}"
           cargo miri nextest run --target ${{ env.RUST_TARGET }}
       - name: Run tests under Sanitizer
-        timeout-minutes: 3
+        timeout-minutes: 5
         if: inputs.job-flavor == 'ASAN' || inputs.job-flavor == 'MSAN' || inputs.job-flavor == 'TSAN'
         run: |
           set -xe
@@ -617,6 +617,14 @@ jobs:
           export ${{ inputs.job-flavor }}_OPTIONS="allocator_may_return_null=1"
           cd "${{ env.SRC_DIR }}"
           cargo test --all-targets $BUILD_ARGS --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}-sanitized
+      - name: Dry-run benchmarks
+        timeout-minutes: 1
+        if: inputs.job-flavor == 'plain'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          cargo bench --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --benches -- --quick --warm-up-time 1e-9 --measurement-time 1e-9 --noplot
       - name: Perform SonarQube static analysis
         timeout-minutes: 1
         if: inputs.job-flavor == 'SonarQube'
