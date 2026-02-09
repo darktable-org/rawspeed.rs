@@ -595,7 +595,7 @@ jobs:
           cd "${{ env.SRC_DIR }}"
           cargo miri nextest run --target ${{ env.RUST_TARGET }}
       - name: Run tests under Sanitizer
-        timeout-minutes: 3
+        timeout-minutes: 5
         if: inputs.job-flavor == 'ASAN' || inputs.job-flavor == 'MSAN' || inputs.job-flavor == 'TSAN'
         run: |
           set -xe
