@@ -1,4 +1,5 @@
 use super::*;
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 
 use std::io::Write as _;
 
@@ -47,7 +48,7 @@ fn dropping_unflushed_vac_byte() {
     use std::io::Cursor;
     let mut buf = Cursor::new(vec![]);
     let mut vac = BitVacuumerMSB32::new(&mut buf);
-    vac.put(0, 1).unwrap();
+    vac.put(BitSeq::new(BitLen::new(1), 0).unwrap()).unwrap();
     drop(vac);
 }
 
@@ -57,7 +58,7 @@ fn flush_arr_overflow_test() -> std::io::Result<()> {
     let mut buf = [0_u8; 0];
     let mut buf = Cursor::new(buf.as_mut());
     let mut vac = BitVacuumerMSB32::new(&mut buf);
-    vac.put(0, 1)?;
+    vac.put(BitSeq::new(BitLen::new(1), 0).unwrap())?;
     assert!(vac.flush().is_err());
     Ok(())
 }
@@ -70,7 +71,7 @@ fn byte_enumeration_test() -> std::io::Result<()> {
         let mut buf = Cursor::new(vec![]);
         let mut vac = BitVacuumerMSB32::new(&mut buf);
         for i in 0..num_bytes {
-            vac.put(1 + i, 8)?;
+            vac.put(BitSeq::new(BitLen::new(8), 1 + i).unwrap())?;
         }
         vac.flush()?;
         buf.flush()?;
@@ -101,7 +102,7 @@ fn nibble_enumeration_test() -> std::io::Result<()> {
         for i in 0..num_nibbles {
             let nibble = 1 + i;
             assert!(nibble <= 0xF);
-            vac.put(nibble, 4)?;
+            vac.put(BitSeq::new(BitLen::new(4), nibble).unwrap())?;
         }
         vac.flush()?;
         buf.flush()?;
@@ -137,9 +138,9 @@ fn bit_enumeration_test() -> std::io::Result<()> {
         let mut buf = Cursor::new(vec![]);
         let mut vac = BitVacuumerMSB32::new(&mut buf);
         for _i in 0..num_leading_zeros {
-            vac.put(0, 1)?;
+            vac.put(BitSeq::new(BitLen::new(1), 0).unwrap())?;
         }
-        vac.put(1, 1)?;
+        vac.put(BitSeq::new(BitLen::new(1), 1).unwrap())?;
         vac.flush()?;
         buf.flush()?;
         res.push(buf.get_ref().clone());
@@ -190,9 +191,9 @@ fn sliding_0xff_test() -> std::io::Result<()> {
         let mut buf = Cursor::new(vec![]);
         let mut vac = BitVacuumerMSB32::new(&mut buf);
         for _i in 0..num_leading_zeros {
-            vac.put(0, 1)?;
+            vac.put(BitSeq::new(BitLen::new(1), 0).unwrap())?;
         }
-        vac.put(0xFF, 8)?;
+        vac.put(BitSeq::new(BitLen::new(8), 0xFF).unwrap())?;
         vac.flush()?;
         buf.flush()?;
         res.push(buf.get_ref().clone());
@@ -238,9 +239,9 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test() -> std::io::Result<()> {
         for i in 0..num_leading_nibbles {
             let nibble = 1 + i;
             assert!(nibble <= 0xF);
-            vac.put(nibble, 4)?;
+            vac.put(BitSeq::new(BitLen::new(4), nibble).unwrap())?;
         }
-        vac.put(0xFF, 8)?;
+        vac.put(BitSeq::new(BitLen::new(8), 0xFF).unwrap())?;
         vac.flush()?;
         buf.flush()?;
         res.push(buf.get_ref().clone());

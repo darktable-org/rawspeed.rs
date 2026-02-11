@@ -3,6 +3,8 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheBase;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_common_bitseq::bitseq::BitLen;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
@@ -140,7 +142,12 @@ where
         }
 
         // Pad with zero bits, so we can drain the partial chunk.
-        self.put(/*bits=*/ 0, u32::BITWIDTH - self.cache.fill_level())?;
+        let bits = BitSeq::new(
+            BitLen::new(u32::BITWIDTH - self.cache.fill_level()),
+            0,
+        )
+        .unwrap();
+        self.put(bits)?;
         assert!(self.cache.fill_level() == u32::BITWIDTH);
 
         self.drain()?;
@@ -162,10 +169,10 @@ where
     }
 
     #[inline]
-    pub fn put(&mut self, bits: u64, count: u32) -> std::io::Result<()> {
+    pub fn put(&mut self, bits: BitSeq<u64>) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;
-        self.cache.push(bits.into(), count);
+        self.cache.push(bits.zext().into(), *bits.len());
         Ok(())
     }
 }
