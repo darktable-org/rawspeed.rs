@@ -5,6 +5,7 @@ use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSliceConstraints;
 use rawspeed_common_bitseq::bitseq::BitLen;
 use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
@@ -30,7 +31,12 @@ pub struct BitStreamerReplenisherStorage<'a, T> {
 
 pub trait BitStreamerReplenisher<'a, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits
+        + BitStreamSliceConstraints,
 {
     #[must_use]
     fn new(input: BitStreamSlice<'a, T>) -> Self;
@@ -49,7 +55,12 @@ where
 impl<'a, T> BitStreamerReplenisher<'a, T>
     for BitStreamerReplenisherStorage<'a, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits
+        + BitStreamSliceConstraints,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         Default + core::ops::IndexMut<RangeFull>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
@@ -243,7 +254,12 @@ where
 
 impl<'a, T> BitStreamerBase<'a, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits
+        + BitStreamSliceConstraints,
     Self: BitStreamerCacheFillImpl<T>,
     BitStreamerReplenisherStorage<'a, T>: BitStreamerReplenisher<'a, T>,
     <T as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
