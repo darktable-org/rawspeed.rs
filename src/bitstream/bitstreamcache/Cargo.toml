@@ -13,9 +13,9 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-bit_manip = { path = "../../common/bit_manip" }
-rawspeed-common-bitseq = { path = "../../common/bitseq" }
-rawspeed-common-generic_num = { path = "../../common/generic_num" }
+rawspeed-common-bit_manip = { workspace = true }
+rawspeed-common-bitseq = { workspace = true }
+rawspeed-common-generic_num = { workspace = true }
 
 [lib]
 path = "mod.rs"

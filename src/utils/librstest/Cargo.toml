@@ -13,19 +13,19 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-generic_num = { path = "../../common/generic_num" }
-rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
-rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
-rawspeed-misc-md5 = { path = "../../misc/md5" }
-rawspeed-parsers-rawparser = { path = "../../parsers/rawparser" }
-rawspeed-demuxers-rawdemuxer = { path = "../../demuxers/rawdemuxer" }
-rawspeed-std = { path = "../../std" }
-rawspeed-std-ndslice = { path = "../../std/ndslice" }
-rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
-rawspeed-metadata-colorfilterarray = { path = "../../metadata/colorfilterarray" }
+rawspeed-common-generic_num = { workspace = true }
+rawspeed-metadata-camerametadata = { workspace = true }
+rawspeed-metadata-camerasxml_parser = { workspace = true }
+rawspeed-misc-md5 = { workspace = true }
+rawspeed-parsers-rawparser = { workspace = true }
+rawspeed-demuxers-rawdemuxer = { workspace = true }
+rawspeed-std = { workspace = true }
+rawspeed-std-ndslice = { workspace = true }
+rawspeed-memory-nd_slice_procurement = { workspace = true }
+rawspeed-metadata-colorfilterarray = { workspace = true }
 
 [dev-dependencies]
-rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
+rawspeed-metadata-xmlparser = { workspace = true }
 
 [lib]
 path = "mod.rs"

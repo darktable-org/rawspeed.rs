@@ -13,7 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-metadata-camerasxml_parser = { path = "../camerasxml_parser" }
+rawspeed-metadata-camerasxml_parser = { workspace = true }
 
 [dev-dependencies]
 

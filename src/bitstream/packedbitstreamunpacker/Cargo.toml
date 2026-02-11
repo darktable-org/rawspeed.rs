@@ -13,12 +13,12 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstream-decoder = { path = "../bitstream/decoder" }
-rawspeed-bitstream-bitstreamcache = { path = "../bitstreamcache" }
-rawspeed-bitstream-bitstreams = { path = "../bitstreams" }
-rawspeed-bitstream-bitstreamslice = { path = "../bitstreamslice" }
-rawspeed-bitstream-packedbitstreamslice = { path = "../packedbitstreamslice" }
-rawspeed-common-bitseq = { path = "../../common/bitseq" }
+rawspeed-bitstream-bitstream-decoder = { workspace = true }
+rawspeed-bitstream-bitstreamcache = { workspace = true }
+rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
+rawspeed-bitstream-packedbitstreamslice = { workspace = true }
+rawspeed-common-bitseq = { workspace = true }
 
 [lib]
 path = "mod.rs"

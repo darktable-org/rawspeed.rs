@@ -13,8 +13,8 @@ license.workspace = true
 workspace = true
 
 [dev-dependencies]
-rawspeed-misc-md5 = { path = "../../../src/misc/md5" }
-criterion = { version = "0.8.2", default-features = false, features = [] }
+rawspeed-misc-md5 = { workspace = true }
+criterion = { workspace = true }
 
 [[bench]]
 name = "rawspeed-bench-md5"

@@ -1,4 +1,4 @@
-use rawspeed_demuxers_naked::naked_demuxer::NakedDemuxer;
+use rawspeed_demuxers_packed::naked_demuxer::NakedDemuxer;
 use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer;
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;

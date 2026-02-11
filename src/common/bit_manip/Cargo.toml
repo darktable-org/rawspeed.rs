@@ -13,7 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-generic_num = { path = "../generic_num" }
+rawspeed-common-generic_num = { workspace = true }
 
 [lib]
 path = "mod.rs"

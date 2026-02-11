@@ -13,7 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-utils-librstest = { path = "../librstest" }
+rawspeed-utils-librstest = { workspace = true }
 
 [[bin]]
 name = "rstest"

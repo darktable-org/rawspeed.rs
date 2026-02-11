@@ -13,7 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-metadata-xmltokenizer = { path = "../xmltokenizer" }
+rawspeed-metadata-xmltokenizer = { workspace = true }
 
 [lib]
 path = "mod.rs"
