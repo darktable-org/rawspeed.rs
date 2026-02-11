@@ -12,7 +12,7 @@ use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 fn u8_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u8;
-    const NUM_BITS: usize = 8;
+    const NUM_BITS: u32 = 8;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0, 11, 0, 0],
         vec![0, 11, 0, 0, 0],
@@ -106,7 +106,7 @@ fn u8_enumeration_test() {
 fn u4_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u8;
-    const NUM_BITS: usize = 4;
+    const NUM_BITS: u32 = 4;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0, 16, 0, 0],
         vec![0, 16, 0, 0, 0],
@@ -185,7 +185,7 @@ fn u4_enumeration_test() {
 fn u16_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u16;
-    const NUM_BITS: usize = 16;
+    const NUM_BITS: u32 = 16;
     let inputs: Vec<Vec<u8>> = vec![
         vec![11, 0, 0, 0],
         vec![11, 0, 0, 0, 0],
@@ -292,7 +292,7 @@ fn u16_enumeration_test() {
 fn u12_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u16;
-    const NUM_BITS: usize = 12;
+    const NUM_BITS: u32 = 12;
     let inputs: Vec<Vec<u8>> = vec![
         vec![176, 0, 0, 0],
         vec![176, 0, 0, 0, 0],
@@ -402,7 +402,7 @@ fn u12_enumeration_test() {
 fn u32_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::MSB16;
     type T = u32;
-    const NUM_BITS: usize = 32;
+    const NUM_BITS: u32 = 32;
     let inputs: Vec<Vec<u8>> = vec![
         vec![0, 0, 11, 0],
         vec![0, 0, 11, 0, 0],

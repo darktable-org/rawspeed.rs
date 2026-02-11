@@ -63,12 +63,12 @@ where
 
         assert!(self.cache.fill_level() >= cache.size());
 
-        let stream_chunk_bitwidth: usize =
+        let stream_chunk_bitwidth =
             <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH;
 
         assert!(cache.size() >= stream_chunk_bitwidth);
         assert!(cache.size().is_multiple_of(stream_chunk_bitwidth));
-        let num_chunks_needed: usize = cache.size() / stream_chunk_bitwidth;
+        let num_chunks_needed = cache.size() / stream_chunk_bitwidth;
         assert!(num_chunks_needed >= 1);
 
         for _i in 0..num_chunks_needed {
@@ -162,7 +162,7 @@ where
     }
 
     #[inline]
-    pub fn put(&mut self, bits: u64, count: usize) -> std::io::Result<()> {
+    pub fn put(&mut self, bits: u64, count: u32) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;
         self.cache.push(bits.into(), count);

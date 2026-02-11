@@ -171,7 +171,9 @@ where
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
         let stream_chunk_bitwidth: usize =
-            <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH;
+            <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH
+                .try_into()
+                .unwrap();
         assert!(stream_chunk_bitwidth >= 1);
         assert!(stream_chunk_bitwidth.is_multiple_of(8));
 
@@ -192,7 +194,8 @@ where
             let chunk = chunk.from_ne_bytes();
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
-            self.cache.push(chunk.into(), stream_chunk_bitwidth);
+            self.cache
+                .push(chunk.into(), stream_chunk_bitwidth.try_into().unwrap());
         }
         T::MAX_PROCESS_BYTES
     }
@@ -251,7 +254,7 @@ where
     }
 
     #[inline]
-    pub fn fill(&mut self, nbits: usize) -> Result<(), &'static str> {
+    pub fn fill(&mut self, nbits: u32) -> Result<(), &'static str> {
         assert!(nbits != 0);
 
         if self.cache.fill_level() >= nbits {
@@ -267,12 +270,12 @@ where
     }
 
     #[inline]
-    pub fn peek_bits_no_fill(&mut self, nbits: usize) -> u64 {
+    pub fn peek_bits_no_fill(&mut self, nbits: u32) -> u64 {
         self.cache.peek(nbits).into()
     }
 
     #[inline]
-    pub fn skip_bits_no_fill(&mut self, nbits: usize) {
+    pub fn skip_bits_no_fill(&mut self, nbits: u32) {
         self.cache.skip(nbits);
     }
 }

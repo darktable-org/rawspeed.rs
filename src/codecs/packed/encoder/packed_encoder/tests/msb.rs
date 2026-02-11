@@ -57,7 +57,7 @@ fn flush_arr_overflow_test() {
 fn u8_enumeration_test() -> std::io::Result<()> {
     const BIT_ORDER: BitOrder = BitOrder::MSB;
     type T = u8;
-    const NUM_BITS: usize = 8;
+    const NUM_BITS: u32 = 8;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
@@ -142,7 +142,7 @@ fn u8_enumeration_test() -> std::io::Result<()> {
 fn u4_enumeration_test() -> std::io::Result<()> {
     const BIT_ORDER: BitOrder = BitOrder::MSB;
     type T = u8;
-    const NUM_BITS: usize = 4;
+    const NUM_BITS: u32 = 4;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=7 {
@@ -210,7 +210,7 @@ fn u4_enumeration_test() -> std::io::Result<()> {
 fn u16_enumeration_test() -> std::io::Result<()> {
     const BIT_ORDER: BitOrder = BitOrder::MSB;
     type T = u16;
-    const NUM_BITS: usize = 16;
+    const NUM_BITS: u32 = 16;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
@@ -308,7 +308,7 @@ fn u16_enumeration_test() -> std::io::Result<()> {
 fn u12_enumeration_test() -> std::io::Result<()> {
     const BIT_ORDER: BitOrder = BitOrder::MSB;
     type T = u16;
-    const NUM_BITS: usize = 12;
+    const NUM_BITS: u32 = 12;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {
@@ -409,7 +409,7 @@ fn u12_enumeration_test() -> std::io::Result<()> {
 fn u32_enumeration_test() -> std::io::Result<()> {
     const BIT_ORDER: BitOrder = BitOrder::MSB;
     type T = u32;
-    const NUM_BITS: usize = 32;
+    const NUM_BITS: u32 = 32;
     let mut res: Vec<Vec<u8>> = vec![];
     for num_rows in 1..=2 {
         for num_cols in 1..=8 {

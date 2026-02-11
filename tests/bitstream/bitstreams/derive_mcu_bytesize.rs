@@ -41,7 +41,7 @@ where
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
 
     for mcu_bytesize in 1_usize.. {
-        const BITS_PER_BYTE: usize = 8;
+        const BITS_PER_BYTE: u32 = 8;
         let mcu_getter = |bs: &mut BitStreamerBase<'_, BitOrder>| {
             let mut elts = vec![];
             for _i in 0..mcu_bytesize {

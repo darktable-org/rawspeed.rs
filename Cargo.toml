@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
+    "benches/misc/md5",
     "src",
     "src/bitstream/bitstream/decoder",
     "src/bitstream/bitstream/encoder",
@@ -34,7 +35,6 @@ members = [
     "src/metadata/xmltokendesparsifier",
     "src/metadata/xmltokenizer",
     "src/misc/md5",
-    "benches/misc/md5",
     "src/parsers",
     "src/parsers/rawparser",
     "src/std",

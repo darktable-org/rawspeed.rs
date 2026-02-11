@@ -32,8 +32,7 @@ where
 
         assert!(self.cache.fill_level() >= u32::BITWIDTH);
 
-        let stream_chunk_bitwidth: usize =
-            ChunkType::BITWIDTH;
+        let stream_chunk_bitwidth=            ChunkType::BITWIDTH;
 
         assert!(u32::BITWIDTH == stream_chunk_bitwidth);
 

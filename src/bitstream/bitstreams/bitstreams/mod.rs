@@ -23,18 +23,19 @@ pub trait BitStreamTraits {
 }
 
 #[inline]
-const fn predict_bitstream_bytelen<BS>(
-    num_items: usize,
-    item_bitlen: usize,
-) -> usize
+fn predict_bitstream_bytelen<BS>(num_items: usize, item_bitlen: u32) -> u64
 where
     BS: BitStreamTraits,
 {
     const {
         assert!(BS::FIXED_SIZE_CHUNKS);
     };
+    let num_items = u64::try_from(num_items).unwrap();
+    let item_bitlen = u64::from(item_bitlen);
     let bitlen = item_bitlen.checked_mul(num_items).unwrap();
-    let bitlen = bitlen.checked_next_multiple_of(u32::BITWIDTH).unwrap();
+    let bitlen = bitlen
+        .checked_next_multiple_of(u32::BITWIDTH.into())
+        .unwrap();
     assert!(bitlen.is_multiple_of(8));
     bitlen / 8
 }
@@ -42,11 +43,11 @@ where
 impl BitOrder {
     #[inline]
     #[must_use]
-    pub const fn predict_exact_bitstream_bytelen(
+    pub fn predict_exact_bitstream_bytelen(
         self,
         num_items: usize,
-        item_bitlen: usize,
-    ) -> usize {
+        item_bitlen: u32,
+    ) -> u64 {
         match self {
             BitOrder::LSB => {
                 predict_bitstream_bytelen::<BitOrderLSB>(num_items, item_bitlen)

@@ -72,9 +72,10 @@ where
         let items = storage.get_mut(..Self::len()).unwrap();
         let mut bs = BitStreamerBase::<BitOrder>::new(slice.get_slice());
         for item in items.iter_mut() {
-            bs.fill(ITEM_PACKED_BITLEN).unwrap();
-            let bits = bs.peek_bits_no_fill(ITEM_PACKED_BITLEN);
-            bs.skip_bits_no_fill(ITEM_PACKED_BITLEN);
+            let item_packed_bitlen_ = ITEM_PACKED_BITLEN.try_into().unwrap();
+            bs.fill(item_packed_bitlen_).unwrap();
+            let bits = bs.peek_bits_no_fill(item_packed_bitlen_);
+            bs.skip_bits_no_fill(item_packed_bitlen_);
             *item = bits.try_into().unwrap();
         }
         Ok(Self {

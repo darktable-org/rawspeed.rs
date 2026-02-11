@@ -10,7 +10,7 @@ use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 fn u8_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::JPEG;
     type T = u8;
-    const NUM_BITS: usize = 8;
+    const NUM_BITS: u32 = 8;
     let input: Vec<u8> = vec![0];
     let bytes = Array2DRef::new(&input, RowLength::new(1), RowPitch::new(1));
     let mut storage: Vec<T> = vec![0];
