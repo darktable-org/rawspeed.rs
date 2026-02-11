@@ -37,7 +37,7 @@ where
         assert!(u32::BITWIDTH == stream_chunk_bitwidth);
 
         let Ok(chunk) = <ChunkType>::try_from(
-            self.cache.peek(stream_chunk_bitwidth),
+            self.cache.peek(stream_chunk_bitwidth).zext(),
         ) else {
             panic!("lossless cast failed?")
         };

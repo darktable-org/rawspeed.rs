@@ -16,6 +16,7 @@ members = [
     "src/codecs/packed/encoder",
     "src/common",
     "src/common/bit_manip",
+    "src/common/bitseq",
     "src/common/exact_ops",
     "src/common/gcd",
     "src/common/generic_num",

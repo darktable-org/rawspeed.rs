@@ -17,6 +17,7 @@ rawspeed-bitstream-bitstream-decoder = { path = "../../../src/bitstream/bitstrea
 rawspeed-bitstream-bitstreamcache = { path = "../../../src/bitstream/bitstreamcache" }
 rawspeed-bitstream-bitstreams = { path = "../../../src/bitstream/bitstreams" }
 rawspeed-bitstream-bitstreamslice = { path = "../../../src/bitstream/bitstreamslice" }
+rawspeed-common-bitseq = { path = "../../../src/common/bitseq" }
 
 [[test]]
 name = "rawspeed-test-bitstream-bitstreams"

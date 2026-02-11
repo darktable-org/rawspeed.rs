@@ -5,6 +5,8 @@ use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_common_bitseq::bitseq::BitLen;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
@@ -194,8 +196,12 @@ where
             let chunk = chunk.from_ne_bytes();
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
-            self.cache
-                .push(chunk.into(), stream_chunk_bitwidth.try_into().unwrap());
+            let bits = BitSeq::new(
+                BitLen::new(stream_chunk_bitwidth.try_into().unwrap()),
+                chunk.into(),
+            )
+            .unwrap();
+            self.cache.push(bits);
         }
         T::MAX_PROCESS_BYTES
     }
@@ -241,7 +247,9 @@ where
     Self: BitStreamerCacheFillImpl<T>,
     BitStreamerReplenisherStorage<'a, T>: BitStreamerReplenisher<'a, T>,
     <T as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-    u64: From<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+    BitSeq<u64>: From<
+        BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+    >,
 {
     #[inline]
     #[must_use]
@@ -270,7 +278,7 @@ where
     }
 
     #[inline]
-    pub fn peek_bits_no_fill(&mut self, nbits: u32) -> u64 {
+    pub fn peek_bits_no_fill(&mut self, nbits: u32) -> BitSeq<u64> {
         self.cache.peek(nbits).into()
     }
 

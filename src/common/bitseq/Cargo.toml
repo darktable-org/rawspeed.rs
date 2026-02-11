@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-bitstream-bitstreamcache"
+name = "rawspeed-common-bitseq"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,9 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-bit_manip = { path = "../../common/bit_manip" }
-rawspeed-common-bitseq = { path = "../../common/bitseq" }
-rawspeed-common-generic_num = { path = "../../common/generic_num" }
+rawspeed-common-generic_num = { path = "../generic_num" }
 
 [lib]
 path = "mod.rs"

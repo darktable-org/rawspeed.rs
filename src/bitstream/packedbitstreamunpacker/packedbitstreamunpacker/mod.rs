@@ -9,6 +9,7 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
 use rawspeed_bitstream_packedbitstreamslice::packedbitstreamslice::{
     BitPackingLayout, PackedBitstreamSlice,
 };
+use rawspeed_common_bitseq::bitseq::BitSeq;
 
 #[derive(Debug)]
 pub struct PackedBitstreamUnpacker<BitOrder, const ITEM_PACKED_BITLEN: usize>
@@ -46,14 +47,20 @@ where
     pub fn new<'a>(
         slice: PackedBitstreamSlice<'a, BitOrder, ITEM_PACKED_BITLEN>,
     ) -> Result<Self, PackedBitstreamUnpackerError>
-        where
-            BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-            BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-            BitStreamerReplenisherStorage<'a, BitOrder>: BitStreamerReplenisher<'a, BitOrder>,
-            <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-            u64: From<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
-            u16: TryFrom<u64>
-      {
+    where
+        BitOrder:
+            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
+        BitStreamerReplenisherStorage<'a, BitOrder>:
+            BitStreamerReplenisher<'a, BitOrder>,
+        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
+        BitSeq<u64>: From<
+            BitSeq<
+                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
+            >,
+        >,
+        u16: TryFrom<u64>,
+    {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
         }
@@ -74,7 +81,7 @@ where
         for item in items.iter_mut() {
             let item_packed_bitlen_ = ITEM_PACKED_BITLEN.try_into().unwrap();
             bs.fill(item_packed_bitlen_).unwrap();
-            let bits = bs.peek_bits_no_fill(item_packed_bitlen_);
+            let bits = bs.peek_bits_no_fill(item_packed_bitlen_).zext();
             bs.skip_bits_no_fill(item_packed_bitlen_);
             *item = bits.try_into().unwrap();
         }

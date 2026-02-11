@@ -144,25 +144,40 @@ macro_rules! impl_is_multiple_of {
 
 impl_is_multiple_of!(u8 u16 u32 u64 usize);
 
-pub trait TrailingZeros {
-    #[must_use]
-    fn trailing_zeros(self) -> u32;
-}
-
-macro_rules! impl_trailing_zeros {
-    ($($t:ty)+) => {
+macro_rules! impl_unary_bitcount_op {
+    ($method:ident as $trait:ident for $($t:ty)+) => {
+        pub trait $trait {
+            #[must_use]
+            fn $method(self) -> u32;
+        }
         $(
-            impl TrailingZeros for $t {
+            impl $trait for $t {
                 #[inline]
-                fn trailing_zeros(self) -> u32 {
-                    self.trailing_zeros()
+                fn $method(self) -> u32 {
+                    <Self>::$method(self)
                 }
             }
         )+
     };
 }
 
-impl_trailing_zeros!(u8 u16 u32 u64 usize);
+impl_unary_bitcount_op!(trailing_zeros as TrailingZeros for u8 u16 u32 u64 usize);
+impl_unary_bitcount_op!(leading_zeros as LeadingZeros for u8 u16 u32 u64 usize);
+
+pub trait ActiveBits {
+    #[must_use]
+    fn active_bits(self) -> u32;
+}
+
+impl<T> ActiveBits for T
+where
+    T: Bitwidth + LeadingZeros,
+{
+    #[inline]
+    fn active_bits(self) -> u32 {
+        T::BITWIDTH - T::leading_zeros(self)
+    }
+}
 
 #[cfg(test)]
 mod tests;

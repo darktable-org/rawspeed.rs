@@ -5,6 +5,8 @@ use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_common_bitseq::bitseq::BitLen;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
@@ -239,7 +241,7 @@ where
         u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl,
-        <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,
+        BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
     {
         let row = self.input.get_row(row).unwrap();
@@ -247,7 +249,9 @@ where
         let mut vac: BitVacuumerBase<'_, BitOrder, _> =
             BitVacuumerBase::new(&mut row_writer);
         for item in row.iter().copied() {
-            vac.put(item.into(), self.item_bitlen)?;
+            let bits = BitSeq::new(BitLen::new(self.item_bitlen), item.into())
+                .unwrap();
+            vac.put(bits)?;
         }
         vac.flush()?;
         Ok(MinimalOutputRowPitch::new(row_writer.num_bytes))
@@ -264,7 +268,7 @@ where
         u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl,
-        <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,
+        BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
     {
         for row in 0..*self.input.num_rows() {
