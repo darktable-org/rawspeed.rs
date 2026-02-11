@@ -60,14 +60,14 @@ macro_rules! impl_simple_trait {
 impl_simple_trait!(impl Integer for u8, u16, u32, u64, usize);
 
 pub trait Bitwidth {
-    const BITWIDTH: usize;
+    const BITWIDTH: u32;
 }
 
 macro_rules! impl_bitwidth {
     ($($t:ty)+) => {
         $(
             impl Bitwidth for $t {
-                const BITWIDTH: usize = <$t>::BITS as usize;
+                const BITWIDTH: u32 = <$t>::BITS;
             }
         )+
     };

@@ -178,7 +178,7 @@ where
 {
     writer: &'b mut W,
     bit_order: BitOrder,
-    item_bitlen: usize,
+    item_bitlen: u32,
     pitch: OutputRowPitch,
     input: Array2DRef<'a, T>,
 }
@@ -194,7 +194,7 @@ where
     pub fn new<F>(
         writer: &'b mut W,
         bit_order: BitOrder,
-        item_bitlen: usize,
+        item_bitlen: u32,
         input: Array2DRef<'a, T>,
         pitch_adj_cb: F,
     ) -> Self
@@ -206,10 +206,13 @@ where
             unimplemented!("Bit order {:?} is not packable!", bit_order)
         }
         let min_pitch = MinimalOutputRowPitch::new(NumBytes::new(
-            bit_order.predict_exact_bitstream_bytelen(
-                *input.row_length(),
-                item_bitlen,
-            ),
+            bit_order
+                .predict_exact_bitstream_bytelen(
+                    *input.row_length(),
+                    item_bitlen,
+                )
+                .try_into()
+                .unwrap(),
         ));
         let extra_padding = pitch_adj_cb(min_pitch);
         let pitch = OutputRowPitch::new_with_padding(min_pitch, extra_padding);

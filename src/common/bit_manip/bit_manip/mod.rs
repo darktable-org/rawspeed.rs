@@ -1,9 +1,9 @@
 use rawspeed_common_generic_num::generic_num::common::Integer;
 
 #[inline]
-pub fn extract_high_bits<T: Integer + core::ops::Shr<usize, Output = T>>(
+pub fn extract_high_bits<T: Integer + core::ops::Shr<u32, Output = T>>(
     value: T,
-    num_bits: usize,
+    num_bits: u32,
 ) -> T {
     if num_bits == 0 {
         return <T>::ZERO;
@@ -16,12 +16,10 @@ pub fn extract_high_bits<T: Integer + core::ops::Shr<usize, Output = T>>(
 
 #[inline]
 pub fn extract_low_bits<
-    T: Integer
-        + core::ops::Shl<usize, Output = T>
-        + core::ops::Shr<usize, Output = T>,
+    T: Integer + core::ops::Shl<u32, Output = T> + core::ops::Shr<u32, Output = T>,
 >(
     value: T,
-    num_bits: usize,
+    num_bits: u32,
 ) -> T {
     if num_bits == 0 {
         return <T>::ZERO;

@@ -27,39 +27,39 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheHighInLowOut<T> {
     }
 
     #[inline]
-    fn size(&self) -> usize {
+    fn size(&self) -> u32 {
         Self::SIZE
     }
 
     #[inline]
-    fn fill_level(&self) -> usize {
-        self.fill_level as usize
+    fn fill_level(&self) -> u32 {
+        self.fill_level
     }
 
     #[inline]
-    fn push(&mut self, bits: Self::Storage, count: usize) {
+    fn push(&mut self, bits: Self::Storage, count: u32) {
         // NOTE: `count`` may be zero!
         assert!(count <= Self::SIZE);
-        assert!(count + (self.fill_level as usize) <= Self::SIZE);
+        assert!(count + self.fill_level <= Self::SIZE);
         self.cache |= bits << self.fill_level();
-        self.fill_level += u32::try_from(count).unwrap();
+        self.fill_level += count;
     }
 
     #[inline]
-    fn peek(&self, count: usize) -> Self::Storage {
+    fn peek(&self, count: u32) -> Self::Storage {
         assert!(count <= Self::SIZE);
         assert!(count != 0);
-        assert!(count <= self.fill_level as usize);
+        assert!(count <= self.fill_level);
         extract_low_bits(self.cache, count)
     }
 
     #[inline]
-    fn skip(&mut self, count: usize) {
+    fn skip(&mut self, count: u32) {
         // `count` *could* be larger than `MaxGetBits`.
         // `count` could be zero.
         assert!(count <= Self::SIZE);
-        assert!(count <= self.fill_level as usize);
-        self.fill_level -= u32::try_from(count).unwrap();
+        assert!(count <= self.fill_level);
+        self.fill_level -= count;
         self.cache >>= count;
     }
 }

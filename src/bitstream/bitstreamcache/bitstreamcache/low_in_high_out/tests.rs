@@ -10,7 +10,7 @@ fn bitstreamcache_constructable_test() {
 #[test]
 fn bitstreamcache_push_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
-    for num_bits in 0_usize..T::SIZE {
+    for num_bits in 0_u32..T::SIZE {
         let mut cache = T::new();
         assert_eq!(cache.fill_level(), 0);
         cache.push(0, num_bits);
@@ -20,7 +20,7 @@ fn bitstreamcache_push_test() {
 
 #[test]
 #[should_panic(
-    expected = "assertion failed: count + (self.fill_level as usize) <= Self::SIZE"
+    expected = "assertion failed: count + self.fill_level <= Self::SIZE"
 )]
 fn bitstreamcache_push_overflow_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
@@ -35,8 +35,8 @@ fn bitstreamcache_push_overflow_test() {
 #[test]
 fn bitstreamcache_double_push_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
-    for first_bits in 0_usize..T::SIZE {
-        for second_bits in 0_usize..T::SIZE {
+    for first_bits in 0_u32..T::SIZE {
+        for second_bits in 0_u32..T::SIZE {
             if first_bits + second_bits <= T::SIZE {
                 let mut cache = T::new();
                 assert_eq!(cache.fill_level(), 0);
@@ -59,9 +59,7 @@ fn bitstreamcache_zero_skip_of_empty_test() {
 }
 
 #[test]
-#[should_panic(
-    expected = "assertion failed: count <= self.fill_level as usize"
-)]
+#[should_panic(expected = "assertion failed: count <= self.fill_level")]
 fn bitstreamcache_non_zero_skip_of_empty_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
     let mut cache = T::new();
@@ -82,9 +80,7 @@ fn bitstreamcache_non_zero_skip_of_nonempty_test() {
 }
 
 #[test]
-#[should_panic(
-    expected = "assertion failed: count <= self.fill_level as usize"
-)]
+#[should_panic(expected = "assertion failed: count <= self.fill_level")]
 fn bitstreamcache_skip_overflow_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
     let mut cache = T::new();
@@ -113,9 +109,7 @@ fn bitstreamcache_skip_after_refill_test() {
 }
 
 #[test]
-#[should_panic(
-    expected = "assertion failed: count <= self.fill_level as usize"
-)]
+#[should_panic(expected = "assertion failed: count <= self.fill_level")]
 fn bitstreamcache_skip_overflow_after_refill_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
     let mut cache = T::new();
@@ -143,9 +137,7 @@ fn bitstreamcache_zero_peek_of_empty_test() {
 }
 
 #[test]
-#[should_panic(
-    expected = "assertion failed: count <= self.fill_level as usize"
-)]
+#[should_panic(expected = "assertion failed: count <= self.fill_level")]
 fn bitstreamcache_non_zero_peek_of_empty_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
     let cache = T::new();
@@ -178,9 +170,7 @@ fn bitstreamcache_non_zero_peek_of_non_empty_test() {
 }
 
 #[test]
-#[should_panic(
-    expected = "assertion failed: count <= self.fill_level as usize"
-)]
+#[should_panic(expected = "assertion failed: count <= self.fill_level")]
 fn bitstreamcache_peek_overflow_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
     let mut cache = T::new();
@@ -207,9 +197,7 @@ fn bitstreamcache_peek_after_refill_test() {
 }
 
 #[test]
-#[should_panic(
-    expected = "assertion failed: count <= self.fill_level as usize"
-)]
+#[should_panic(expected = "assertion failed: count <= self.fill_level")]
 fn bitstreamcache_peek_overflow_after_refill_test() {
     type T = BitStreamCacheLowInHighOut<u8>;
     let mut cache = T::new();

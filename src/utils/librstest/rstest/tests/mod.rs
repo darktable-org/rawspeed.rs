@@ -19,8 +19,8 @@ mod test_logger;
 
 fn from_halves<T>(hi: T, lo: T) -> T
 where
-    T: Bitwidth + core::ops::Shl<usize>,
-    <T as core::ops::Shl<usize>>::Output: core::ops::BitOr<T, Output = T>,
+    T: Bitwidth + core::ops::Shl<u32>,
+    <T as core::ops::Shl<u32>>::Output: core::ops::BitOr<T, Output = T>,
 {
     let bitwidth = T::BITWIDTH;
     assert!(bitwidth.is_multiple_of(2));
@@ -29,8 +29,8 @@ where
 
 fn image_hash_test<T>(dims: Dimensions2D, str: &'static str)
 where
-    T: Bitwidth + core::ops::Shl<usize> + Copy + TryFrom<usize> + ToLeBytes,
-    <T as core::ops::Shl<usize>>::Output: core::ops::BitOr<T, Output = T>,
+    T: Bitwidth + core::ops::Shl<u32> + Copy + TryFrom<usize> + ToLeBytes,
+    <T as core::ops::Shl<u32>>::Output: core::ops::BitOr<T, Output = T>,
     <T as ToLeBytes>::Output: AsSlice<Element = u8>,
     <T as TryFrom<usize>>::Error: core::fmt::Debug,
 {

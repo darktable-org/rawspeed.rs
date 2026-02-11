@@ -15,10 +15,10 @@ pub trait BitStreamCacheData:
     + Bitwidth
     + Integer
     + From<u8>
-    + core::ops::Shl<usize, Output = Self>
-    + core::ops::Shr<usize, Output = Self>
-    + core::ops::ShlAssign<usize>
-    + core::ops::ShrAssign<usize>
+    + core::ops::Shl<u32, Output = Self>
+    + core::ops::Shr<u32, Output = Self>
+    + core::ops::ShlAssign<u32>
+    + core::ops::ShrAssign<u32>
     + core::ops::BitOrAssign<Self>
 {
 }
@@ -34,12 +34,12 @@ pub trait BitStreamCache {
     #[must_use]
     fn new() -> Self;
 
-    fn size(&self) -> usize;
-    fn fill_level(&self) -> usize;
+    fn size(&self) -> u32;
+    fn fill_level(&self) -> u32;
 
-    fn push(&mut self, bits: Self::Storage, count: usize);
-    fn peek(&self, count: usize) -> Self::Storage;
-    fn skip(&mut self, count: usize);
+    fn push(&mut self, bits: Self::Storage, count: u32);
+    fn peek(&self, count: u32) -> Self::Storage;
+    fn skip(&mut self, count: u32);
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -58,7 +58,7 @@ pub struct BitStreamCacheBase<
 
 impl<F: BitStreamFlowTrait, T: BitStreamCacheData> BitStreamCacheBase<F, T> {
     // Width of cache, in bits
-    pub const SIZE: usize = T::BITWIDTH;
+    pub const SIZE: u32 = T::BITWIDTH;
 }
 
 mod high_in_low_out;

@@ -7,7 +7,7 @@ fn extract_high_bits_zero_out_test() {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = 0;
+                        const NUM_BITS: u32 = 0;
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_high_bits(input, NUM_BITS));
                     }
@@ -26,7 +26,7 @@ fn extract_high_bits_allzero_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0_usize..<$t>::BITWIDTH {
+                    for num_bits in 0_u32..<$t>::BITWIDTH {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_high_bits(ALLZEROS, num_bits));
                     }
@@ -46,7 +46,7 @@ fn extract_high_bits_passthrough_test() {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = <$t>::BITWIDTH;
+                        const NUM_BITS: u32 = <$t>::BITWIDTH;
                         assert_eq!(input, extract_high_bits(input, NUM_BITS));
                     }
                 )+
@@ -65,12 +65,12 @@ fn extract_high_bits_allones_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0_usize..<$t>::BITWIDTH {
+                    for num_bits in 0_u32..<$t>::BITWIDTH {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_high_bits(ALLONES, num_bits);
-                        assert_eq!((res.trailing_ones() as usize), num_bits);
+                        assert_eq!((res.trailing_ones() ), num_bits);
                         assert_eq!(
-                            (res.leading_zeros() as usize),
+                            (res.leading_zeros() ),
                             ((<$t>::BITWIDTH) - num_bits)
                         );
                     }
@@ -114,7 +114,7 @@ fn extract_high_bits_test() {
     #[derive(Debug, Copy, Clone, PartialEq)]
     struct Pat {
         input: u8,
-        num_bits: usize,
+        num_bits: u32,
         output: u8,
     }
     let pats = [
@@ -158,7 +158,7 @@ fn extract_low_bits_zero_out_test() {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = 0;
+                        const NUM_BITS: u32 = 0;
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_low_bits(input, NUM_BITS));
                     }
@@ -177,7 +177,7 @@ fn extract_low_bits_allzero_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0_usize..<$t>::BITWIDTH {
+                    for num_bits in 0_u32..<$t>::BITWIDTH {
                         const ALLZEROS: $t = 0;
                         assert_eq!(ALLZEROS, extract_low_bits(ALLZEROS, num_bits));
                     }
@@ -197,7 +197,7 @@ fn extract_low_bits_passthrough_test() {
             ($($t:ty)+) => {
                 $(
                     for input in <$t>::MIN..<$t>::MAX {
-                        const NUM_BITS: usize = <$t>::BITWIDTH;
+                        const NUM_BITS: u32 = <$t>::BITWIDTH;
                         assert_eq!(input, extract_low_bits(input, NUM_BITS));
                     }
                 )+
@@ -216,12 +216,12 @@ fn extract_low_bits_allones_input_test() {
     macro_rules! test {
             ($($t:ty)+) => {
                 $(
-                    for num_bits in 0_usize..<$t>::BITWIDTH {
+                    for num_bits in 0_u32..<$t>::BITWIDTH {
                         const ALLONES: $t = <$t>::MAX;
                         let res = extract_low_bits(ALLONES, num_bits);
-                        assert_eq!((res.trailing_ones() as usize), num_bits);
+                        assert_eq!((res.trailing_ones() ), num_bits);
                         assert_eq!(
-                            (res.leading_zeros() as usize),
+                            (res.leading_zeros() ),
                             ((<$t>::BITWIDTH) - num_bits)
                         );
                     }
@@ -266,7 +266,7 @@ fn extract_low_bits_test() {
     #[derive(Debug, Copy, Clone, PartialEq)]
     struct Pat {
         input: u8,
-        num_bits: usize,
+        num_bits: u32,
         output: u8,
     }
     let pats = [

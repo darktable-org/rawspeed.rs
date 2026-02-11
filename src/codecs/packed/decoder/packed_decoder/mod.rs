@@ -21,7 +21,7 @@ where
 {
     input: Array2DRef<'a, u8>,
     bit_order: BitOrder,
-    item_bitlen: usize,
+    item_bitlen: u32,
     output: &'c mut Array2DRefMut<'b, T>,
 }
 
@@ -35,7 +35,7 @@ where
     pub fn new(
         input: Array2DRef<'a, u8>,
         bit_order: BitOrder,
-        item_bitlen: usize,
+        item_bitlen: u32,
         output: &'c mut Array2DRefMut<'b, T>,
     ) -> Self {
         #[expect(clippy::unimplemented)]
