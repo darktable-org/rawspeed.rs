@@ -42,7 +42,7 @@ where
     fn fill_level(&self) -> u32;
 
     fn push(&mut self, bits: BitSeq<Self::Storage>);
-    fn peek(&self, count: u32) -> Self::Storage;
+    fn peek(&self, count: u32) -> BitSeq<Self::Storage>;
     fn skip(&mut self, count: u32);
 }
 

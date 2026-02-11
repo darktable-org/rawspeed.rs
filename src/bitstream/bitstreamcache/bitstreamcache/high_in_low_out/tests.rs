@@ -1,5 +1,4 @@
 use super::*;
-use rawspeed_common_bitseq::bitseq::BitLen;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
 
 #[test]
@@ -229,12 +228,13 @@ where
         assert_eq!(cache.fill_level(), T::BITWIDTH);
         assert_eq!(
             T::from(bits),
-            T::try_from(cache.peek(T::BITWIDTH)).unwrap()
+            T::try_from(cache.peek(T::BITWIDTH).zext()).unwrap()
         );
         let mut bits_reconstucted: T = 0;
         for i in 0..T::BITWIDTH {
             assert_eq!(cache.fill_level(), T::BITWIDTH - i);
-            bits_reconstucted |= T::try_from(cache.peek(1)).unwrap() << i;
+            bits_reconstucted |=
+                T::try_from(cache.peek(1).zext()).unwrap() << i;
             assert_eq!(cache.fill_level(), T::BITWIDTH - i);
             cache.skip(1);
             assert_eq!(cache.fill_level(), T::BITWIDTH - i - 1);

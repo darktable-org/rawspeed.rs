@@ -247,7 +247,9 @@ where
     Self: BitStreamerCacheFillImpl<T>,
     BitStreamerReplenisherStorage<'a, T>: BitStreamerReplenisher<'a, T>,
     <T as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-    u64: From<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+    BitSeq<u64>: From<
+        BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+    >,
 {
     #[inline]
     #[must_use]
@@ -277,8 +279,7 @@ where
 
     #[inline]
     pub fn peek_bits_no_fill(&mut self, nbits: u32) -> BitSeq<u64> {
-        let bits = self.cache.peek(nbits);
-        BitSeq::new(BitLen::new(nbits), bits.into()).unwrap()
+        self.cache.peek(nbits).into()
     }
 
     #[inline]

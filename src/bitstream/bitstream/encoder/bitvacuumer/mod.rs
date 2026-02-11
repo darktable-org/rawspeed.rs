@@ -76,7 +76,7 @@ where
         for _i in 0..num_chunks_needed {
             let Ok(chunk) =
                 <<T::ChunkByteArrayType as FromNeBytes>::Output>::try_from(
-                    self.cache.peek(stream_chunk_bitwidth),
+                    self.cache.peek(stream_chunk_bitwidth).zext(),
                 )
             else {
                 panic!("lossless cast failed?")
@@ -89,7 +89,7 @@ where
                     .unwrap(),
             );
         }
-        let bytes = cache.peek(cache.size()).to_ne_bytes();
+        let bytes = cache.peek(cache.size()).zext().to_ne_bytes();
         self.writer.write_all(&bytes)
     }
 }

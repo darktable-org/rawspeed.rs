@@ -7,6 +7,7 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 
 fn round_down_to_multiple_of(val: usize, mult: usize) -> usize {
     assert_ne!(mult, 0);
@@ -33,9 +34,11 @@ where
     for<'a> BitStreamerReplenisherStorage<'a, BitOrder>:
         BitStreamerReplenisher<'a, BitOrder>,
     <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-    u64: From<
-        <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
-    >,
+        BitSeq<u64>: From<
+            BitSeq<
+                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
+            >,
+        >,
 {
     let input: [u8; 255] =
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());

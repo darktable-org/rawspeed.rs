@@ -1,4 +1,5 @@
 use rawspeed_common_bit_manip::bit_manip::extract_high_bits;
+use rawspeed_common_bitseq::bitseq::BitLen;
 use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_bitseq::bitseq::BitSeqConstraints;
 
@@ -65,11 +66,12 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheLowInHighOut<T> {
     }
 
     #[inline]
-    fn peek(&self, count: u32) -> Self::Storage {
+    fn peek(&self, count: u32) -> BitSeq<Self::Storage> {
         assert!(count <= Self::SIZE);
         assert!(count != 0);
         assert!(count <= self.fill_level);
-        extract_high_bits(self.cache, count)
+        let bits = extract_high_bits(self.cache, count);
+        BitSeq::new(BitLen::new(count), bits).unwrap()
     }
 
     #[inline]

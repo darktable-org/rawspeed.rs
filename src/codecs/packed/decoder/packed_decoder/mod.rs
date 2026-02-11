@@ -8,6 +8,7 @@ use rawspeed_bitstream_bitstreams::bitstreams;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
@@ -60,7 +61,11 @@ where
         for<'z> BitStreamerReplenisherStorage<'z, BitOrder>:
             BitStreamerReplenisher<'z, BitOrder>,
         <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-        u64: From<<<BitOrder as BitStreamTraits>::StreamFlow as  BitStreamCache>::Storage>,
+        BitSeq<u64>: From<
+            BitSeq<
+                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
+            >,
+        >,
     {
         let bytes = self.input.get_row(row).unwrap();
         let row = self.output.get_row_mut(row).unwrap();
@@ -85,7 +90,11 @@ where
         for<'z> BitStreamerReplenisherStorage<'z, BitOrder>:
             BitStreamerReplenisher<'z, BitOrder>,
         <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-        u64: From<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+        BitSeq<u64>: From<
+            BitSeq<
+                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
+            >
+        >
     {
         assert_eq!(self.input.num_rows(), self.output.num_rows());
         for row in 0..*self.input.num_rows() {
