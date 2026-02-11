@@ -1,5 +1,4 @@
-use super::colormatrix;
-use super::xmlparser;
+use super::{colormatrix, xmlparser};
 
 impl_elt_with_body_matcher!(
     #[derive(Debug, Clone, PartialEq)]

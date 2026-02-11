@@ -1,8 +1,7 @@
-use super::super::Int;
-use super::super::width;
-use super::super::x;
-use super::Vertical;
-use super::xmlparser;
+use super::{
+    super::{Int, width, x},
+    Vertical, xmlparser,
+};
 
 type T = Vertical;
 

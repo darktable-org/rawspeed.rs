@@ -1,18 +1,18 @@
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerBase;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerCacheFillImpl;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisher;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisherStorage;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
+    BitStreamerReplenisherStorage, BitStreamerTraits,
+};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_bitstream_bitstreams::bitstreams;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_bitstream_bitstreams::{
+    bitstreams,
+    bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits},
+};
 use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_std::coord_common::RowIndex;
-use rawspeed_std_ndslice::array2dref::Array2DRef;
-use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
+use rawspeed_std_ndslice::{
+    array2dref::Array2DRef, array2drefmut::Array2DRefMut,
+};
 
 #[derive(Debug)]
 pub struct Unpacker<'a, 'b, 'c, T>

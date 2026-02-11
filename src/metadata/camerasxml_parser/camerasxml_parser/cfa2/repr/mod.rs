@@ -1,9 +1,9 @@
-use super::super::height::Height;
-use super::super::width::Width;
-use crate::camerasxml_parser::colorrow::{self, ColorVariant};
 use rawspeed_metadata_xmlparser::xmlparser;
 use rawspeed_std::coord_common::{RowLength, RowPitch};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
+
+use super::super::{height::Height, width::Width};
+use crate::camerasxml_parser::colorrow::{self, ColorVariant};
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]

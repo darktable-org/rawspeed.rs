@@ -1,9 +1,10 @@
+use rawspeed_std::coord_common::{RowLength, RowPitch};
+use rawspeed_std_ndslice::array2dref::Array2DRef;
+
 use crate::colorfilterarray::{
     ColorVariant,
     dcraw_filter::{DCrawFilter, DCrawFilterError},
 };
-use rawspeed_std::coord_common::{RowLength, RowPitch};
-use rawspeed_std_ndslice::array2dref::Array2DRef;
 
 #[test]
 fn bayer_rggb() {

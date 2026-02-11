@@ -1,9 +1,7 @@
 use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::RowCount;
-use rawspeed_std::coord_common::RowIndex;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::coord_common::RowPitch;
+use rawspeed_std::coord_common::{
+    Coord2D, RowCount, RowIndex, RowLength, RowPitch,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Array2DRef<'a, T> {

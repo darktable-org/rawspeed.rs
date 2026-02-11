@@ -1,7 +1,8 @@
-use super::{height, width, x, xmlparser, y};
 use rawspeed_std::coord_common::{
     ColIndex, ColOffset, Coord2D, RowCount, RowIndex, RowLength, RowOffset,
 };
+
+use super::{height, width, x, xmlparser, y};
 
 mod private {
     use super::{height, width, x, xmlparser, y};

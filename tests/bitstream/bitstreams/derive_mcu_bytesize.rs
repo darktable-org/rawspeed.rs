@@ -1,13 +1,14 @@
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerBase;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerCacheFillImpl;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisher;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisherStorage;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
+    BitStreamerReplenisherStorage, BitStreamerTraits,
+};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSliceConstraints;
+use rawspeed_bitstream_bitstreams::bitstreams::{
+    BitOrderTrait, BitStreamTraits,
+};
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
+    BitStreamSlice, BitStreamSliceConstraints,
+};
 use rawspeed_common_bitseq::bitseq::BitSeq;
 
 fn round_down_to_multiple_of(val: usize, mult: usize) -> usize {

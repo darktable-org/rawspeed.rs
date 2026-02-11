@@ -1,8 +1,7 @@
-use super::super::Str;
-use super::super::name::Name;
-use super::super::value::Value;
-use super::Hint;
-use super::xmlparser;
+use super::{
+    super::{Str, name::Name, value::Value},
+    Hint, xmlparser,
+};
 
 type T<'a> = Hint<'a>;
 

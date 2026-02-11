@@ -1,6 +1,7 @@
-use crate::layoutfulbox::{LayoutfulBox, LayoutfulBoxError};
 use rawspeed_common_exact_ops::exact_ops::shl::CheckedShlExact;
 use rawspeed_std::coord_common::{Align, ByteMultiple};
+
+use crate::layoutfulbox::{LayoutfulBox, LayoutfulBoxError};
 
 fn runtime_align_of<T>(x: &T) -> Align {
     let ptr: *const T = x;

@@ -1,15 +1,14 @@
-use crate::packed_encoder::ExtraPadding;
-use crate::packed_encoder::NumBytes;
-use crate::packed_encoder::Packer;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
-use rawspeed_std::coord_common::ColIndex;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::RowIndex;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::coord_common::RowPitch;
-use rawspeed_std_ndslice::array2dref::Array2DRef;
-use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 use std::io::Write as _;
+
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
+use rawspeed_std::coord_common::{
+    ColIndex, Coord2D, RowIndex, RowLength, RowPitch,
+};
+use rawspeed_std_ndslice::{
+    array2dref::Array2DRef, array2drefmut::Array2DRefMut,
+};
+
+use crate::packed_encoder::{ExtraPadding, NumBytes, Packer};
 
 #[test]
 fn vec_ctor_test() {

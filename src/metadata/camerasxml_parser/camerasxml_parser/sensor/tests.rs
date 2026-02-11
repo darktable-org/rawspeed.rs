@@ -1,13 +1,11 @@
-use super::super::Int;
-use super::super::black::Black;
-use super::super::iso_max::IsoMax;
-use super::super::iso_min::IsoMin;
-use super::super::white::White;
-use super::Bounds;
-use super::Sensor;
-use super::iso_list;
-use super::iso_list::IsoValues;
-use super::xmlparser;
+use super::{
+    super::{
+        Int, black::Black, iso_max::IsoMax, iso_min::IsoMin, white::White,
+    },
+    Bounds, Sensor, iso_list,
+    iso_list::IsoValues,
+    xmlparser,
+};
 
 type T<'a> = Sensor;
 

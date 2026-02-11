@@ -1,10 +1,11 @@
-use crate::colorfilterarray::ColorVariant;
 use rawspeed_std::coord_common::{
     ColIndex, ColOffset, Coord2D, CoordOffset2D, RowIndex, RowOffset,
 };
 use rawspeed_std_ndslice::{
     array2dref::Array2DRef, offsetarray2dref::OffsetArray2DRef,
 };
+
+use crate::colorfilterarray::ColorVariant;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 struct ColorVariantArray<T> {

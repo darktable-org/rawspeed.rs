@@ -1,10 +1,9 @@
-use super::super::BodyStr;
-use super::super::Str;
-use super::super::id_attr::Id;
-use super::Aliases;
-use super::IndividualAliases;
-use super::alias::Alias;
-use super::xmlparser;
+use super::{
+    super::{BodyStr, Str, id_attr::Id},
+    Aliases, IndividualAliases,
+    alias::Alias,
+    xmlparser,
+};
 
 type T<'a> = Aliases<'a>;
 

@@ -1,7 +1,4 @@
-use super::BodyStr;
-use super::make;
-use super::model;
-use super::xmlparser;
+use super::{BodyStr, make, model, xmlparser};
 
 impl_elt_with_body_matcher!(
     #[derive(Debug, Clone, Copy, PartialEq)]

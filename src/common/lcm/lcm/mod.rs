@@ -24,10 +24,12 @@ where
 }
 
 mod naive {
-    use super::{maxmin, multiples_of};
+
     use rawspeed_common_generic_num::generic_num::common::{
         ConstZero, IsMultipleOf, Max,
     };
+
+    use crate::lcm::{maxmin, multiples_of};
 
     #[cfg_attr(not(test), expect(dead_code))]
     #[expect(clippy::upper_case_acronyms)]
@@ -56,8 +58,10 @@ mod naive {
 }
 
 mod intersect {
-    use super::{maxmin, multiples_of};
+
     use rawspeed_common_generic_num::generic_num::common::{ConstZero, Max};
+
+    use crate::lcm::{maxmin, multiples_of};
 
     #[cfg_attr(not(test), expect(dead_code))]
     #[expect(clippy::upper_case_acronyms)]
@@ -105,12 +109,14 @@ mod intersect {
 }
 
 mod via_gcd {
-    use super::maxmin;
+
     use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
     use rawspeed_common_gcd::gcd::GCD;
     use rawspeed_common_generic_num::generic_num::{
         arith::CheckedMul, common::ConstZero,
     };
+
+    use crate::lcm::maxmin;
 
     pub trait LCM {
         type Output;

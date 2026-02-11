@@ -1,5 +1,4 @@
-use super::ColorMatrix;
-use super::xmlparser;
+use super::{ColorMatrix, xmlparser};
 
 type T<'a> = ColorMatrix;
 

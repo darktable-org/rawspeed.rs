@@ -1,9 +1,7 @@
-use super::super::Int;
-use super::super::y::Y;
-use super::ColorRow;
-use super::ColorRowValues;
-use super::ColorVariant;
-use super::xmlparser;
+use super::{
+    super::{Int, y::Y},
+    ColorRow, ColorRowValues, ColorVariant, xmlparser,
+};
 
 type T<'a> = ColorRow;
 

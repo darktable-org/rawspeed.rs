@@ -1,10 +1,8 @@
-use crate::packed_encoder::ExtraPadding;
-use crate::packed_encoder::NumBytes;
-use crate::packed_encoder::Packer;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::coord_common::RowPitch;
+use rawspeed_std::coord_common::{RowLength, RowPitch};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
+
+use crate::packed_encoder::{ExtraPadding, NumBytes, Packer};
 
 #[test]
 #[should_panic(expected = "not implemented: Bit order JPEG is not packable!")]

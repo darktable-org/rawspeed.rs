@@ -1,7 +1,4 @@
-use super::ColorMatrixRow;
-use super::PlaneValues;
-use super::plane::Plane;
-use super::xmlparser;
+use super::{ColorMatrixRow, PlaneValues, plane::Plane, xmlparser};
 
 type T<'a> = ColorMatrixRow;
 

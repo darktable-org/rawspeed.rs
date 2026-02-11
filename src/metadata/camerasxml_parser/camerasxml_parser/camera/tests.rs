@@ -1,49 +1,43 @@
-use super::super::BodyStr;
-use super::super::Int;
-use super::super::Str;
-use super::super::alias::Alias;
-use super::super::aliases::Aliases;
-use super::super::aliases::IndividualAliases;
-use super::super::black::Black;
-use super::super::blackareas::BlackAreas;
-use super::super::blackareas::IndividualBlackAreas;
-use super::super::colormatrices::ColorMatrices;
-use super::super::colormatrix::ColorMatrix;
-use super::super::crop::Crop;
-use super::super::decoder_version::DecoderVersion;
-use super::super::hint::Hint;
-use super::super::hints::Hints;
-use super::super::hints::IndividualHints;
-use super::super::id::ID;
-use super::super::iso_list::IsoList;
-use super::super::iso_list::IsoValues;
-use super::super::iso_max::IsoMax;
-use super::super::iso_min::IsoMin;
-use super::super::mode::Mode;
-use super::super::name::Name;
-use super::super::sensor::Sensor;
-use super::super::supported::Supported;
-use super::super::value::Value;
-use super::super::vertical::Vertical;
-use super::super::white::White;
-use super::super::width::Width;
-use super::super::x::X;
-use super::Camera;
-use super::MaybeCFA;
-use super::Sensors;
-use super::make::Make;
-use super::model::Model;
-use super::sensor;
-use super::xmlparser;
-use crate::camerasxml_parser::blackareas::BlackArea;
-use crate::camerasxml_parser::crop;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorFilterArray;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
-use rawspeed_std::coord_common::ColIndex;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::RowCount;
-use rawspeed_std::coord_common::RowIndex;
-use rawspeed_std::coord_common::RowLength;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::{
+    ColorFilterArray, ColorVariant,
+};
+use rawspeed_std::coord_common::{
+    ColIndex, Coord2D, RowCount, RowIndex, RowLength,
+};
+
+use super::{
+    super::{
+        BodyStr, Int, Str,
+        alias::Alias,
+        aliases::{Aliases, IndividualAliases},
+        black::Black,
+        blackareas::{BlackAreas, IndividualBlackAreas},
+        colormatrices::ColorMatrices,
+        colormatrix::ColorMatrix,
+        crop::Crop,
+        decoder_version::DecoderVersion,
+        hint::Hint,
+        hints::{Hints, IndividualHints},
+        id::ID,
+        iso_list::{IsoList, IsoValues},
+        iso_max::IsoMax,
+        iso_min::IsoMin,
+        mode::Mode,
+        name::Name,
+        sensor::Sensor,
+        supported::Supported,
+        value::Value,
+        vertical::Vertical,
+        white::White,
+        width::Width,
+        x::X,
+    },
+    Camera, MaybeCFA, Sensors,
+    make::Make,
+    model::Model,
+    sensor, xmlparser,
+};
+use crate::camerasxml_parser::{blackareas::BlackArea, crop};
 
 type T<'a> = Camera<'a>;
 

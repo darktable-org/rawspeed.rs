@@ -1,9 +1,10 @@
-use super::super::Int;
-use super::super::color::Color;
-use super::ColorVariant;
-use super::x::X;
-use super::xmlparser;
-use super::y::Y;
+use super::{
+    super::{Int, color::Color},
+    ColorVariant,
+    x::X,
+    xmlparser,
+    y::Y,
+};
 
 type T<'a> = Color;
 

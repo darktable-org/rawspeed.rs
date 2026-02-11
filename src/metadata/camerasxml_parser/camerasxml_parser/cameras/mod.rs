@@ -1,5 +1,4 @@
-use super::camera;
-use super::xmlparser;
+use super::{camera, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]

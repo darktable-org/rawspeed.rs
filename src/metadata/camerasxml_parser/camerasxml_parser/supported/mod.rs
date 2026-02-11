@@ -1,5 +1,4 @@
-use super::Str;
-use super::xmlparser;
+use super::{Str, xmlparser};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]

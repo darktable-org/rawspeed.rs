@@ -1,14 +1,10 @@
-use crate::offsetarray2dref::OffsetArray2DRef;
+use rawspeed_std::coord_common::{
+    ColIndex, ColOffset, Coord2D, CoordOffset2D, RowIndex, RowLength,
+    RowOffset, RowPitch,
+};
 
 use super::Array2DRef;
-use rawspeed_std::coord_common::ColIndex;
-use rawspeed_std::coord_common::ColOffset;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::CoordOffset2D;
-use rawspeed_std::coord_common::RowIndex;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::coord_common::RowOffset;
-use rawspeed_std::coord_common::RowPitch;
+use crate::offsetarray2dref::OffsetArray2DRef;
 
 fn get_copy_index<'a, T>(input: &'a OffsetArray2DRef<'a, T>) -> Vec<Vec<T>>
 where

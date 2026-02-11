@@ -1,6 +1,4 @@
-use super::super::TestFileSystem;
-use super::super::TestLogger;
-use super::super::assert_contains;
+use super::super::{TestFileSystem, TestLogger, assert_contains};
 use crate::vfs::VFS as _;
 
 fn get_args_no_fname() -> Vec<String> {

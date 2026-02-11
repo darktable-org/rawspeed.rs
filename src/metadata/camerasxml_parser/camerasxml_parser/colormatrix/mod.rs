@@ -8,9 +8,10 @@ pub const COLUMN_COUNT: usize = 3;
 pub type T = i16;
 
 mod repr {
-    use super::super::colormatrixrow;
-    use super::super::planes;
-    use super::xmlparser;
+    use super::{
+        super::{colormatrixrow, planes},
+        xmlparser,
+    };
 
     #[derive(Debug, Clone, PartialEq)]
     pub struct ColorMatrixRows {

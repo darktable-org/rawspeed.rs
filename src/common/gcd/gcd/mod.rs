@@ -22,10 +22,12 @@ where
 }
 
 mod naive {
-    use super::maxmin;
+
     use rawspeed_common_generic_num::generic_num::common::{
         ConstZero, IsMultipleOf,
     };
+
+    use crate::gcd::maxmin;
 
     #[cfg_attr(not(test), expect(dead_code))]
     #[expect(clippy::upper_case_acronyms)]
@@ -56,10 +58,12 @@ mod naive {
 }
 
 mod sub {
-    use super::maxmin;
+
     use rawspeed_common_generic_num::generic_num::{
         arith::CheckedSub, common::ConstZero,
     };
+
+    use crate::gcd::maxmin;
 
     #[cfg_attr(not(test), expect(dead_code))]
     #[expect(clippy::upper_case_acronyms)]
@@ -86,10 +90,12 @@ mod sub {
 }
 
 mod euclid {
-    use super::maxmin;
+
     use rawspeed_common_generic_num::generic_num::{
         arith::CheckedRem, common::ConstZero,
     };
+
+    use crate::gcd::maxmin;
 
     #[cfg_attr(not(test), expect(dead_code))]
     #[expect(clippy::upper_case_acronyms)]
@@ -114,7 +120,7 @@ mod euclid {
 }
 
 mod binary {
-    use super::{decompose_binary, maxmin};
+
     use rawspeed_common_exact_ops::exact_ops::{
         shl::CheckedShlExact, shr::CheckedShrExact,
     };
@@ -122,6 +128,8 @@ mod binary {
         arith::{CheckedMul, CheckedSub},
         common::{ConstOne, ConstZero, TrailingZeros},
     };
+
+    use crate::gcd::{decompose_binary, maxmin};
 
     pub trait GCD {
         #[must_use]

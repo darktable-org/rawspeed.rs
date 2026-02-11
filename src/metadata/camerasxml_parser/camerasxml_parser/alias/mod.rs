@@ -1,6 +1,4 @@
-use super::BodyStr;
-use super::id_attr;
-use super::xmlparser;
+use super::{BodyStr, id_attr, xmlparser};
 
 impl_elt_with_body_matcher!(
     #[derive(Debug, Clone, Copy, PartialEq)]

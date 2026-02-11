@@ -1,5 +1,6 @@
-use super::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
+
+use super::DecodeableCamera;
 
 #[test]
 fn supported_as_supported_test() {

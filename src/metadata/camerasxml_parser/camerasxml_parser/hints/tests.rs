@@ -1,10 +1,9 @@
-use super::super::Str;
-use super::super::name::Name;
-use super::super::value::Value;
-use super::Hints;
-use super::IndividualHints;
-use super::hint::Hint;
-use super::xmlparser;
+use super::{
+    super::{Str, name::Name, value::Value},
+    Hints, IndividualHints,
+    hint::Hint,
+    xmlparser,
+};
 
 type T<'a> = Hints<'a>;
 

@@ -1,5 +1,3 @@
-use super::{AsSlice, Hash, img_data_hash, img_hash};
-use crate::rstest::camerasxml_parser::Cameras;
 use rawspeed_common_generic_num::generic_num::{
     bit_transmutation::ToLeBytes, common::Bitwidth,
 };
@@ -10,8 +8,10 @@ use rawspeed_parsers_rawparser::rawparser::RawParser;
 use rawspeed_std::coord_common::{
     ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex, RowLength,
 };
-
 use test_file_system::TestFileSystem;
+
+use super::{AsSlice, Hash, img_data_hash, img_hash};
+use crate::rstest::camerasxml_parser::Cameras;
 mod test_file_system;
 
 use test_logger::TestLogger;

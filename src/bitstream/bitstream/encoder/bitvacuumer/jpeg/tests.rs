@@ -1,5 +1,6 @@
-use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use std::io::Write as _;
+
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 
 use super::*;
 

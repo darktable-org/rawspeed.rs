@@ -1,6 +1,8 @@
 use core::ops::Deref;
-use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::Token;
-use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::TokenStream;
+
+use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::{
+    Token, TokenStream,
+};
 
 pub type Result<T> = core::result::Result<T, String>;
 

@@ -1,6 +1,6 @@
-use super::*;
-
 use std::io::Write as _;
+
+use super::*;
 
 #[test]
 fn flush_arr_overflow_test() {

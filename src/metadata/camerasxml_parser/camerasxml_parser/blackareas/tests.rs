@@ -1,15 +1,11 @@
+use super::{
+    super::{
+        Int, blackareas::BlackAreas, height::Height, horizontal::Horizontal,
+        vertical::Vertical, width::Width, x::X, y::Y,
+    },
+    IndividualBlackAreas, xmlparser,
+};
 use crate::camerasxml_parser::blackareas::BlackArea;
-
-use super::super::Int;
-use super::super::blackareas::BlackAreas;
-use super::super::height::Height;
-use super::super::horizontal::Horizontal;
-use super::super::vertical::Vertical;
-use super::super::width::Width;
-use super::super::x::X;
-use super::super::y::Y;
-use super::IndividualBlackAreas;
-use super::xmlparser;
 
 type T<'a> = BlackAreas;
 

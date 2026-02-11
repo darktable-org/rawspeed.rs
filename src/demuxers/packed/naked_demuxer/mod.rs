@@ -1,24 +1,22 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_codecs_packed_decoder::packed_decoder::Unpacker;
-use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer;
-use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
+use rawspeed_demuxers_rawdemuxer::rawdemuxer::{RawDemuxer, RawDemuxerError};
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequest;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Camera;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Hints;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Supported;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::crop::Height;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::crop::Width;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
-use rawspeed_std::coord_common::CoordOffset2D;
-use rawspeed_std::coord_common::{
-    ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex, RowLength, RowPitch,
+use rawspeed_metadata_camerasxml_parser::camerasxml_parser::{
+    Camera, Cameras, Hints, Supported,
+    blackareas::BlackArea,
+    crop::{Height, Width},
 };
-use rawspeed_std_ndslice::array2dref::Array2DRef;
-use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
-use rawspeed_std_ndslice::offsetarray2dref::OffsetArray2DRef;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
+use rawspeed_std::coord_common::{
+    ColIndex, Coord2D, CoordOffset2D, Dimensions2D, RowCount, RowIndex,
+    RowLength, RowPitch,
+};
+use rawspeed_std_ndslice::{
+    array2dref::Array2DRef, array2drefmut::Array2DRefMut,
+    offsetarray2dref::OffsetArray2DRef,
+};
 
 fn parse_as_bitorder(s: &str) -> Option<BitOrder> {
     match s {

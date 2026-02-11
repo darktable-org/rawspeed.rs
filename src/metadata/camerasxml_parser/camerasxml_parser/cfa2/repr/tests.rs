@@ -1,3 +1,6 @@
+use rawspeed_metadata_xmlparser::xmlparser;
+use rawspeed_std::coord_common::RowLength;
+
 use crate::camerasxml_parser::{
     Int,
     cfa2::repr::{CFA2, Matrix},
@@ -5,8 +8,6 @@ use crate::camerasxml_parser::{
     height::Height,
     width::Width,
 };
-use rawspeed_metadata_xmlparser::xmlparser;
-use rawspeed_std::coord_common::RowLength;
 
 type T<'a> = CFA2;
 

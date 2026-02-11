@@ -1,6 +1,7 @@
-use super::{BitOrder, BitOrderTrait, BitStreamTraits, Endianness};
-
 use rawspeed_bitstream_bitstreamcache::bitstreamcache;
+use rawspeed_memory_endianness::endianness::Endianness;
+
+use crate::bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]

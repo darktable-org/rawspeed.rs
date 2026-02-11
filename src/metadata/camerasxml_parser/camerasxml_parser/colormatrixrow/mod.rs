@@ -1,6 +1,4 @@
-use super::BodyStr;
-use super::plane;
-use super::xmlparser;
+use super::{BodyStr, plane, xmlparser};
 
 type T = super::colormatrix::T;
 

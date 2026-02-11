@@ -1,6 +1,4 @@
-use super::name;
-use super::value;
-use super::xmlparser;
+use super::{name, value, xmlparser};
 
 impl_elt_matcher!(
     #[derive(Debug, Clone, Copy, PartialEq)]

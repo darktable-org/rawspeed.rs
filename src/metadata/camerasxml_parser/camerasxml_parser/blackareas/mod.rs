@@ -1,6 +1,4 @@
-use super::horizontal;
-use super::vertical;
-use super::xmlparser;
+use super::{horizontal, vertical, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
