@@ -20,13 +20,13 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         for i in 0..=num_bytes {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -58,13 +58,13 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         for i in 0..=num_nibbles {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -112,14 +112,14 @@ fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         let mut bs = BitStreamerJPEG::new(input.as_slice().try_into().unwrap());
         for _i in 0..num_leading_zeros {
             bs.fill(NUM_BITS)?;
-            assert_eq!(bs.peek_bits_no_fill(NUM_BITS), 0);
+            assert_eq!(bs.peek_bits_no_fill(NUM_BITS).zext(), 0);
             bs.skip_bits_no_fill(NUM_BITS);
         }
         bs.fill(1)?;
-        assert_eq!(bs.peek_bits_no_fill(1), 1);
+        assert_eq!(bs.peek_bits_no_fill(1).zext(), 1);
         bs.skip_bits_no_fill(1);
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -160,14 +160,14 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
         let mut bs = BitStreamerJPEG::new(input.as_slice().try_into().unwrap());
         for _i in 0..num_leading_zeros {
             bs.fill(NUM_BITS)?;
-            assert_eq!(bs.peek_bits_no_fill(NUM_BITS), 0);
+            assert_eq!(bs.peek_bits_no_fill(NUM_BITS).zext(), 0);
             bs.skip_bits_no_fill(NUM_BITS);
         }
         bs.fill(8)?;
-        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        assert_eq!(bs.peek_bits_no_fill(8).zext(), 0xFF);
         bs.skip_bits_no_fill(8);
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -201,16 +201,16 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
         for i in 0..num_leading_nibbles {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         bs.fill(8)?;
-        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        assert_eq!(bs.peek_bits_no_fill(8).zext(), 0xFF);
         bs.skip_bits_no_fill(8);
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -276,24 +276,24 @@ fn sliding_0xff_through_enumerated_bytes_test()
         for i in 0..oxff_pos {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         bs.fill(8)?;
-        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        assert_eq!(bs.peek_bits_no_fill(8).zext(), 0xFF);
         bs.skip_bits_no_fill(8);
         for i in oxff_pos..15 {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -326,24 +326,24 @@ fn sliding_0xff_through_enumerated_nibbles_test()
         for i in 0..oxff_pos {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         bs.fill(8)?;
-        assert_eq!(bs.peek_bits_no_fill(8), 0xFF);
+        assert_eq!(bs.peek_bits_no_fill(8).zext(), 0xFF);
         bs.skip_bits_no_fill(8);
         for i in oxff_pos..14 {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }
@@ -409,13 +409,13 @@ fn sliding_0xff_non_0x00_control_sequence_test()
         for i in 0..oxff_pos {
             bs.fill(NUM_BITS)?;
             assert_eq!(
-                bs.peek_bits_no_fill(NUM_BITS),
+                bs.peek_bits_no_fill(NUM_BITS).zext(),
                 (1 + i).try_into().unwrap()
             );
             bs.skip_bits_no_fill(NUM_BITS);
         }
         while let Ok(()) = bs.fill(1) {
-            assert_eq!(bs.peek_bits_no_fill(1), 0);
+            assert_eq!(bs.peek_bits_no_fill(1).zext(), 0);
             bs.skip_bits_no_fill(1);
         }
     }

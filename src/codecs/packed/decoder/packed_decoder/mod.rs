@@ -68,7 +68,11 @@ where
             BitStreamerBase::<BitOrder>::new(bytes.try_into().unwrap());
         for item in row.iter_mut() {
             bs.fill(self.item_bitlen).unwrap();
-            *item = bs.peek_bits_no_fill(self.item_bitlen).try_into().unwrap();
+            *item = bs
+                .peek_bits_no_fill(self.item_bitlen)
+                .zext()
+                .try_into()
+                .unwrap();
             bs.skip_bits_no_fill(self.item_bitlen);
         }
     }

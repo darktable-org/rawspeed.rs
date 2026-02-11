@@ -74,7 +74,7 @@ where
         for item in items.iter_mut() {
             let item_packed_bitlen_ = ITEM_PACKED_BITLEN.try_into().unwrap();
             bs.fill(item_packed_bitlen_).unwrap();
-            let bits = bs.peek_bits_no_fill(item_packed_bitlen_);
+            let bits = bs.peek_bits_no_fill(item_packed_bitlen_).zext();
             bs.skip_bits_no_fill(item_packed_bitlen_);
             *item = bits.try_into().unwrap();
         }

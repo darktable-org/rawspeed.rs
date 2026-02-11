@@ -5,6 +5,8 @@ use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_common_bitseq::bitseq::BitLen;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_memory_endianness::endianness::SwapBytes;
@@ -270,8 +272,9 @@ where
     }
 
     #[inline]
-    pub fn peek_bits_no_fill(&mut self, nbits: u32) -> u64 {
-        self.cache.peek(nbits).into()
+    pub fn peek_bits_no_fill(&mut self, nbits: u32) -> BitSeq<u64> {
+        let bits = self.cache.peek(nbits);
+        BitSeq::new(BitLen::new(nbits), bits.into()).unwrap()
     }
 
     #[inline]

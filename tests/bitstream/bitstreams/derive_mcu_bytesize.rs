@@ -46,7 +46,7 @@ where
             let mut elts = vec![];
             for _i in 0..mcu_bytesize {
                 bs.fill(BITS_PER_BYTE).unwrap();
-                let elt = bs.peek_bits_no_fill(BITS_PER_BYTE);
+                let elt = bs.peek_bits_no_fill(BITS_PER_BYTE).zext();
                 assert_ne!(elt, 0);
                 elts.push(elt);
                 bs.skip_bits_no_fill(BITS_PER_BYTE);
