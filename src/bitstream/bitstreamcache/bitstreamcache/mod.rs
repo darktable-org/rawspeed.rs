@@ -20,6 +20,7 @@ pub trait BitStreamCacheData:
     + core::ops::ShlAssign<u32>
     + core::ops::ShrAssign<u32>
     + core::ops::BitOrAssign<Self>
+    + BitSeqConstraints
 {
 }
 
@@ -28,7 +29,10 @@ impl BitStreamCacheData for u16 {}
 impl BitStreamCacheData for u32 {}
 impl BitStreamCacheData for u64 {}
 
-pub trait BitStreamCache {
+pub trait BitStreamCache
+where
+    <Self as BitStreamCache>::Storage: BitSeqConstraints,
+{
     type Storage;
 
     #[must_use]
@@ -37,7 +41,7 @@ pub trait BitStreamCache {
     fn size(&self) -> u32;
     fn fill_level(&self) -> u32;
 
-    fn push(&mut self, bits: Self::Storage, count: u32);
+    fn push(&mut self, bits: BitSeq<Self::Storage>);
     fn peek(&self, count: u32) -> Self::Storage;
     fn skip(&mut self, count: u32);
 }
@@ -56,7 +60,11 @@ pub struct BitStreamCacheBase<
     _phantom_data: PhantomData<F>,
 }
 
-impl<F: BitStreamFlowTrait, T: BitStreamCacheData> BitStreamCacheBase<F, T> {
+impl<F, T> BitStreamCacheBase<F, T>
+where
+    F: BitStreamFlowTrait,
+    T: BitStreamCacheData,
+{
     // Width of cache, in bits
     pub const SIZE: u32 = T::BITWIDTH;
 }
@@ -66,4 +74,5 @@ mod low_in_high_out;
 
 pub use high_in_low_out::BitStreamCacheHighInLowOut;
 pub use low_in_high_out::BitStreamCacheLowInHighOut;
+use rawspeed_common_bitseq::bitseq::{BitSeq, BitSeqConstraints};
 use rawspeed_common_generic_num::generic_num::common::{Bitwidth, Integer};

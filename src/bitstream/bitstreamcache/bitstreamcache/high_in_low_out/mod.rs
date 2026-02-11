@@ -1,4 +1,6 @@
 use rawspeed_common_bit_manip::bit_manip::extract_low_bits;
+use rawspeed_common_bitseq::bitseq::BitSeq;
+use rawspeed_common_bitseq::bitseq::BitSeqConstraints;
 
 use super::BitStreamCache;
 use super::BitStreamCacheBase;
@@ -37,12 +39,14 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheHighInLowOut<T> {
     }
 
     #[inline]
-    fn push(&mut self, bits: Self::Storage, count: u32) {
+    fn push(&mut self, bits: BitSeq<Self::Storage>)
+    where
+        <Self as BitStreamCache>::Storage: BitSeqConstraints,
+    {
         // NOTE: `count`` may be zero!
-        assert!(count <= Self::SIZE);
-        assert!(count + self.fill_level <= Self::SIZE);
-        self.cache |= bits << self.fill_level();
-        self.fill_level += count;
+        assert!(*bits.len() + self.fill_level <= Self::SIZE);
+        self.cache |= bits.zext() << self.fill_level();
+        self.fill_level += *bits.len();
     }
 
     #[inline]

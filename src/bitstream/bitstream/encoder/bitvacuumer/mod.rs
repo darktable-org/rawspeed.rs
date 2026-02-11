@@ -84,7 +84,10 @@ where
             self.cache.skip(stream_chunk_bitwidth);
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
-            cache.push(chunk.into(), stream_chunk_bitwidth);
+            cache.push(
+                BitSeq::new(BitLen::new(stream_chunk_bitwidth), chunk.into())
+                    .unwrap(),
+            );
         }
         let bytes = cache.peek(cache.size()).to_ne_bytes();
         self.writer.write_all(&bytes)
@@ -119,7 +122,7 @@ where
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
     u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
-    <T::StreamFlow as BitStreamCache>::Storage: From<u64>,
+    BitSeq<<T::StreamFlow as BitStreamCache>::Storage>: From<BitSeq<u64>>,
 {
     #[inline]
     pub fn new(writer: &'a mut W) -> Self
@@ -172,7 +175,7 @@ where
     pub fn put(&mut self, bits: BitSeq<u64>) -> std::io::Result<()> {
         // NOTE: count may be zero!
         self.drain()?;
-        self.cache.push(bits.zext().into(), *bits.len());
+        self.cache.push(bits.into());
         Ok(())
     }
 }

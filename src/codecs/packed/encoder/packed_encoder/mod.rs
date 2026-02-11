@@ -241,7 +241,7 @@ where
         u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl,
-        <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,
+        BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
     {
         let row = self.input.get_row(row).unwrap();
@@ -268,7 +268,7 @@ where
         u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl,
-        <BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage: From<u64>,
+        BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
     {
         for row in 0..*self.input.num_rows() {

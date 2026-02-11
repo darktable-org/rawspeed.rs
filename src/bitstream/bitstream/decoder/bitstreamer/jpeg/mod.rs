@@ -8,6 +8,8 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache as _;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderJPEG;
 use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_common_bitseq::bitseq::BitLen;
+use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
 use rawspeed_memory_endianness::endianness::SwapBytes as _;
 use rawspeed_memory_endianness::endianness::get_host_endianness;
@@ -35,7 +37,10 @@ impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
                 <T as BitStreamTraits>::CHUNK_ENDIANNESS
                     != get_host_endianness(),
             );
-            self.cache.push(chunk.into(), ChunkType::BITWIDTH);
+            self.cache.push(
+                BitSeq::new(BitLen::new(ChunkType::BITWIDTH), chunk.into())
+                    .unwrap(),
+            );
             return 4;
         }
         let mut p = 0;
@@ -45,7 +50,8 @@ impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
 
             // Pre-execute most common case, where next byte is 'normal'/non-FF
             let c0 = *input.get(p).unwrap();
-            self.cache.push(c0.into(), 8);
+            let bits = BitSeq::new(BitLen::new(8), c0.into()).unwrap();
+            self.cache.push(bits);
             if c0 != 0xFF {
                 p += 1;
                 continue; // Got normal byte.
@@ -61,11 +67,15 @@ impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
 
             // Found FF/xx with xx != 00. This is the end of stream marker.
             self.cache = prev_cache;
-            self.cache.push(
+            let zeros = BitSeq::new(
+                BitLen::new(
+                    <T as BitStreamTraits>::StreamFlow::SIZE
+                        - self.cache.fill_level(),
+                ),
                 0,
-                <T as BitStreamTraits>::StreamFlow::SIZE
-                    - self.cache.fill_level(),
-            );
+            )
+            .unwrap();
+            self.cache.push(zeros);
 
             p = self.replenisher.get_remaining_size() + num_bytes_needed;
             break;

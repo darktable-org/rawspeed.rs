@@ -196,8 +196,12 @@ where
             let chunk = chunk.from_ne_bytes();
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
-            self.cache
-                .push(chunk.into(), stream_chunk_bitwidth.try_into().unwrap());
+            let bits = BitSeq::new(
+                BitLen::new(stream_chunk_bitwidth.try_into().unwrap()),
+                chunk.into(),
+            )
+            .unwrap();
+            self.cache.push(bits);
         }
         T::MAX_PROCESS_BYTES
     }

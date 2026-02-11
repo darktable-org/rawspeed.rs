@@ -1,4 +1,6 @@
 use rawspeed_common_bit_manip::bit_manip::extract_high_bits;
+use rawspeed_common_bitseq::bitseq::BitSeq;
+use rawspeed_common_bitseq::bitseq::BitSeqConstraints;
 
 use super::BitStreamCache;
 use super::BitStreamCacheBase;
@@ -37,27 +39,29 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheLowInHighOut<T> {
     }
 
     #[inline]
-    fn push(&mut self, bits: Self::Storage, count: u32) {
+    fn push(&mut self, bits: BitSeq<Self::Storage>)
+    where
+        <Self as BitStreamCache>::Storage: BitSeqConstraints,
+    {
         // NOTE: `count`` may be zero!
-        assert!(count <= Self::SIZE);
-        assert!(count + self.fill_level <= Self::SIZE);
+        assert!(*bits.len() + self.fill_level <= Self::SIZE);
         // If the maximal size of the cache is BitStreamCacheBase::Size, and we
         // have fillLevel [high] bits set, how many empty [low] bits do we have?
         let vacant_bits = Self::SIZE - self.fill_level;
         assert!(vacant_bits <= Self::SIZE);
         assert!(vacant_bits != 0);
-        assert!(vacant_bits >= count);
+        assert!(vacant_bits >= *bits.len());
         // If we just directly 'or' these low bits into the cache right now,
         // how many unfilled bits of a gap will there be
         // in the middle of a cache?
-        let empty_bits_gap = vacant_bits - count;
+        let empty_bits_gap = vacant_bits - *bits.len();
         assert!(empty_bits_gap <= Self::SIZE);
-        if count != 0 {
+        if *bits.len() != 0 {
             assert!(empty_bits_gap < Self::SIZE);
             // So just shift the new bits so that there is no such gap.
-            self.cache |= bits << empty_bits_gap;
+            self.cache |= bits.zext() << empty_bits_gap;
         }
-        self.fill_level += count;
+        self.fill_level += *bits.len();
     }
 
     #[inline]
