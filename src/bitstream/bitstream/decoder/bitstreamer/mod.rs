@@ -1,5 +1,3 @@
-use core::{marker::PhantomData, ops::RangeFull};
-
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrder, BitOrderTrait, BitStreamTraits,
@@ -27,7 +25,7 @@ pub trait BitStreamerTraits {
 pub struct BitStreamerReplenisherStorage<'a, T> {
     input: &'a [u8],
     pos: usize,
-    _phantom_data: PhantomData<T>,
+    _phantom_data: core::marker::PhantomData<T>,
 }
 
 pub trait BitStreamerReplenisher<'a, T>
@@ -63,9 +61,9 @@ where
         + BitStreamerTraits
         + BitStreamSliceConstraints,
     <T as BitStreamerTraits>::MaxProcessByteArray:
-        Default + core::ops::IndexMut<RangeFull>,
+        Default + core::ops::IndexMut<core::ops::RangeFull>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        RangeFull,
+        core::ops::RangeFull,
     >>::Output: CopyFromSlice + VariableLengthLoad,
 {
     #[inline]
@@ -73,7 +71,7 @@ where
         Self {
             input: input.get_bytes(),
             pos: 0,
-            _phantom_data: PhantomData,
+            _phantom_data: core::marker::PhantomData,
         }
     }
 
@@ -157,7 +155,7 @@ where
 {
     replenisher: BitStreamerReplenisherStorage<'a, T>,
     cache: T::StreamFlow,
-    _phantom_data: PhantomData<T>,
+    _phantom_data: core::marker::PhantomData<T>,
 }
 
 impl<T> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T>
@@ -169,10 +167,10 @@ where
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
         core::ops::Range<usize>,
     >>::Output: LoadFromSlice<T::ChunkByteArrayType>,
-    <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output:
+    <T::ChunkByteArrayType as core::ops::Index<core::ops::RangeFull>>::Output:
         CopyFromSlice,
     T::ChunkByteArrayType:
-        Default + core::ops::IndexMut<RangeFull> + FromNeBytes,
+        Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
     <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
@@ -234,10 +232,10 @@ where
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
         core::ops::Range<usize>,
     >>::Output: LoadFromSlice<T::ChunkByteArrayType>,
-    <T::ChunkByteArrayType as core::ops::Index<RangeFull>>::Output:
+    <T::ChunkByteArrayType as core::ops::Index<core::ops::RangeFull>>::Output:
         CopyFromSlice,
     T::ChunkByteArrayType:
-        Default + core::ops::IndexMut<RangeFull> + FromNeBytes,
+        Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
     <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
         + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
         + SwapBytes,
@@ -274,7 +272,7 @@ where
         Self {
             replenisher: BitStreamerReplenisher::new(input),
             cache: Default::default(),
-            _phantom_data: PhantomData,
+            _phantom_data: core::marker::PhantomData,
         }
     }
 

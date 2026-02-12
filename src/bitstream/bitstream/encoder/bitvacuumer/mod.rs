@@ -1,5 +1,3 @@
-use core::marker::PhantomData;
-
 #[cfg(target_endian = "little")]
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOut;
 #[cfg(not(target_endian = "little"))]
@@ -37,7 +35,7 @@ where
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
-    _phantom_data: PhantomData<T>,
+    _phantom_data: core::marker::PhantomData<T>,
 }
 
 impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
@@ -133,7 +131,7 @@ where
         Self {
             cache: Default::default(),
             writer,
-            _phantom_data: PhantomData,
+            _phantom_data: core::marker::PhantomData,
         }
     }
 

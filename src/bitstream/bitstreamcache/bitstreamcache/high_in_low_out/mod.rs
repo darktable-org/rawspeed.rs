@@ -1,5 +1,3 @@
-use core::marker::PhantomData;
-
 use rawspeed_common_bit_manip::bit_manip::extract_low_bits;
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq, BitSeqConstraints};
 
@@ -23,7 +21,7 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheHighInLowOut<T> {
         Self {
             cache: 0.into(),
             fill_level: 0,
-            _phantom_data: PhantomData,
+            _phantom_data: core::marker::PhantomData,
         }
     }
 
