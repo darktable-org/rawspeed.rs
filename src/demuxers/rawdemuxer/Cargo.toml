@@ -13,10 +13,10 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-std = { path = "../../std" }
-rawspeed-std-ndslice = { path = "../../std/ndslice" }
-rawspeed-metadata-colorfilterarray = { path = "../../metadata/colorfilterarray" }
-rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
+rawspeed-std = { workspace = true }
+rawspeed-std-ndslice = { workspace = true }
+rawspeed-metadata-colorfilterarray = { workspace = true }
+rawspeed-metadata-camerasxml_parser = { workspace = true }
 
 [lib]
 path = "mod.rs"

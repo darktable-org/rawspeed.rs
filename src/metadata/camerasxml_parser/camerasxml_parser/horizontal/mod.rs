@@ -1,6 +1,4 @@
-use super::height;
-use super::xmlparser;
-use super::y;
+use super::{height, xmlparser, y};
 
 impl_elt_matcher!(
     #[derive(Debug, Clone, Copy, PartialEq)]

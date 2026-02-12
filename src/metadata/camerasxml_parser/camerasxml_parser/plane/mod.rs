@@ -1,8 +1,7 @@
 use super::xmlparser;
 
 mod repr {
-    use super::super::Int;
-    use super::xmlparser;
+    use super::{super::Int, xmlparser};
     impl_attr_matcher!(
         #[derive(Debug, Clone, Copy, PartialEq)]
         struct Plane {

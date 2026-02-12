@@ -13,9 +13,9 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-gcd = { path = "../gcd" }
-rawspeed-common-generic_num = { path = "../generic_num" }
-rawspeed-common-exact_ops = { path = "../exact_ops" }
+rawspeed-common-gcd = { workspace = true }
+rawspeed-common-generic_num = { workspace = true }
+rawspeed-common-exact_ops = { workspace = true }
 
 [lib]
 path = "mod.rs"

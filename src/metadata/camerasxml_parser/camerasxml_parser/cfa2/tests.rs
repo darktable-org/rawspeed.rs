@@ -1,9 +1,10 @@
-use crate::camerasxml_parser::cfa2::CFA2;
 use rawspeed_metadata_colorfilterarray::colorfilterarray::{
     ColorFilterArray, ColorVariant,
 };
 use rawspeed_metadata_xmlparser::xmlparser;
 use rawspeed_std::coord_common::RowLength;
+
+use crate::camerasxml_parser::cfa2::CFA2;
 
 type T<'a> = CFA2;
 

@@ -1,5 +1,4 @@
-use super::Str;
-use super::xmlparser;
+use super::{Str, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IsoValues {

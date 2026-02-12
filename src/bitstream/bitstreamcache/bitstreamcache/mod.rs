@@ -1,5 +1,3 @@
-use core::marker::PhantomData;
-
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[non_exhaustive]
 pub enum BitStreamFlow {
@@ -57,7 +55,7 @@ pub struct BitStreamCacheBase<
     // Bits left in cache
     fill_level: u32,
 
-    _phantom_data: PhantomData<F>,
+    _phantom_data: core::marker::PhantomData<F>,
 }
 
 impl<F, T> BitStreamCacheBase<F, T>

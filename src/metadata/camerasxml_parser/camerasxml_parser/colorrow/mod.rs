@@ -1,6 +1,4 @@
-use super::BodyStr;
-use super::xmlparser;
-use super::y;
+use super::{BodyStr, xmlparser, y};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ColorVariant {

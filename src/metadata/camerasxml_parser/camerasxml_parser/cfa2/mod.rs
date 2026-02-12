@@ -1,9 +1,8 @@
-use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorFilterArray;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
+use rawspeed_metadata_colorfilterarray::colorfilterarray::{
+    ColorFilterArray, ColorVariant,
+};
 use rawspeed_metadata_xmlparser::xmlparser;
-use rawspeed_std::coord_common::ColIndex;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::RowIndex;
+use rawspeed_std::coord_common::{ColIndex, Coord2D, RowIndex};
 
 use crate::camerasxml_parser::colorrow;
 

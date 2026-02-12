@@ -1,5 +1,6 @@
-use super::*;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
+
+use super::*;
 
 #[test]
 fn extract_high_bits_zero_out_test() {

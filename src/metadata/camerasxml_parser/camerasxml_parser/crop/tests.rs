@@ -1,9 +1,9 @@
-use super::Crop;
-use super::xmlparser;
-use crate::camerasxml_parser::crop;
 use rawspeed_std::coord_common::{
     ColIndex, ColOffset, Coord2D, RowCount, RowIndex, RowLength, RowOffset,
 };
+
+use super::{Crop, xmlparser};
+use crate::camerasxml_parser::crop;
 
 type T = Crop;
 

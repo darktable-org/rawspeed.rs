@@ -1,12 +1,8 @@
-use rawspeed_std::bound_coord::BoundColIndex;
-use rawspeed_std::bound_coord::BoundRowIndex;
-use rawspeed_std::coord_common::Coord2D;
-use rawspeed_std::coord_common::CoordOffset2D;
-use rawspeed_std::coord_common::RowCount;
-use rawspeed_std::coord_common::RowIndex;
-use rawspeed_std::coord_common::RowLength;
-use rawspeed_std::wrapping_coord::WrappingColIndex;
-use rawspeed_std::wrapping_coord::WrappingRowIndex;
+use rawspeed_std::{
+    bound_coord::{BoundColIndex, BoundRowIndex},
+    coord_common::{Coord2D, CoordOffset2D, RowCount, RowIndex, RowLength},
+    wrapping_coord::{WrappingColIndex, WrappingRowIndex},
+};
 
 use crate::array2dref::Array2DRef;
 

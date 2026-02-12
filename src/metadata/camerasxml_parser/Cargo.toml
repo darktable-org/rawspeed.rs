@@ -13,10 +13,10 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-metadata-colorfilterarray = { path = "../colorfilterarray" }
-rawspeed-metadata-xmlparser = { path = "../xmlparser" }
-rawspeed-std = { path = "../../std" }
-rawspeed-std-ndslice = { path = "../../std/ndslice" }
+rawspeed-metadata-colorfilterarray = { workspace = true }
+rawspeed-metadata-xmlparser = { workspace = true }
+rawspeed-std = { workspace = true }
+rawspeed-std-ndslice = { workspace = true }
 
 [dev-dependencies]
 

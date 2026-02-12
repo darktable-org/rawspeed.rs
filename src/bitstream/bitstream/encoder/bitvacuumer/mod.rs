@@ -1,19 +1,18 @@
-use core::marker::PhantomData;
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheBase;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common_bitseq::bitseq::BitLen;
-use rawspeed_common_bitseq::bitseq::BitSeq;
-use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
-use rawspeed_common_generic_num::generic_num::common::Bitwidth;
-use rawspeed_memory_endianness::endianness::SwapBytes;
-use rawspeed_memory_endianness::endianness::get_host_endianness;
-
 #[cfg(target_endian = "little")]
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOut;
 #[cfg(not(target_endian = "little"))]
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
+    BitStreamCache, BitStreamCacheBase,
+};
+use rawspeed_bitstream_bitstreams::bitstreams::{
+    BitOrderTrait, BitStreamTraits,
+};
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
+use rawspeed_common_generic_num::generic_num::{
+    bit_transmutation::FromNeBytes, common::Bitwidth,
+};
+use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
 
 pub trait BitVacuumer {}
 
@@ -36,7 +35,7 @@ where
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
-    _phantom_data: PhantomData<T>,
+    _phantom_data: core::marker::PhantomData<T>,
 }
 
 impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
@@ -132,7 +131,7 @@ where
         Self {
             cache: Default::default(),
             writer,
-            _phantom_data: PhantomData,
+            _phantom_data: core::marker::PhantomData,
         }
     }
 

@@ -1,6 +1,8 @@
-use super::{BitVacuumer, BitVacuumerBase, BitVacuumerUseDefaultDrainImpl};
-
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderMSB32;
+
+use crate::bitvacuumer::{
+    BitVacuumer, BitVacuumerBase, BitVacuumerUseDefaultDrainImpl,
+};
 
 pub type BitVacuumerMSB32<'a, W> = BitVacuumerBase<'a, BitOrderMSB32, W>;
 

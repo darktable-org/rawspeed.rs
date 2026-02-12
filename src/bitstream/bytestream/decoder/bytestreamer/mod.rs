@@ -1,12 +1,12 @@
-use rawspeed_common_generic_num::generic_num::bit_transmutation::FromBits;
-use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
-use rawspeed_common_generic_num::generic_num::bit_transmutation::ToBits;
-use rawspeed_common_generic_num::generic_num::bit_transmutation::ToNeBytes;
-use rawspeed_memory_endianness::endianness::Endianness;
-use rawspeed_memory_endianness::endianness::SwapBytes;
-use rawspeed_memory_endianness::endianness::get_host_endianness;
-use rawspeed_memory_fixed_length_load::fixed_length_load::CopyFromSlice;
-use rawspeed_memory_fixed_length_load::fixed_length_load::LoadFromSlice;
+use rawspeed_common_generic_num::generic_num::bit_transmutation::{
+    FromBits, FromNeBytes, ToBits, ToNeBytes,
+};
+use rawspeed_memory_endianness::endianness::{
+    Endianness, SwapBytes, get_host_endianness,
+};
+use rawspeed_memory_fixed_length_load::fixed_length_load::{
+    CopyFromSlice, LoadFromSlice,
+};
 
 pub struct ByteStreamer<'a> {
     slice: &'a [u8],

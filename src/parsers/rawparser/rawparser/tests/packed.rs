@@ -1,8 +1,9 @@
-use crate::rawparser::{RawParser, RawParserError};
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
 use rawspeed_metadata_camerasxml_parser::camerasxml_parser::Cameras;
 use rawspeed_metadata_xmlparser::xmlparser;
 use rawspeed_std::coord_common::*;
+
+use crate::rawparser::{RawParser, RawParserError};
 
 #[test]
 fn empty_buffer_test() {

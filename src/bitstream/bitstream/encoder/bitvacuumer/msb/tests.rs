@@ -1,7 +1,8 @@
-use super::*;
+use std::io::Write as _;
+
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 
-use std::io::Write as _;
+use super::*;
 
 #[test]
 fn vec_ctor_test() {

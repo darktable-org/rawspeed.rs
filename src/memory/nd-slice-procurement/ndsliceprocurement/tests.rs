@@ -1,12 +1,11 @@
-use crate::ndsliceprocurement::EltCount;
-use crate::ndsliceprocurement::{
-    NDSliceProcurementRequest, NDSliceProcurementRequestError,
-};
 use rawspeed_common_exact_ops::exact_ops::shl::CheckedShlExact;
-use rawspeed_std::coord_common::RowPitch;
 use rawspeed_std::coord_common::{
     Align, ByteMultiple, ColIndex, Coord2D, Dimensions2D, RowCount, RowIndex,
-    RowLength,
+    RowLength, RowPitch,
+};
+
+use crate::ndsliceprocurement::{
+    EltCount, NDSliceProcurementRequest, NDSliceProcurementRequestError,
 };
 
 fn runtime_align_of<T>(x: &T) -> Align {

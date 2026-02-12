@@ -13,8 +13,8 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-std = { path = "../" }
-rawspeed-common-exact_ops = { path = "../../common/exact_ops" }
+rawspeed-std = { workspace = true }
+rawspeed-common-exact_ops = { workspace = true }
 
 [lib]
 path = "mod.rs"

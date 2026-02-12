@@ -1,7 +1,9 @@
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
+    BitStreamSlice, BitStreamSliceConstraints,
+};
 use rawspeed_common_lcm::lcm::lcm;
 
 pub trait BitPackingLayout<const ITEM_PACKED_BITLEN: usize> {
@@ -80,7 +82,8 @@ where
         + Copy
         + BitOrderTrait
         + BitStreamTraits
-        + BitPackingLayout<ITEM_PACKED_BITLEN>,
+        + BitPackingLayout<ITEM_PACKED_BITLEN>
+        + BitStreamSliceConstraints,
 {
     slice: BitStreamSlice<'a, BitOrder>,
 }
@@ -101,15 +104,16 @@ pub enum PackedBitstreamSliceError {
 impl<'a, BitOrder, const ITEM_PACKED_BITLEN: usize>
     PackedBitstreamSlice<'a, BitOrder, ITEM_PACKED_BITLEN>
 where
-    BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    BitOrder: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamSliceConstraints,
 {
     #[inline]
     pub const fn new(
         slice: BitStreamSlice<'a, BitOrder>,
-    ) -> Result<Self, PackedBitstreamSliceError>
-    where
-        BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
-    {
+    ) -> Result<Self, PackedBitstreamSliceError> {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
         }

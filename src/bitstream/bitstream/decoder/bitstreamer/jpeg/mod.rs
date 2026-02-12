@@ -1,18 +1,17 @@
-use super::BitStreamerBase;
-use super::BitStreamerCacheFillImpl;
-use super::BitStreamerTraits;
-use super::FromNeBytes;
-use super::LoadFromSlice;
-
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache as _;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderJPEG;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common_bitseq::bitseq::BitLen;
-use rawspeed_common_bitseq::bitseq::BitSeq;
+use rawspeed_bitstream_bitstreams::bitstreams::{
+    BitOrder, BitOrderJPEG, BitStreamTraits,
+};
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
-use rawspeed_memory_endianness::endianness::SwapBytes as _;
-use rawspeed_memory_endianness::endianness::get_host_endianness;
+use rawspeed_memory_endianness::endianness::{
+    SwapBytes as _, get_host_endianness,
+};
+
+use crate::bitstreamer::{
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits, FromNeBytes,
+    LoadFromSlice,
+};
 
 impl BitStreamerTraits for BitOrderJPEG {
     const TAG: BitOrder = BitOrder::JPEG;

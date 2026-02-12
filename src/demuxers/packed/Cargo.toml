@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-demuxers-naked"
+name = "rawspeed-demuxers-packed"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,18 +13,18 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstreams = { path = "../../bitstream/bitstreams" }
-rawspeed-codecs-packed-decoder = { path = "../../codecs/packed/decoder" }
-rawspeed-demuxers-rawdemuxer = { path = "../rawdemuxer" }
-rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
-rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
-rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
-rawspeed-std = { path = "../../std" }
-rawspeed-std-ndslice = { path = "../../std/ndslice" }
-rawspeed-metadata-colorfilterarray = { path = "../../metadata/colorfilterarray" }
+rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-codecs-packed-decoder = { workspace = true }
+rawspeed-demuxers-rawdemuxer = { workspace = true }
+rawspeed-memory-nd_slice_procurement = { workspace = true }
+rawspeed-metadata-camerametadata = { workspace = true }
+rawspeed-metadata-camerasxml_parser = { workspace = true }
+rawspeed-std = { workspace = true }
+rawspeed-std-ndslice = { workspace = true }
+rawspeed-metadata-colorfilterarray = { workspace = true }
 
 [dev-dependencies]
-rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
+rawspeed-metadata-xmlparser = { workspace = true }
 
 [lib]
 path = "mod.rs"

@@ -1,20 +1,19 @@
 use rawspeed_common_generic_num::generic_num::bit_transmutation::ToLeBytes;
-use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxer;
-use rawspeed_demuxers_rawdemuxer::rawdemuxer::RawDemuxerError;
+use rawspeed_demuxers_rawdemuxer::rawdemuxer::{RawDemuxer, RawDemuxerError};
 use rawspeed_memory_nd_slice_procurement::ndsliceprocurement::NDSliceProcurementRequestError;
 use rawspeed_metadata_camerametadata::camerametadata::DecodeableCamera;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser;
-use rawspeed_metadata_camerasxml_parser::camerasxml_parser::blackareas::BlackArea;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorVariant;
-use rawspeed_metadata_colorfilterarray::colorfilterarray::dcraw_filter::DCrawFilterError;
+use rawspeed_metadata_camerasxml_parser::{
+    camerasxml_parser, camerasxml_parser::blackareas::BlackArea,
+};
+use rawspeed_metadata_colorfilterarray::colorfilterarray::{
+    ColorVariant, dcraw_filter::DCrawFilterError,
+};
 use rawspeed_misc_md5::md5::MD5;
-use rawspeed_parsers_rawparser::rawparser::RawParser;
-use rawspeed_parsers_rawparser::rawparser::RawParserError;
+use rawspeed_parsers_rawparser::rawparser::{RawParser, RawParserError};
 use rawspeed_std::coord_common::{ColIndex, Coord2D, RowIndex};
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 
-use crate::logger::Logger;
-use crate::vfs::VFS;
+use crate::{logger::Logger, vfs::VFS};
 
 pub trait AsSlice {
     type Element;

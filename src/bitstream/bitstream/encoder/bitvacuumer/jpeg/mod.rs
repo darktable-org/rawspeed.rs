@@ -1,11 +1,12 @@
-use super::{
-    BitOrderTrait, BitStreamCache, BitStreamTraits, BitVacuumer,
-    BitVacuumerBase, BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl,
-    Bitwidth, SwapBytes, get_host_endianness,
+use rawspeed_bitstream_bitstreams::bitstreams::{
+    BitOrderJPEG, BitOrderTrait, BitStreamTraits,
 };
-
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderJPEG;
 use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
+
+use crate::bitvacuumer::{
+    BitStreamCache, BitVacuumer, BitVacuumerBase, BitVacuumerDefaultDrainImpl,
+    BitVacuumerDrainImpl, Bitwidth, SwapBytes, get_host_endianness,
+};
 
 pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
 

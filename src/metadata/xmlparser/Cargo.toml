@@ -13,7 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-metadata-xmltokendesparsifier = { path = "../xmltokendesparsifier" }
+rawspeed-metadata-xmltokendesparsifier = { workspace = true }
 
 [lib]
 path = "mod.rs"

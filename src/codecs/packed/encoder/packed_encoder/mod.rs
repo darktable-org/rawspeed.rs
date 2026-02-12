@@ -1,14 +1,15 @@
-use rawspeed_bitstream_bitstream_encoder::bitvacuumer::BitVacuumerBase;
-use rawspeed_bitstream_bitstream_encoder::bitvacuumer::BitVacuumerDrainImpl;
+use rawspeed_bitstream_bitstream_encoder::bitvacuumer::{
+    BitVacuumerBase, BitVacuumerDrainImpl,
+};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache;
-use rawspeed_bitstream_bitstreams::bitstreams;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrder;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_common_bitseq::bitseq::BitLen;
-use rawspeed_common_bitseq::bitseq::BitSeq;
-use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
-use rawspeed_common_generic_num::generic_num::common::Bitwidth;
+use rawspeed_bitstream_bitstreams::{
+    bitstreams,
+    bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits},
+};
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
+use rawspeed_common_generic_num::generic_num::{
+    bit_transmutation::FromNeBytes, common::Bitwidth,
+};
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;

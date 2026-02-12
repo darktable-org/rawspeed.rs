@@ -1,5 +1,4 @@
-use super::Str;
-use super::xmlparser;
+use super::{Str, xmlparser};
 
 impl_attr_matcher!(
     #[derive(Debug, Clone, Copy, PartialEq)]

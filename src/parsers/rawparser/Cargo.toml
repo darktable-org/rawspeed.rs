@@ -13,15 +13,15 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-demuxers-naked = { path = "../../demuxers/packed" }
-rawspeed-demuxers-rawdemuxer = { path = "../../demuxers/rawdemuxer" }
-rawspeed-memory-nd_slice_procurement = { path = "../../memory/nd-slice-procurement" }
-rawspeed-metadata-camerametadata = { path = "../../metadata/camerametadata" }
-rawspeed-metadata-camerasxml_parser = { path = "../../metadata/camerasxml_parser" }
+rawspeed-demuxers-packed = { workspace = true }
+rawspeed-demuxers-rawdemuxer = { workspace = true }
+rawspeed-memory-nd_slice_procurement = { workspace = true }
+rawspeed-metadata-camerametadata = { workspace = true }
+rawspeed-metadata-camerasxml_parser = { workspace = true }
 
 [dev-dependencies]
-rawspeed-std = { path = "../../std" }
-rawspeed-metadata-xmlparser = { path = "../../metadata/xmlparser" }
+rawspeed-std = { workspace = true }
+rawspeed-metadata-xmlparser = { workspace = true }
 
 [lib]
 path = "mod.rs"

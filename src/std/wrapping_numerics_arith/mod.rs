@@ -1,9 +1,10 @@
-use crate::{
-    bound_numerics::BoundUnsigned, wrapping_numerics::WrappingUnsigned,
-};
 use rawspeed_common_generic_num::generic_num::{
     arith::{BorrowingSub, CarryingAdd, CheckedAdd, CheckedRem, WrappingAdd},
     common::{CastUnsigned, ConstOne, ConstZero, Integer, Max, Min},
+};
+
+use crate::{
+    bound_numerics::BoundUnsigned, wrapping_numerics::WrappingUnsigned,
 };
 
 #[derive(Debug, Clone, Copy)]

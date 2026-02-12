@@ -1,12 +1,14 @@
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerBase;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerCacheFillImpl;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisher;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerReplenisherStorage;
-use rawspeed_bitstream_bitstream_decoder::bitstreamer::BitStreamerTraits;
+use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
+    BitStreamerReplenisherStorage, BitStreamerTraits,
+};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderTrait;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
+use rawspeed_bitstream_bitstreams::bitstreams::{
+    BitOrderTrait, BitStreamTraits,
+};
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
+    BitStreamSlice, BitStreamSliceConstraints,
+};
 use rawspeed_common_bitseq::bitseq::BitSeq;
 
 fn round_down_to_multiple_of(val: usize, mult: usize) -> usize {
@@ -16,7 +18,12 @@ fn round_down_to_multiple_of(val: usize, mult: usize) -> usize {
 
 fn get_as_valid_bitstreamslice<T>(input: &[u8]) -> BitStreamSlice<'_, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits
+        + BitStreamSliceConstraints,
 {
     let mcu_size = size_of::<<T as BitStreamTraits>::MCUByteArrayType>();
     let len = round_down_to_multiple_of(input.len(), mcu_size);
@@ -29,7 +36,7 @@ where
 pub fn derive_mcu_bytesize<BitOrder>() -> usize
 where
     BitOrder:
-        Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits+ BitStreamSliceConstraints,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
     for<'a> BitStreamerReplenisherStorage<'a, BitOrder>:
         BitStreamerReplenisher<'a, BitOrder>,

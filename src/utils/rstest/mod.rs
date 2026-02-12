@@ -1,5 +1,4 @@
-use rawspeed_utils_librstest::logger;
-use rawspeed_utils_librstest::vfs;
+use rawspeed_utils_librstest::{logger, vfs};
 
 fn main() -> Result<(), Box<dyn core::error::Error>> {
     let camerasxml_path =

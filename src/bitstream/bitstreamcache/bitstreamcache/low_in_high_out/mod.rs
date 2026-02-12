@@ -1,13 +1,9 @@
 use rawspeed_common_bit_manip::bit_manip::extract_high_bits;
-use rawspeed_common_bitseq::bitseq::BitLen;
-use rawspeed_common_bitseq::bitseq::BitSeq;
-use rawspeed_common_bitseq::bitseq::BitSeqConstraints;
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq, BitSeqConstraints};
 
-use super::BitStreamCache;
-use super::BitStreamCacheBase;
-use super::BitStreamCacheData;
-use super::BitStreamFlowTrait;
-use super::PhantomData;
+use crate::bitstreamcache::{
+    BitStreamCache, BitStreamCacheBase, BitStreamCacheData, BitStreamFlowTrait,
+};
 
 #[derive(Debug, Copy, Clone)]
 pub struct BitStreamFlowLowInHighOut;
@@ -25,7 +21,7 @@ impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheLowInHighOut<T> {
         Self {
             cache: 0.into(),
             fill_level: 0,
-            _phantom_data: PhantomData,
+            _phantom_data: core::marker::PhantomData,
         }
     }
 

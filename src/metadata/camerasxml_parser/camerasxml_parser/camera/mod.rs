@@ -1,20 +1,9 @@
 use rawspeed_metadata_colorfilterarray::colorfilterarray::ColorFilterArray;
 
-use super::aliases;
-use super::blackareas;
-use super::cfa;
-use super::cfa2;
-use super::colormatrices;
-use super::crop;
-use super::decoder_version;
-use super::hints;
-use super::id;
-use super::make;
-use super::mode;
-use super::model;
-use super::sensor;
-use super::supported;
-use super::xmlparser;
+use super::{
+    aliases, blackareas, cfa, cfa2, colormatrices, crop, decoder_version,
+    hints, id, make, mode, model, sensor, supported, xmlparser,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct MaybeCFA {

@@ -13,8 +13,8 @@ license.workspace = true
 workspace = true
 
 [dev-dependencies]
-rawspeed-metadata-camerasxml_parser = { path = "../../../src/metadata/camerasxml_parser" }
-rawspeed-utils-librstest = { path = "../../../src/utils/librstest" }
+rawspeed-metadata-camerasxml_parser = { workspace = true }
+rawspeed-utils-librstest = { workspace = true }
 
 [lib]
 path = "xmllint.rs"

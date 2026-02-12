@@ -1,5 +1,4 @@
-use super::alias;
-use super::xmlparser;
+use super::{alias, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IndividualAliases<'a> {

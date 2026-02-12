@@ -1,5 +1,4 @@
-use super::hint;
-use super::xmlparser;
+use super::{hint, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IndividualHints<'a> {

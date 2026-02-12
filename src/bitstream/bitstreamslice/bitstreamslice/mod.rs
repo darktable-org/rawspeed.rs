@@ -28,7 +28,7 @@ impl core::ops::Deref for ByteIndex {
 #[derive(Debug, Clone, Copy)]
 pub struct MCUIndex<T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     index: usize,
     _phantom: core::marker::PhantomData<T>,
@@ -36,7 +36,7 @@ where
 
 impl<T> MCUIndex<T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     #[must_use]
     #[inline]
@@ -56,7 +56,7 @@ where
 
 impl<T> From<usize> for MCUIndex<T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     #[inline]
     fn from(index: usize) -> Self {
@@ -70,7 +70,7 @@ pub struct MCUIndexByteOverflow;
 
 impl<T> TryFrom<MCUIndex<T>> for ByteIndex
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Error = MCUIndexByteOverflow;
 
@@ -88,7 +88,7 @@ where
 #[derive(Debug, Clone, Copy)]
 pub struct MCURange<T, R>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
     R: core::ops::RangeBounds<MCUIndex<T>>,
 {
     range: R,
@@ -97,7 +97,7 @@ where
 
 impl<T, R> MCURange<T, R>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
     R: core::ops::RangeBounds<MCUIndex<T>>,
 {
     #[must_use]
@@ -112,7 +112,7 @@ where
 
 impl<T, R> From<R> for MCURange<T, R>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
     R: core::ops::RangeBounds<MCUIndex<T>>,
 {
     #[inline]
@@ -123,14 +123,14 @@ where
 
 pub trait ConvertibleIntoByteRange<T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Output;
 }
 
 impl<T> ConvertibleIntoByteRange<T> for core::ops::Range<MCUIndex<T>>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Output = core::ops::Range<usize>;
 }
@@ -138,7 +138,7 @@ where
 impl<T> TryFrom<MCURange<T, core::ops::Range<MCUIndex<T>>>>
     for core::ops::Range<usize>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Error = MCUIndexByteOverflow;
 
@@ -155,7 +155,7 @@ where
 
 impl<T> ConvertibleIntoByteRange<T> for core::ops::RangeInclusive<MCUIndex<T>>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Output = core::ops::Range<usize>;
 }
@@ -163,7 +163,7 @@ where
 impl<T> TryFrom<MCURange<T, core::ops::RangeInclusive<MCUIndex<T>>>>
     for core::ops::Range<usize>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
     core::ops::Range<usize>: TryFrom<
             MCURange<T, core::ops::Range<MCUIndex<T>>>,
             Error = MCUIndexByteOverflow,
@@ -192,7 +192,7 @@ where
 
 impl<T> ConvertibleIntoByteRange<T> for core::ops::RangeFrom<MCUIndex<T>>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Output = core::ops::RangeFrom<usize>;
 }
@@ -200,7 +200,7 @@ where
 impl<T> TryFrom<MCURange<T, core::ops::RangeFrom<MCUIndex<T>>>>
     for core::ops::RangeFrom<usize>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Error = MCUIndexByteOverflow;
 
@@ -221,10 +221,20 @@ pub enum BitStreamSliceError {
     InputIsTruncated,
 }
 
+pub trait BitStreamSliceConstraints:
+    Clone + Copy + BitOrderTrait + BitStreamTraits
+{
+}
+
+impl<T> BitStreamSliceConstraints for T where
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits
+{
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BitStreamSlice<'a, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     input: &'a [u8],
     _phantom: core::marker::PhantomData<T>,
@@ -232,7 +242,7 @@ where
 
 impl<'a, T> BitStreamSlice<'a, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     const MCU_SIZE: usize =
         size_of::<<T as BitStreamTraits>::MCUByteArrayType>();
@@ -284,7 +294,7 @@ where
 
 impl<'a, T> TryFrom<&'a [u8]> for BitStreamSlice<'a, T>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
+    T: BitStreamSliceConstraints,
 {
     type Error = BitStreamSliceError;
 

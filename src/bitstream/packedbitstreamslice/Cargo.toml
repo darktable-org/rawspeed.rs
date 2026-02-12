@@ -13,9 +13,9 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstreams = { path = "../bitstreams" }
-rawspeed-bitstream-bitstreamslice = { path = "../bitstreamslice" }
-rawspeed-common-lcm = { path = "../../common/lcm" }
+rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
+rawspeed-common-lcm = { workspace = true }
 
 [lib]
 path = "mod.rs"

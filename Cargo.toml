@@ -46,6 +46,49 @@ members = [
     "tests/metadata/camerasxml_parser",
 ]
 
+[workspace.dependencies]
+rawspeed-src = { path = "src" }
+rawspeed-bitstream-bitstream-decoder = { path = "src/bitstream/bitstream/decoder" }
+rawspeed-bitstream-bitstream-encoder = { path = "src/bitstream/bitstream/encoder" }
+rawspeed-bitstream-bitstreamcache = { path = "src/bitstream/bitstreamcache" }
+rawspeed-bitstream-bitstreams = { path = "src/bitstream/bitstreams" }
+rawspeed-bitstream-bitstreamslice = { path = "src/bitstream/bitstreamslice" }
+rawspeed-bitstream-bytestream-decoder = { path = "src/bitstream/bytestream/decoder" }
+rawspeed-bitstream-bytestream-encoder = { path = "src/bitstream/bytestream/encoder" }
+rawspeed-bitstream-packedbitstreamslice = { path = "src/bitstream/packedbitstreamslice" }
+rawspeed-bitstream-packedbitstreamunpacker = { path = "src/bitstream/packedbitstreamunpacker" }
+rawspeed-codecs-packed-decoder = { path = "src/codecs/packed/decoder" }
+rawspeed-codecs-packed-encoder = { path = "src/codecs/packed/encoder" }
+rawspeed-common = { path = "src/common" }
+rawspeed-common-bit_manip = { path = "src/common/bit_manip" }
+rawspeed-common-bitseq = { path = "src/common/bitseq" }
+rawspeed-common-exact_ops = { path = "src/common/exact_ops" }
+rawspeed-common-gcd = { path = "src/common/gcd" }
+rawspeed-common-generic_num = { path = "src/common/generic_num" }
+rawspeed-common-lcm = { path = "src/common/lcm" }
+rawspeed-demuxers-packed = { path = "src/demuxers/packed" }
+rawspeed-demuxers-rawdemuxer = { path = "src/demuxers/rawdemuxer" }
+rawspeed-memory = { path = "src/memory" }
+rawspeed-memory-endianness = { path = "src/memory/endianness" }
+rawspeed-memory-fixed_length_load = { path = "src/memory/fixed_length_load" }
+rawspeed-memory-layoutfulbox = { path = "src/memory/layoutfulbox" }
+rawspeed-memory-nd_slice_procurement = { path = "src/memory/nd-slice-procurement" }
+rawspeed-memory-variable_length_load = { path = "src/memory/variable_length_load" }
+rawspeed-metadata-camerametadata = { path = "src/metadata/camerametadata" }
+rawspeed-metadata-camerasxml_parser = { path = "src/metadata/camerasxml_parser" }
+rawspeed-metadata-colorfilterarray = { path = "src/metadata/colorfilterarray" }
+rawspeed-metadata-xmlparser = { path = "src/metadata/xmlparser" }
+rawspeed-metadata-xmltokendesparsifier = { path = "src/metadata/xmltokendesparsifier" }
+rawspeed-metadata-xmltokenizer = { path = "src/metadata/xmltokenizer" }
+rawspeed-misc-md5 = { path = "src/misc/md5" }
+rawspeed-parsers = { path = "src/parsers" }
+rawspeed-parsers-rawparser = { path = "src/parsers/rawparser" }
+rawspeed-std = { path = "src/std" }
+rawspeed-std-ndslice = { path = "src/std/ndslice" }
+rawspeed-utils-librstest = { path = "src/utils/librstest" }
+rawspeed-utils-rstest = { path = "src/utils/rstest" }
+criterion = { version = "0.8.2", default-features = false, features = [] }
+
 [workspace.package]
 version = "0.1.0"
 authors = ["Roman Lebedev <lebedev.ri@gmail.com>"]

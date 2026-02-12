@@ -13,8 +13,8 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-common-generic_num = { path = "../../../common/generic_num" }
-rawspeed-memory-endianness = { path = "../../../memory/endianness" }
+rawspeed-common-generic_num = { workspace = true }
+rawspeed-memory-endianness = { workspace = true }
 
 [lib]
 path = "mod.rs"

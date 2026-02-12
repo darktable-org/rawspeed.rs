@@ -1,6 +1,6 @@
-use core::ops::Deref;
-use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::Token;
-use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::TokenStream;
+use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::{
+    Token, TokenStream,
+};
 
 pub type Result<T> = core::result::Result<T, String>;
 
@@ -65,7 +65,7 @@ macro_rules! impl_matcher {
             }
         }
 
-        impl<'a> Deref for $ident<'a> {
+        impl<'a> core::ops::Deref for $ident<'a> {
             type Target = &'a str;
             #[inline]
             fn deref(&self) -> &<Self as core::ops::Deref>::Target { &self.buf }

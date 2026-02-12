@@ -1,6 +1,4 @@
-use super::width;
-use super::x;
-use super::xmlparser;
+use super::{width, x, xmlparser};
 
 impl_elt_matcher!(
     #[derive(Debug, Clone, Copy, PartialEq)]

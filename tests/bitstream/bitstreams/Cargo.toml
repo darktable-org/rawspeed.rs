@@ -13,11 +13,11 @@ license.workspace = true
 workspace = true
 
 [dev-dependencies]
-rawspeed-bitstream-bitstream-decoder = { path = "../../../src/bitstream/bitstream/decoder" }
-rawspeed-bitstream-bitstreamcache = { path = "../../../src/bitstream/bitstreamcache" }
-rawspeed-bitstream-bitstreams = { path = "../../../src/bitstream/bitstreams" }
-rawspeed-bitstream-bitstreamslice = { path = "../../../src/bitstream/bitstreamslice" }
-rawspeed-common-bitseq = { path = "../../../src/common/bitseq" }
+rawspeed-bitstream-bitstream-decoder = { workspace = true }
+rawspeed-bitstream-bitstreamcache = { workspace = true }
+rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
+rawspeed-common-bitseq = { workspace = true }
 
 [[test]]
 name = "rawspeed-test-bitstream-bitstreams"

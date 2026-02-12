@@ -1,5 +1,4 @@
-use rawspeed_bitstream_bitstreams::bitstreams::BitOrderMSB;
-use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+use rawspeed_bitstream_bitstreams::bitstreams::{BitOrderMSB, BitStreamTraits};
 
 use crate::derive_mcu_bytesize::derive_mcu_bytesize;
 

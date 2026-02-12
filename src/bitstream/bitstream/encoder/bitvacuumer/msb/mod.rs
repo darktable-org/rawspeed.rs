@@ -1,6 +1,8 @@
-use super::{BitVacuumer, BitVacuumerBase, BitVacuumerUseDefaultDrainImpl};
-
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderMSB;
+
+use crate::bitvacuumer::{
+    BitVacuumer, BitVacuumerBase, BitVacuumerUseDefaultDrainImpl,
+};
 
 impl BitVacuumerUseDefaultDrainImpl for BitOrderMSB {}
 

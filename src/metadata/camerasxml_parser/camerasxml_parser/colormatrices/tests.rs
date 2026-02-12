@@ -1,6 +1,4 @@
-use super::super::colormatrix::ColorMatrix;
-use super::ColorMatrices;
-use super::xmlparser;
+use super::{super::colormatrix::ColorMatrix, ColorMatrices, xmlparser};
 
 type T<'a> = ColorMatrices;
 

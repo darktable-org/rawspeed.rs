@@ -1,9 +1,10 @@
-use super::super::BodyStr;
-use super::super::Str;
-use super::ID;
-use super::make::Make;
-use super::model::Model;
-use super::xmlparser;
+use super::{
+    super::{BodyStr, Str},
+    ID,
+    make::Make,
+    model::Model,
+    xmlparser,
+};
 
 type T<'a> = ID<'a>;
 

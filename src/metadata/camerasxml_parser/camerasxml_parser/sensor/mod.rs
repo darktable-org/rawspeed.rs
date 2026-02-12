@@ -1,9 +1,4 @@
-use super::black;
-use super::iso_list;
-use super::iso_max;
-use super::iso_min;
-use super::white;
-use super::xmlparser;
+use super::{black, iso_list, iso_max, iso_min, white, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Bounds {

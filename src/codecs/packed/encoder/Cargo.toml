@@ -13,14 +13,14 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstream-encoder= { path = "../../../bitstream/bitstream/encoder" }
-rawspeed-bitstream-bitstreamcache = { path = "../../../bitstream/bitstreamcache" }
-rawspeed-bitstream-bitstreams = { path = "../../../bitstream/bitstreams" }
-rawspeed-common-bitseq = { path = "../../../common/bitseq" }
-rawspeed-common-generic_num = { path = "../../../common/generic_num" }
-rawspeed-memory-endianness = { path = "../../../memory/endianness" }
-rawspeed-std = { path = "../../../std" }
-rawspeed-std-ndslice = { path = "../../../std/ndslice" }
+rawspeed-bitstream-bitstream-encoder = { workspace = true }
+rawspeed-bitstream-bitstreamcache = { workspace = true }
+rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-common-bitseq = { workspace = true }
+rawspeed-common-generic_num = { workspace = true }
+rawspeed-memory-endianness = { workspace = true }
+rawspeed-std = { workspace = true }
+rawspeed-std-ndslice = { workspace = true }
 
 [lib]
 path = "mod.rs"

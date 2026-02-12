@@ -1,13 +1,14 @@
-use super::super::Str;
-use super::super::camera::Camera;
-use super::super::camera::MaybeCFA;
-use super::super::camera::Sensors;
-use super::super::cameras::Cameras;
-use super::super::cameras::IndividualCameras;
-use super::super::make::Make;
-use super::super::model::Model;
-use super::super::supported::Supported;
-use super::xmlparser;
+use super::{
+    super::{
+        Str,
+        camera::{Camera, MaybeCFA, Sensors},
+        cameras::{Cameras, IndividualCameras},
+        make::Make,
+        model::Model,
+        supported::Supported,
+    },
+    xmlparser,
+};
 
 type T<'a> = Cameras<'a>;
 
