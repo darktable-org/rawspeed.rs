@@ -168,8 +168,6 @@ unsafe_attr_outside_unsafe = { level = "warn", priority = -1 }
 unsafe_code = { level = "warn", priority = -1 }
 unsafe_op_in_unsafe_fn = { level = "warn", priority = -1 }
 unstable_features = { level = "warn", priority = -1 }
-unused_crate_dependencies = { level = "warn", priority = -1 }
-unused_extern_crates = { level = "warn", priority = -1 }
 unused_import_braces = { level = "warn", priority = -1 }
 unused_lifetimes = { level = "warn", priority = -1 }
 unused_macro_rules = { level = "warn", priority = -1 }
@@ -185,6 +183,10 @@ variant_size_differences = { level = "warn", priority = -1 }
 # resolving_to_items_shadowing_supertrait_items = { level = "warn", priority = -1 }
 # shadowing_supertrait_items = { level = "warn", priority = -1 }
 # unqualified_local_imports = { level = "warn", priority = -1 }
+
+# Has false-positives with -Z build-std, therefore disabled.
+# unused_crate_dependencies = { level = "warn", priority = -1 }
+# unused_extern_crates = { level = "warn", priority = -1 }
 
 # Allow lints that still trigger
 # missing_docs = { level = "warn", priority = -1 }
