@@ -99,7 +99,19 @@ homepage = "https://rawspeed.rs"
 repository = "https://github.com/darktable-org/rawspeed.rs"
 license = "MIT OR Apache-2.0"
 
+[profile.release]
+panic = 'abort'
+
+[profile.dev-sanitized]
+inherits = "dev"
+panic = 'unwind'
+
+[profile.release-sanitized]
+inherits = "release"
+panic = 'unwind'
+
 [workspace.lints.rust]
+# Enable all lint groups provided by rustc:
 warnings = { level = "warn", priority = -1 }
 deprecated_safe = { level = "warn", priority = -1 }
 future_incompatible = { level = "warn", priority = -1 }
@@ -111,46 +123,76 @@ rust_2018_compatibility = { level = "warn", priority = -1 }
 rust_2018_idioms = { level = "warn", priority = -1 }
 rust_2021_compatibility = { level = "warn", priority = -1 }
 rust_2024_compatibility = { level = "warn", priority = -1 }
+unknown_or_malformed_diagnostic_attributes = { level = "warn", priority = -1 }
 unused = { level = "warn", priority = -1 }
 
-unused_qualifications = { level = "warn", priority = -1 }
-deprecated_in_future = { level = "warn", priority = -1 }
-non_ascii_idents = { level = "warn", priority = -1 }
-deref_into_dyn_supertrait = { level = "warn", priority = -1 }
+# Enable all lint checks provided by rustc, that are normally Allowed:
+absolute_paths_not_starting_with_crate = { level = "warn", priority = -1 }
 ambiguous_negative_literals = { level = "warn", priority = -1 }
-unused_import_braces = { level = "warn", priority = -1 }
-unit_bindings = { level = "warn", priority = -1 }
-unused_lifetimes = { level = "warn", priority = -1 }
 closure_returning_async_block = { level = "warn", priority = -1 }
-redundant_imports = { level = "warn", priority = -1 }
+deprecated_in_future = { level = "warn", priority = -1 }
+deprecated_safe_2024 = { level = "warn", priority = -1 }
+deref_into_dyn_supertrait = { level = "warn", priority = -1 }
+edition_2024_expr_fragment_specifier = { level = "warn", priority = -1 }
+elided_lifetimes_in_paths = { level = "warn", priority = -1 }
+explicit_outlives_requirements = { level = "warn", priority = -1 }
+ffi_unwind_calls = { level = "warn", priority = -1 }
+if_let_rescope = { level = "warn", priority = -1 }
+impl_trait_overcaptures = { level = "warn", priority = -1 }
+impl_trait_redundant_captures = { level = "warn", priority = -1 }
+keyword_idents_2018 = { level = "warn", priority = -1 }
+keyword_idents_2024 = { level = "warn", priority = -1 }
+let_underscore_drop = { level = "warn", priority = -1 }
+linker_messages = { level = "warn", priority = -1 }
+macro_use_extern_crate = { level = "warn", priority = -1 }
+meta_variable_misuse = { level = "warn", priority = -1 }
 missing_copy_implementations = { level = "warn", priority = -1 }
 missing_debug_implementations = { level = "warn", priority = -1 }
-trivial_casts = { level = "warn", priority = -1 }
-ffi_unwind_calls = { level = "warn", priority = -1 }
-unstable_features = { level = "warn", priority = -1 }
-single_use_lifetimes = { level = "warn", priority = -1 }
-meta_variable_misuse = { level = "warn", priority = -1 }
-impl_trait_redundant_captures = { level = "warn", priority = -1 }
+missing_unsafe_on_extern = { level = "warn", priority = -1 }
+non_ascii_idents = { level = "warn", priority = -1 }
+redundant_imports = { level = "warn", priority = -1 }
 redundant_lifetimes = { level = "warn", priority = -1 }
-variant_size_differences = { level = "warn", priority = -1 }
-macro_use_extern_crate = { level = "warn", priority = -1 }
+rust_2021_incompatible_closure_captures = { level = "warn", priority = -1 }
+rust_2021_incompatible_or_patterns = { level = "warn", priority = -1 }
+rust_2021_prefixes_incompatible_syntax = { level = "warn", priority = -1 }
+rust_2021_prelude_collisions = { level = "warn", priority = -1 }
+rust_2024_guarded_string_incompatible_syntax = { level = "warn", priority = -1 }
+rust_2024_incompatible_pat = { level = "warn", priority = -1 }
+rust_2024_prelude_collisions = { level = "warn", priority = -1 }
+single_use_lifetimes = { level = "warn", priority = -1 }
+tail_expr_drop_order = { level = "warn", priority = -1 }
+trivial_casts = { level = "warn", priority = -1 }
 trivial_numeric_casts = { level = "warn", priority = -1 }
-linker_messages = { level = "warn", priority = -1 }
+unit_bindings = { level = "warn", priority = -1 }
+unsafe_attr_outside_unsafe = { level = "warn", priority = -1 }
 unsafe_code = { level = "warn", priority = -1 }
+unsafe_op_in_unsafe_fn = { level = "warn", priority = -1 }
+unstable_features = { level = "warn", priority = -1 }
+unused_import_braces = { level = "warn", priority = -1 }
+unused_lifetimes = { level = "warn", priority = -1 }
+unused_macro_rules = { level = "warn", priority = -1 }
+unused_qualifications = { level = "warn", priority = -1 }
+variant_size_differences = { level = "warn", priority = -1 }
 
-# must_not_suspend = { level = "warn", priority = -1 }
-# multiple_supertrait_upcastable = { level = "warn", priority = -1 }
-# unused_results = { level = "warn", priority = -1 }
-# supertrait_item_shadowing_definition = { level = "warn", priority = -1 }
-# supertrait_item_shadowing_usage = { level = "warn", priority = -1 }
-# unnameable_types = { level = "warn", priority = -1 }
-# unqualified_local_imports = { level = "warn", priority = -1 }
-# unreachable_pub = { level = "warn", priority = -1 }
+# Allow lints that are still unstable
 # fuzzy_provenance_casts = { level = "warn", priority = -1 }
-# missing_docs = { level = "warn", priority = -1 }
 # lossy_provenance_casts = { level = "warn", priority = -1 }
-# unused_crate_dependencies = { level = "warn", priority = -1 }
+# multiple_supertrait_upcastable = { level = "warn", priority = -1 }
+# must_not_suspend = { level = "warn", priority = -1 }
 # non_exhaustive_omitted_patterns = { level = "warn", priority = -1 }
+# resolving_to_items_shadowing_supertrait_items = { level = "warn", priority = -1 }
+# shadowing_supertrait_items = { level = "warn", priority = -1 }
+# unqualified_local_imports = { level = "warn", priority = -1 }
+
+# Has false-positives with -Z build-std, therefore disabled.
+# unused_crate_dependencies = { level = "warn", priority = -1 }
+# unused_extern_crates = { level = "warn", priority = -1 }
+
+# Allow lints that still trigger
+# missing_docs = { level = "warn", priority = -1 }
+# unnameable_types = { level = "warn", priority = -1 }
+# unreachable_pub = { level = "warn", priority = -1 }
+# unused_results = { level = "warn", priority = -1 }
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
@@ -212,14 +254,3 @@ single_call_fn = { level = "allow", priority = 0 }
 trivially_copy_pass_by_ref = { level = "allow", priority = 0 }
 pattern_type_mismatch = { level = "allow", priority = 0 }
 pub_with_shorthand = { level = "allow", priority = 0 }
-
-[profile.release]
-panic = 'abort'
-
-[profile.dev-sanitized]
-inherits = "dev"
-panic = 'unwind'
-
-[profile.release-sanitized]
-inherits = "release"
-panic = 'unwind'

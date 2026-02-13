@@ -16,6 +16,8 @@ workspace = true
 rawspeed-memory-layoutfulbox = { workspace = true }
 rawspeed-std = { workspace = true }
 rawspeed-std-ndslice = { workspace = true }
+
+[dev-dependencies]
 rawspeed-common-exact_ops = { workspace = true }
 
 [lib]
