@@ -168,6 +168,7 @@ unsafe_attr_outside_unsafe = { level = "warn", priority = -1 }
 unsafe_code = { level = "warn", priority = -1 }
 unsafe_op_in_unsafe_fn = { level = "warn", priority = -1 }
 unstable_features = { level = "warn", priority = -1 }
+unused_crate_dependencies = { level = "warn", priority = -1 }
 unused_extern_crates = { level = "warn", priority = -1 }
 unused_import_braces = { level = "warn", priority = -1 }
 unused_lifetimes = { level = "warn", priority = -1 }
@@ -189,7 +190,6 @@ variant_size_differences = { level = "warn", priority = -1 }
 # missing_docs = { level = "warn", priority = -1 }
 # unnameable_types = { level = "warn", priority = -1 }
 # unreachable_pub = { level = "warn", priority = -1 }
-# unused_crate_dependencies = { level = "warn", priority = -1 }
 # unused_results = { level = "warn", priority = -1 }
 
 [workspace.lints.clippy]

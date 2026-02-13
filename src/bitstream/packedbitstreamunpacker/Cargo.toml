@@ -16,9 +16,11 @@ workspace = true
 rawspeed-bitstream-bitstream-decoder = { workspace = true }
 rawspeed-bitstream-bitstreamcache = { workspace = true }
 rawspeed-bitstream-bitstreams = { workspace = true }
-rawspeed-bitstream-bitstreamslice = { workspace = true }
 rawspeed-bitstream-packedbitstreamslice = { workspace = true }
 rawspeed-common-bitseq = { workspace = true }
+
+[dev-dependencies]
+rawspeed-bitstream-bitstreamslice = { workspace = true }
 
 [lib]
 path = "mod.rs"
