@@ -1,0 +1,26 @@
+[package]
+name = "rawspeed-bench-bitstream-bitstream-decoder"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+rawspeed-bitstream-bitstream-decoder = { workspace = true }
+rawspeed-bitstream-bitstreamcache = { workspace = true }
+rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
+rawspeed-common-bitseq = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "rawspeed-bench-bitstream-bitstream-decoder"
+path = "mod.rs"
+harness = false
