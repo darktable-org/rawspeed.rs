@@ -624,7 +624,7 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "${{ env.SRC_DIR }}"
-          cargo bench --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --benches -- --quick --warm-up-time 1e-9 --measurement-time 1e-9 --noplot
+          cargo test --benches --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}
       - name: Perform SonarQube static analysis
         timeout-minutes: 1
         if: inputs.job-flavor == 'SonarQube'
