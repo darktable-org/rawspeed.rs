@@ -13,6 +13,7 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+rawspeed-common-bit_manip = { workspace = true }
 rawspeed-common-generic_num = { workspace = true }
 
 [lib]

@@ -1,7 +1,7 @@
 use crate::bitseq::{BitLen, BitSeq};
 
 #[test]
-#[should_panic(expected = "assertion failed: *len <= T::BITWIDTH")]
+#[should_panic(expected = "assertion failed: *new_len <= T::BITWIDTH")]
 fn len_cap() {
     let b = BitLen::new(9);
     let _ = BitSeq::<u8>::new(b, 0);
