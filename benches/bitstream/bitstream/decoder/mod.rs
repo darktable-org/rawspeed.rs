@@ -178,7 +178,10 @@ where
                 size,
                 item_packed_bitlen,
             );
-            group.throughput(Throughput::Bytes(p.bytelen.try_into().unwrap()));
+            group.throughput(Throughput::ElementsAndBytes {
+                elements: p.item_count,
+                bytes: p.bytelen.try_into().unwrap(),
+            });
             group.bench_with_input(
                 BenchmarkId::from_parameter(format!(
                     "{size}/{item_packed_bitlen:02}",
