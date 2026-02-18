@@ -1,4 +1,7 @@
-use rawspeed_common_generic_num::generic_num::common::{ActiveBits, Bitwidth};
+use rawspeed_common_bit_manip::bit_manip::{
+    ExtractLowBitsConstraints, extract_low_bits,
+};
+use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
@@ -23,8 +26,14 @@ impl core::ops::Deref for BitLen {
     }
 }
 
-pub trait BitSeqConstraints: Clone + Copy + Bitwidth + ActiveBits {}
-impl<T: Clone + Copy + Bitwidth + ActiveBits> BitSeqConstraints for T {}
+pub trait BitSeqConstraints:
+    Clone + Copy + Bitwidth + PartialEq + ExtractLowBitsConstraints
+{
+}
+impl<T> BitSeqConstraints for T where
+    T: Clone + Copy + Bitwidth + PartialEq + ExtractLowBitsConstraints
+{
+}
 
 #[derive(Debug, Clone, Copy)]
 #[non_exhaustive]
@@ -42,16 +51,25 @@ where
 {
     #[must_use]
     #[inline]
-    pub fn new(len: BitLen, value: T) -> Option<Self> {
+    fn new_unchecked(len: BitLen, value: T) -> Self {
         assert!(*len <= T::BITWIDTH);
-        if value.active_bits() > *len {
+        Self {
+            storage: value,
+            len,
+        }
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn new(len: BitLen, value: T) -> Option<Self> {
+        let val = Self::new_unchecked(BitLen::new(T::BITWIDTH), value)
+            .trunc_or_self(len);
+
+        if val.zext() != value {
             return None;
         }
 
-        Some(Self {
-            storage: value,
-            len,
-        })
+        Some(val)
     }
 
     #[must_use]
@@ -65,6 +83,27 @@ where
     #[must_use]
     pub const fn zext(self) -> T {
         self.storage
+    }
+
+    #[inline]
+    #[must_use]
+    fn trunc(self, new_len: BitLen) -> Self {
+        assert!(*new_len <= T::BITWIDTH);
+        assert!(*new_len < *self.len());
+        let bits = extract_low_bits(self.zext(), *new_len);
+        Self::new_unchecked(new_len, bits)
+    }
+
+    #[inline]
+    #[must_use]
+    fn trunc_or_self(self, new_len: BitLen) -> Self {
+        assert!(*new_len <= T::BITWIDTH);
+        assert!(*new_len <= *self.len());
+        if *new_len < *self.len() {
+            self.trunc(new_len)
+        } else {
+            self
+        }
     }
 }
 

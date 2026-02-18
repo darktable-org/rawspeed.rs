@@ -1,4 +1,6 @@
-use rawspeed_common_generic_num::generic_num::common::Integer;
+use rawspeed_common_generic_num::generic_num::common::{
+    Bitwidth, ConstZero, Integer,
+};
 
 #[inline]
 pub fn extract_high_bits<T: Integer + core::ops::Shr<u32, Output = T>>(
@@ -14,13 +16,26 @@ pub fn extract_high_bits<T: Integer + core::ops::Shr<u32, Output = T>>(
     value >> num_low_bits_to_skip
 }
 
+pub trait ExtractLowBitsConstraints:
+    Bitwidth
+    + ConstZero
+    + core::ops::Shl<u32, Output = Self>
+    + core::ops::Shr<u32, Output = Self>
+{
+}
+impl<T> ExtractLowBitsConstraints for T where
+    T: Bitwidth
+        + ConstZero
+        + core::ops::Shl<u32, Output = Self>
+        + core::ops::Shr<u32, Output = Self>
+{
+}
+
 #[inline]
-pub fn extract_low_bits<
-    T: Integer + core::ops::Shl<u32, Output = T> + core::ops::Shr<u32, Output = T>,
->(
-    value: T,
-    num_bits: u32,
-) -> T {
+pub fn extract_low_bits<T>(value: T, num_bits: u32) -> T
+where
+    T: ExtractLowBitsConstraints,
+{
     if num_bits == 0 {
         return <T>::ZERO;
     }
