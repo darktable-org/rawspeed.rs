@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
+    "benches/bitstream/bitstream/decoder",
     "benches/misc/md5",
     "src",
     "src/bitstream/bitstream/decoder",

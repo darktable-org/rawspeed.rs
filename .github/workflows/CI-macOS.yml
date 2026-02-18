@@ -261,4 +261,4 @@ jobs:
           set -xe
           . "$HOME/.cargo/env"
           cd "$SRC_DIR"
-          cargo bench --profile ${{ inputs.build-profile }} --benches -- --quick --warm-up-time 1e-9 --measurement-time 1e-9 --noplot
+          cargo test --profile ${{ inputs.build-profile }} --benches
