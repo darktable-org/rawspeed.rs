@@ -206,6 +206,11 @@ jobs:
             curl unzip \
           "
           fi
+          if [ "${{ inputs.job-flavor }}" = "Mutants" ]; then
+          PACKAGES="${PACKAGES} \
+            dasel \
+          "
+          fi
           dpkg-divert --add --rename --divert /usr/bin/cc.original /usr/bin/cc
           dpkg-divert --add --rename --divert /usr/bin/gcc.original /usr/bin/gcc
           dpkg-divert --add --rename --divert /usr/bin/g++.original /usr/bin/g++
@@ -222,7 +227,7 @@ jobs:
           echo "PACKAGES=$(echo ${PACKAGES})" >> "${GITHUB_ENV}"
       - name: Configure for same-os cross-arch compilation
         timeout-minutes: 1
-        if: inputs.job-flavor == 'plain' && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
+        if: (inputs.job-flavor == 'plain' || inputs.job-flavor == 'Mutants') && inputs.target-os == 'linux' && inputs.builder-host != inputs.builder-target
         run: |
           set -xe
           PACKAGES="${{ env.PACKAGES }}"
@@ -329,6 +334,10 @@ jobs:
           "
           RUST_CRATES="${RUST_CRATES} \
             cargo-nextest \
+          "
+          elif [ "${{ inputs.job-flavor }}" = "Mutants" ]; then
+          RUST_CRATES="${RUST_CRATES} \
+            cargo-mutants \
           "
           elif    [ "${{ inputs.job-flavor }}" = "ASAN" ] \
                || [ "${{ inputs.job-flavor }}" = "MSAN" ] \
@@ -617,6 +626,38 @@ jobs:
           export ${{ inputs.job-flavor }}_OPTIONS="allocator_may_return_null=1"
           cd "${{ env.SRC_DIR }}"
           cargo test --all-targets $BUILD_ARGS --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }}-sanitized
+      - name: Run tests under cargo-mutants
+        timeout-minutes: 15
+        if: inputs.job-flavor == 'Mutants'
+        run: |
+          set -xe
+          . "$HOME/.cargo/env"
+          cd "${{ env.SRC_DIR }}"
+          FAILURE=0
+          for PKG in $(dasel -r toml -w yaml -f "${{ env.SRC_DIR }}/Cargo.toml" -s 'workspace.members.all()'); do
+            echo "::group::Mutation testing in ${PKG}"
+            set +e
+            MARKERFILE="${PKG}/.cargo-mutants-unclean"
+            test -f "${MARKERFILE}"
+            FAILURE_EXPECTED=$?
+            cargo mutants -j$(nproc --all) --annotations github --cap-lints true --cargo-arg --target --cargo-arg ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --dir ${PKG}
+            STATUS=$?
+            set -e
+            if [ $STATUS -ne 0 ]; then
+              echo "::warning file=${PKG}/Cargo.toml::mutation testing failed!"
+              if [ $FAILURE_EXPECTED -ne 0 ]; then
+                echo "::error file=${MARKERFILE}::package unexpectedly FAILED mutation testing, create marker to silence"
+                FAILURE=1
+              fi
+            else
+              if [ $FAILURE_EXPECTED -eq 0 ]; then
+                echo "::error file=${MARKERFILE}::package unexpectedly PASSED mutation testing, remove marker to silence"
+                FAILURE=1
+              fi
+            fi
+            echo '::endgroup::'
+          done
+          exit ${FAILURE}
       - name: Dry-run benchmarks
         timeout-minutes: 1
         if: inputs.job-flavor == 'plain'
