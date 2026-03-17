@@ -9,7 +9,7 @@ use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderLSB, BitOrderMSB, BitOrderMSB16, BitOrderMSB32, BitOrderTrait,
-    BitStreamTraits,
+    BitStreamTraits, MaximalPackedElementCount,
 };
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSliceConstraints;
 use rawspeed_common_bitseq::bitseq::BitSeq;
@@ -108,36 +108,6 @@ where
         bs.skip_bits_no_fill(item_packed_bitlen);
     }
     serial.finalize()
-}
-
-struct MaximalPackedElementCount {
-    bytelen: usize,
-    item_count: u64,
-}
-
-impl MaximalPackedElementCount {
-    #[inline]
-    #[must_use]
-    fn new<BitOrder>(bytelen: usize, item_packed_bitlen: u32) -> Self
-    where
-        BitOrder: BitOrderTrait + BitStreamerTraits,
-    {
-        let chunk_bytelen =
-            size_of::<<BitOrder as BitStreamerTraits>::MaxProcessByteArray>();
-        let chunk_bytelen = u64::try_from(chunk_bytelen).unwrap();
-        let chunk_bitlen = chunk_bytelen.checked_mul(8).unwrap();
-        let bytelen = u64::try_from(bytelen).unwrap();
-        let num_chunks = bytelen.checked_div(chunk_bytelen).unwrap();
-        let usable_bytelen = num_chunks.checked_mul(chunk_bytelen).unwrap();
-        let usable_bytelen = usable_bytelen.try_into().unwrap();
-        let num_bits = num_chunks.checked_mul(chunk_bitlen).unwrap();
-        let item_count =
-            num_bits.checked_div(item_packed_bitlen.into()).unwrap();
-        Self {
-            bytelen: usable_bytelen,
-            item_count,
-        }
-    }
 }
 
 fn benchmark<BitOrder>(c: &mut Criterion)
