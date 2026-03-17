@@ -5,20 +5,23 @@ use crate::bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
-pub struct BitOrderLSB;
+pub struct BitOrderMSB16;
 
-impl BitOrderTrait for BitOrderLSB {}
+impl BitOrderTrait for BitOrderMSB16 {}
 
-impl BitStreamTraits for BitOrderLSB {
-    const TAG: BitOrder = BitOrder::LSB;
+impl BitStreamTraits for BitOrderMSB16 {
+    const TAG: BitOrder = BitOrder::MSB16;
 
-    type StreamFlow = bitstreamcache::BitStreamCacheHighInLowOut;
+    type StreamFlow = bitstreamcache::BitStreamCacheLowInHighOut;
 
     const FIXED_SIZE_CHUNKS: bool = true;
 
-    type MCUByteArrayType = [u8; 1];
+    type MCUByteArrayType = [u8; 2];
 
-    type ChunkByteArrayType = [u8; 4];
+    type ChunkByteArrayType = Self::MCUByteArrayType;
 
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;
 }
+
+#[cfg(test)]
+mod tests;

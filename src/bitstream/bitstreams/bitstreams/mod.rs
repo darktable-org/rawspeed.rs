@@ -23,7 +23,8 @@ pub trait BitStreamTraits {
 }
 
 #[inline]
-fn predict_bitstream_bytelen<BitOrder>(
+#[must_use]
+pub fn predict_bitstream_bytelen<BitOrder>(
     num_items: usize,
     item_bitlen: u32,
 ) -> u64
@@ -31,17 +32,52 @@ where
     BitOrder: BitStreamTraits,
 {
     const {
-        assert!(BitOrder::FIXED_SIZE_CHUNKS);
+        assert!(<BitOrder as BitStreamTraits>::FIXED_SIZE_CHUNKS);
     };
-    let chunk_bytelen =
+    let mcu_bytelen =
         size_of::<<BitOrder as BitStreamTraits>::MCUByteArrayType>();
-    let chunk_bytelen = u64::try_from(chunk_bytelen).unwrap();
-    let chunk_bitlen = chunk_bytelen.checked_mul(8).unwrap();
+    let mcu_bytelen = u64::try_from(mcu_bytelen).unwrap();
+    let mcu_bitlen = mcu_bytelen.checked_mul(8).unwrap();
     let num_items = u64::try_from(num_items).unwrap();
     let item_bitlen = u64::from(item_bitlen);
     let bitlen = item_bitlen.checked_mul(num_items).unwrap();
-    let bitlen = bitlen.checked_next_multiple_of(chunk_bitlen).unwrap();
+    let bitlen = bitlen.checked_next_multiple_of(mcu_bitlen).unwrap();
     <_ as CheckedDivExact>::checked_div_exact(bitlen, 8).unwrap()
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct MaximalPackedElementCount {
+    pub bytelen: usize,
+    pub item_count: u64,
+}
+
+impl MaximalPackedElementCount {
+    #[inline]
+    #[must_use]
+    pub fn new<BitOrder>(bytelen: usize, item_packed_bitlen: u32) -> Self
+    where
+        BitOrder: BitOrderTrait + BitStreamTraits,
+    {
+        const {
+            assert!(<BitOrder as BitStreamTraits>::FIXED_SIZE_CHUNKS);
+        };
+        assert_ne!(item_packed_bitlen, 0);
+        let mcu_bytelen =
+            size_of::<<BitOrder as BitStreamTraits>::MCUByteArrayType>();
+        let mcu_bytelen = u64::try_from(mcu_bytelen).unwrap();
+        let mcu_bitlen = mcu_bytelen.checked_mul(8).unwrap();
+        let bytelen = u64::try_from(bytelen).unwrap();
+        let num_mcus = bytelen.checked_div(mcu_bytelen).unwrap();
+        let usable_bytelen = num_mcus.checked_mul(mcu_bytelen).unwrap();
+        let num_bits = num_mcus.checked_mul(mcu_bitlen).unwrap();
+        let item_count =
+            num_bits.checked_div(item_packed_bitlen.into()).unwrap();
+        Self {
+            bytelen: usable_bytelen.try_into().unwrap(),
+            item_count,
+        }
+    }
 }
 
 impl BitOrder {
@@ -78,6 +114,9 @@ mod lsb;
 mod msb;
 mod msb16;
 mod msb32;
+
+#[cfg(test)]
+mod tests;
 
 pub use jpeg::BitOrderJPEG;
 pub use lsb::BitOrderLSB;
