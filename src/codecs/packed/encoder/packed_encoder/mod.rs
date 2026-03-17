@@ -1,14 +1,17 @@
 use rawspeed_bitstream_bitstream_encoder::bitvacuumer::{
-    BitVacuumerBase, BitVacuumerDrainImpl,
+    AsSlice, BitVacuumerBase, BitVacuumerDrainImpl,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
+    self, BitStreamCacheData,
+};
 use rawspeed_bitstream_bitstreams::{
     bitstreams,
     bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits},
 };
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use rawspeed_common_generic_num::generic_num::{
-    bit_transmutation::FromNeBytes, common::Bitwidth,
+    bit_transmutation::{FromNeBytes, ToNeBytes},
+    common::Bitwidth,
 };
 use rawspeed_memory_endianness::endianness::SwapBytes;
 use rawspeed_std::coord_common::RowIndex;
@@ -235,15 +238,22 @@ where
     where
         BitOrder: BitOrderTrait + BitStreamTraits,
         BitOrder::StreamFlow: bitstreamcache::BitStreamCache + Default,
-        BitOrder::ChunkByteArrayType: FromNeBytes,
-        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
+        BitOrder::MCUByteArrayType: FromNeBytes,
+        <BitOrder::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
             + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
             + SwapBytes,
-        u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
+        u32: From<<BitOrder::MCUByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
-            BitVacuumerDrainImpl,
+            BitVacuumerDrainImpl<BitOrder>,
         BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
+        <BitOrder as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+        <<BitOrder as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output: BitStreamCacheData
+            + ToNeBytes<Output = <BitOrder as BitStreamTraits>::MCUByteArrayType>
+            + TryFrom<u64>
+            + ToNeBytes + SwapBytes,
+        <<<BitOrder as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as ToNeBytes>::Output: AsSlice<EltType = u8>,
+        <<<BitOrder as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<u64>>::Error: core::fmt::Debug
     {
         let row = self.input.get_row(row).unwrap();
         let mut row_writer = ByteCountingWriter::new(&mut *self.writer);
@@ -262,15 +272,22 @@ where
     where
         BitOrder: BitOrderTrait + BitStreamTraits,
         BitOrder::StreamFlow: bitstreamcache::BitStreamCache + Default,
-        BitOrder::ChunkByteArrayType: FromNeBytes,
-        <BitOrder::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
+        BitOrder::MCUByteArrayType: FromNeBytes,
+        <BitOrder::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
             + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
             + SwapBytes,
-        u32: From<<BitOrder::ChunkByteArrayType as FromNeBytes>::Output>,
+        u32: From<<BitOrder::MCUByteArrayType as FromNeBytes>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
-            BitVacuumerDrainImpl,
+            BitVacuumerDrainImpl<BitOrder>,
         BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
+        <BitOrder as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+        <<BitOrder as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output: BitStreamCacheData
+            + ToNeBytes<Output = <BitOrder as BitStreamTraits>::MCUByteArrayType>
+            + TryFrom<u64>
+            + ToNeBytes + SwapBytes,
+        <<<BitOrder as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as ToNeBytes>::Output: AsSlice<EltType = u8>,
+        <<<BitOrder as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<u64>>::Error: core::fmt::Debug
     {
         for row in 0..*self.input.num_rows() {
             let real_pitch = self.pack_row::<BitOrder>(RowIndex::new(row))?;

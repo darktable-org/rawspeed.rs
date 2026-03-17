@@ -1,58 +1,69 @@
+use crate::bitvacuumer::{
+    AsSlice, BitStreamCache, BitVacuumer, BitVacuumerBase,
+    BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl, Bitwidth, SwapBytes,
+    get_host_endianness,
+};
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheData;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderJPEG, BitOrderTrait, BitStreamTraits,
 };
-use rawspeed_common_generic_num::generic_num::bit_transmutation::FromNeBytes;
-
-use crate::bitvacuumer::{
-    BitStreamCache, BitVacuumer, BitVacuumerBase, BitVacuumerDefaultDrainImpl,
-    BitVacuumerDrainImpl, Bitwidth, SwapBytes, get_host_endianness,
+use rawspeed_common_generic_num::generic_num::bit_transmutation::{
+    FromNeBytes, ToNeBytes,
 };
 
-pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, BitOrderJPEG, W>;
+type T = BitOrderJPEG;
+
+pub type BitVacuumerJPEG<'a, W> = BitVacuumerBase<'a, T, W>;
 
 impl<W> BitVacuumer for BitVacuumerJPEG<'_, W> where W: std::io::Write {}
 
-impl<W> BitVacuumerDrainImpl for BitVacuumerBase<'_, BitOrderJPEG, W>
+impl<W> BitVacuumerDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
-    BitOrderJPEG: BitOrderTrait + BitStreamTraits,
+    T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
     u32: From<u8>
         + Bitwidth
-        + From<<<BitOrderJPEG as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output>
+        + From<<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output>
         + core::ops::Shl<usize>
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
-    <BitOrderJPEG as BitStreamTraits>::StreamFlow: BitStreamCache,
-    <<BitOrderJPEG as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output:
+    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
+    <<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output:
         Bitwidth + SwapBytes + TryFrom<u64>,
 {
     #[inline]
-    fn drain_impl(&mut self) -> std::io::Result<()> {
-        type T = BitOrderJPEG;
-        type ChunkType =<<BitOrderJPEG as BitStreamTraits>::ChunkByteArrayType as FromNeBytes>::Output;
+    fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
+    where
+        CacheStorage: BitStreamCacheData
+            + From<<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output>
+            + TryFrom<u64>
+            + ToNeBytes + SwapBytes,
+        <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,
+        <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug
+        {
+        assert!(self.cache.fill_level() >= CacheStorage::BITWIDTH);
 
-        assert!(self.cache.fill_level() >= u32::BITWIDTH);
+        let chunk = CacheStorage::try_from(
+            self.cache.peek(CacheStorage::BITWIDTH).zext(),
+        )
+        .unwrap();
 
-        let stream_chunk_bitwidth=            ChunkType::BITWIDTH;
-
-        assert!(u32::BITWIDTH == stream_chunk_bitwidth);
-
-        let Ok(chunk) = <ChunkType>::try_from(
-            self.cache.peek(stream_chunk_bitwidth).zext(),
-        ) else {
-            panic!("lossless cast failed?")
-        };
-
-        if chunk.to_ne_bytes().iter().all(|byte| *byte != 0xFF_u8) {
-            return BitVacuumerDefaultDrainImpl::drain_impl(self);
+        if chunk
+            .to_ne_bytes()
+            .as_slice()
+            .iter()
+            .all(|byte| *byte != 0xFF_u8)
+        {
+            return BitVacuumerDefaultDrainImpl::<T>::drain_impl::<CacheStorage>(
+                self,
+            );
         }
 
-        self.cache.skip(stream_chunk_bitwidth);
+        self.cache.skip(CacheStorage::BITWIDTH);
         let chunk = chunk.get_byte_swapped(
             <T as BitStreamTraits>::CHUNK_ENDIANNESS != get_host_endianness(),
         );
-        let bytes = chunk.to_ne_bytes();
-        for byte in bytes {
+        for byte in chunk.to_ne_bytes().as_slice().iter().copied() {
             self.writer.write_all(&[byte])?;
             if byte == 0xFF_u8 {
                 const STUFFING_BYTE: u8 = 0x00_u8;

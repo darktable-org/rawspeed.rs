@@ -16,6 +16,7 @@ workspace = true
 rawspeed-bitstream-bitstreamcache = { workspace = true }
 rawspeed-bitstream-bitstreams = { workspace = true }
 rawspeed-common-bitseq = { workspace = true }
+rawspeed-common-exact_ops = { workspace = true }
 rawspeed-common-generic_num = { workspace = true }
 rawspeed-memory-endianness = { workspace = true }
 

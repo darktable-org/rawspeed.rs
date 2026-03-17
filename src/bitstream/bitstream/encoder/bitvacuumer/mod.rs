@@ -3,25 +3,66 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOu
 #[cfg(not(target_endian = "little"))]
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
-    BitStreamCache, BitStreamCacheBase,
+    BitStreamCache, BitStreamCacheBase, BitStreamCacheData,
 };
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
+use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 use rawspeed_common_generic_num::generic_num::{
-    bit_transmutation::FromNeBytes, common::Bitwidth,
+    bit_transmutation::{FromNeBytes, ToNeBytes},
+    common::Bitwidth,
 };
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
 
-pub trait BitVacuumer {}
-
-pub trait BitVacuumerDefaultDrainImpl {
-    fn drain_impl(&mut self) -> std::io::Result<()>;
+pub trait AsSlice {
+    type EltType;
+    #[must_use]
+    fn as_slice(&self) -> &[Self::EltType];
 }
 
-pub trait BitVacuumerDrainImpl {
-    fn drain_impl(&mut self) -> std::io::Result<()>;
+impl<T, const N: usize> AsSlice for [T; N] {
+    type EltType = T;
+
+    #[inline]
+    fn as_slice(&self) -> &[Self::EltType] {
+        self.as_slice()
+    }
+}
+
+pub trait BitVacuumer {}
+
+pub trait BitVacuumerDefaultDrainImpl<T>
+where
+    T: BitOrderTrait + BitStreamTraits,
+    <T as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+{
+    fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
+    where
+        CacheStorage: BitStreamCacheData
+            + From<<T::MCUByteArrayType as FromNeBytes>::Output>
+            + TryFrom<u64>
+            + ToNeBytes
+            + SwapBytes,
+        <CacheStorage as ToNeBytes>::Output: AsSlice<EltType = u8>,
+        <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug;
+}
+
+pub trait BitVacuumerDrainImpl<T>
+where
+    T: BitOrderTrait + BitStreamTraits,
+    <T as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+{
+    fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
+    where
+        CacheStorage: BitStreamCacheData
+            + From<<T::MCUByteArrayType as FromNeBytes>::Output>
+            + TryFrom<u64>
+            + ToNeBytes
+            + SwapBytes,
+        <CacheStorage as ToNeBytes>::Output: AsSlice<EltType = u8>,
+        <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug;
 }
 
 pub trait BitVacuumerUseDefaultDrainImpl {}
@@ -38,89 +79,100 @@ where
     _phantom_data: core::marker::PhantomData<T>,
 }
 
-impl<T, W> BitVacuumerDefaultDrainImpl for BitVacuumerBase<'_, T, W>
+impl<T, W> BitVacuumerDefaultDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::ChunkByteArrayType: FromNeBytes,
-    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
+    T::MCUByteArrayType: FromNeBytes,
+    <T::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+    <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
 {
     #[inline]
-    fn drain_impl(&mut self) -> std::io::Result<()> {
-        let mut cache: BitStreamCacheBase<_, u32> = {
+    fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
+    where
+        CacheStorage: BitStreamCacheData
+            + From<<T::MCUByteArrayType as FromNeBytes>::Output>+ TryFrom<u64>
+            + ToNeBytes + SwapBytes,
+        <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,
+    {
+        let mut cache: BitStreamCacheBase<_, CacheStorage> = {
             #[cfg(target_endian = "little")]
             {
-                BitStreamCacheHighInLowOut::<u32>::new()
+                BitStreamCacheHighInLowOut::<CacheStorage>::new()
             }
             #[cfg(not(target_endian = "little"))]
             {
-                BitStreamCacheLowInHighOut::<u32>::new()
+                BitStreamCacheLowInHighOut::<CacheStorage>::new()
             }
         };
 
         assert!(self.cache.fill_level() >= cache.size());
 
-        let stream_chunk_bitwidth =
-            <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH;
+        let mcu_chunk_bitwidth =
+            <T::MCUByteArrayType as FromNeBytes>::Output::BITWIDTH;
 
-        assert!(cache.size() >= stream_chunk_bitwidth);
-        assert!(cache.size().is_multiple_of(stream_chunk_bitwidth));
-        let num_chunks_needed = cache.size() / stream_chunk_bitwidth;
+        assert!(cache.size() >= mcu_chunk_bitwidth);
+        assert!(cache.size().is_multiple_of(mcu_chunk_bitwidth));
+        let num_chunks_needed = cache.size() / mcu_chunk_bitwidth;
         assert!(num_chunks_needed >= 1);
 
         for _i in 0..num_chunks_needed {
-            let Ok(chunk) =
-                <<T::ChunkByteArrayType as FromNeBytes>::Output>::try_from(
-                    self.cache.peek(stream_chunk_bitwidth).zext(),
+            let chunk =
+                <<T::MCUByteArrayType as FromNeBytes>::Output>::try_from(
+                    self.cache.peek(mcu_chunk_bitwidth).zext(),
                 )
-            else {
-                panic!("lossless cast failed?")
-            };
-            self.cache.skip(stream_chunk_bitwidth);
+                .unwrap();
+            self.cache.skip(mcu_chunk_bitwidth);
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
             cache.push(
-                BitSeq::new(BitLen::new(stream_chunk_bitwidth), chunk.into())
+                BitSeq::new(BitLen::new(mcu_chunk_bitwidth), chunk.into())
                     .unwrap(),
             );
         }
         let bytes = cache.peek(cache.size()).zext().to_ne_bytes();
-        self.writer.write_all(&bytes)
+        self.writer.write_all(bytes.as_slice())
     }
 }
 
-impl<T, W> BitVacuumerDrainImpl for BitVacuumerBase<'_, T, W>
+impl<T, W> BitVacuumerDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::ChunkByteArrayType: FromNeBytes,
-    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
+    T::MCUByteArrayType: FromNeBytes,
+    <T::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+    <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
 {
     #[inline]
-    fn drain_impl(&mut self) -> std::io::Result<()> {
-        BitVacuumerDefaultDrainImpl::drain_impl(self)
+    fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
+    where
+        CacheStorage: BitStreamCacheData
+            + From<<T::MCUByteArrayType as FromNeBytes>::Output>+ TryFrom<u64>
+            + ToNeBytes + SwapBytes,
+        <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,
+        <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug,
+    {
+        BitVacuumerDefaultDrainImpl::<T>::drain_impl::<CacheStorage>(self)
     }
 }
 
 impl<'a, T, W> BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
-    Self: BitVacuumerDrainImpl,
+    Self: BitVacuumerDrainImpl<T>,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::ChunkByteArrayType: FromNeBytes,
-    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
+    T::MCUByteArrayType: FromNeBytes,
+    <T::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+    u32: From<<T::MCUByteArrayType as FromNeBytes>::Output>,
     BitSeq<<T::StreamFlow as BitStreamCache>::Storage>: From<BitSeq<u64>>,
 {
     #[inline]
@@ -136,38 +188,85 @@ where
     }
 
     #[inline]
-    pub fn flush(mut self) -> std::io::Result<()> {
-        self.drain()?;
+    fn flush_impl<MCUCacheStorage>(mut self) -> std::io::Result<()>
+    where
+        <T as BitStreamTraits>::MCUByteArrayType:
+            FromNeBytes<Output = MCUCacheStorage>,
+        MCUCacheStorage: BitStreamCacheData
+            + ToNeBytes<Output = <T as BitStreamTraits>::MCUByteArrayType>
+            + TryFrom<u64>
+            + SwapBytes,
+        <MCUCacheStorage as ToNeBytes>::Output: AsSlice<EltType = u8>,
+        <MCUCacheStorage as TryFrom<u64>>::Error: core::fmt::Debug,
+    {
+        self.drain_priv::<u32>()?;
 
         if self.cache.fill_level() == 0 {
             return Ok(());
         }
 
         // Pad with zero bits, so we can drain the partial chunk.
-        let bits = BitSeq::new(
-            BitLen::new(u32::BITWIDTH - self.cache.fill_level()),
-            0,
+        let desired_fill_level = self
+            .cache
+            .fill_level()
+            .next_multiple_of(MCUCacheStorage::BITWIDTH);
+        let padding_bitlen = desired_fill_level
+            .checked_sub(self.cache.fill_level())
+            .unwrap();
+
+        let bits = BitSeq::new(BitLen::new(padding_bitlen), 0).unwrap();
+        self.put(bits)?;
+
+        let num_chunks = <_ as CheckedDivExact>::checked_div_exact(
+            self.cache.fill_level(),
+            MCUCacheStorage::BITWIDTH,
         )
         .unwrap();
-        self.put(bits)?;
-        assert!(self.cache.fill_level() == u32::BITWIDTH);
 
-        self.drain()?;
-        assert!(self.cache.fill_level() == 0);
+        for _ in 0..num_chunks {
+            self.drain_priv::<MCUCacheStorage>()?;
+        }
 
         self.writer.flush()
     }
 
     #[inline]
-    pub fn drain(&mut self) -> std::io::Result<()> {
-        if self.cache.fill_level() < u32::BITWIDTH {
+    pub fn flush(self) -> std::io::Result<()>
+    where
+        <T as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+        <<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output: BitStreamCacheData
+            + ToNeBytes<Output = <T as BitStreamTraits>::MCUByteArrayType>
+            + TryFrom<u64>
+            + SwapBytes,
+        <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as ToNeBytes>::Output:
+            AsSlice<EltType = u8>,
+        <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<u64>>::Error: core::fmt::Debug
+    {
+        self.flush_impl::<<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output>()
+    }
+
+    #[inline]
+    pub fn drain_priv<CacheStorage>(&mut self) -> std::io::Result<()>
+    where
+        CacheStorage: BitStreamCacheData
+            + From<<T::MCUByteArrayType as FromNeBytes>::Output>
+            + TryFrom<u64>
+            + ToNeBytes
+            + SwapBytes,
+        <CacheStorage as ToNeBytes>::Output: AsSlice<EltType = u8>,
+        <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug,
+    {
+        if self.cache.fill_level() < CacheStorage::BITWIDTH {
             return Ok(()); // NOTE: does not mean the cache is empty!
         }
 
-        BitVacuumerDrainImpl::drain_impl(self)?;
-
-        assert!(self.cache.fill_level() < u32::BITWIDTH);
+        BitVacuumerDrainImpl::<T>::drain_impl::<CacheStorage>(self)?;
         Ok(())
+    }
+
+    #[inline]
+    pub fn drain(&mut self) -> std::io::Result<()> {
+        self.drain_priv::<u32>()
     }
 
     #[inline]

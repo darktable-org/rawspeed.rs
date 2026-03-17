@@ -1,4 +1,4 @@
-use rawspeed_common_generic_num::generic_num::common::Bitwidth as _;
+use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 use rawspeed_memory_endianness::endianness::Endianness;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -23,21 +23,25 @@ pub trait BitStreamTraits {
 }
 
 #[inline]
-fn predict_bitstream_bytelen<BS>(num_items: usize, item_bitlen: u32) -> u64
+fn predict_bitstream_bytelen<BitOrder>(
+    num_items: usize,
+    item_bitlen: u32,
+) -> u64
 where
-    BS: BitStreamTraits,
+    BitOrder: BitStreamTraits,
 {
     const {
-        assert!(BS::FIXED_SIZE_CHUNKS);
+        assert!(BitOrder::FIXED_SIZE_CHUNKS);
     };
+    let chunk_bytelen =
+        size_of::<<BitOrder as BitStreamTraits>::MCUByteArrayType>();
+    let chunk_bytelen = u64::try_from(chunk_bytelen).unwrap();
+    let chunk_bitlen = chunk_bytelen.checked_mul(8).unwrap();
     let num_items = u64::try_from(num_items).unwrap();
     let item_bitlen = u64::from(item_bitlen);
     let bitlen = item_bitlen.checked_mul(num_items).unwrap();
-    let bitlen = bitlen
-        .checked_next_multiple_of(u32::BITWIDTH.into())
-        .unwrap();
-    assert!(bitlen.is_multiple_of(8));
-    bitlen / 8
+    let bitlen = bitlen.checked_next_multiple_of(chunk_bitlen).unwrap();
+    <_ as CheckedDivExact>::checked_div_exact(bitlen, 8).unwrap()
 }
 
 impl BitOrder {
