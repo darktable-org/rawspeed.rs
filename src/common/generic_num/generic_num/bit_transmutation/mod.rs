@@ -105,20 +105,40 @@ impl_to_bytes!(u32);
 impl_to_bytes!(u64);
 
 pub trait FromNeBytes {
-    type Output;
+    type BytesTy;
 
-    #[expect(clippy::wrong_self_convention)]
-    fn from_ne_bytes(self) -> Self::Output;
+    #[must_use]
+    fn from_ne_bytes(bytes: Self::BytesTy) -> Self;
 }
 
 macro_rules! impl_from_X_bytes {
     ($trait:ident, $method:ident, $tgt:ty) => {
+        impl $trait for $tgt {
+            type BytesTy = [u8; core::mem::size_of::<$tgt>()];
+
+            #[inline]
+            fn $method(bytes: Self::BytesTy) -> Self {
+                Self::$method(bytes)
+            }
+        }
+    };
+}
+
+pub trait ConcatBytesNe {
+    type Output;
+
+    #[must_use]
+    fn concat_bytes_ne(self) -> Self::Output;
+}
+
+macro_rules! impl_concat_bytes_X {
+    ($trait:ident, $method:ident, $baseline_method:ident, $tgt:ty) => {
         impl $trait for [u8; core::mem::size_of::<$tgt>()] {
             type Output = $tgt;
 
             #[inline]
             fn $method(self) -> Self::Output {
-                Self::Output::$method(self)
+                Self::Output::$baseline_method(self)
             }
         }
     };
@@ -127,6 +147,12 @@ macro_rules! impl_from_X_bytes {
 macro_rules! impl_from_bytes {
     ($src:ty) => {
         impl_from_X_bytes!(FromNeBytes, from_ne_bytes, $src);
+        impl_concat_bytes_X!(
+            ConcatBytesNe,
+            concat_bytes_ne,
+            from_ne_bytes,
+            $src
+        );
     };
 }
 

@@ -7,7 +7,7 @@ use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
 };
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use rawspeed_common_generic_num::generic_num::{
-    bit_transmutation::FromNeBytes, common::Bitwidth,
+    bit_transmutation::ConcatBytesNe, common::Bitwidth,
 };
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
 use rawspeed_memory_fixed_length_load::fixed_length_load::{
@@ -170,12 +170,12 @@ where
     <T::ChunkByteArrayType as core::ops::Index<core::ops::RangeFull>>::Output:
         CopyFromSlice,
     T::ChunkByteArrayType:
-        Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
-        + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
+        Default + core::ops::IndexMut<core::ops::RangeFull> + ConcatBytesNe,
+    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth
+        + From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>
         + SwapBytes,
     <T::StreamFlow as BitStreamCache>::Storage:
-        From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+        From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
 {
     #[inline]
     fn fill_cache_impl(
@@ -183,7 +183,7 @@ where
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
         let stream_chunk_bitwidth: usize =
-            <T::ChunkByteArrayType as FromNeBytes>::Output::BITWIDTH
+            <T::ChunkByteArrayType as ConcatBytesNe>::Output::BITWIDTH
                 .try_into()
                 .unwrap();
         assert!(stream_chunk_bitwidth >= 1);
@@ -203,7 +203,7 @@ where
                 ..(i + 1) * (stream_chunk_bitwidth / 8)];
             let chunk =
                 LoadFromSlice::<T::ChunkByteArrayType>::load_from_slice(slice);
-            let chunk = chunk.from_ne_bytes();
+            let chunk = chunk.concat_bytes_ne();
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
             let bits = BitSeq::new(
@@ -235,12 +235,12 @@ where
     <T::ChunkByteArrayType as core::ops::Index<core::ops::RangeFull>>::Output:
         CopyFromSlice,
     T::ChunkByteArrayType:
-        Default + core::ops::IndexMut<core::ops::RangeFull> + FromNeBytes,
-    <T::ChunkByteArrayType as FromNeBytes>::Output: Bitwidth
-        + From<<T::ChunkByteArrayType as FromNeBytes>::Output>
+        Default + core::ops::IndexMut<core::ops::RangeFull> + ConcatBytesNe,
+    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth
+        + From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>
         + SwapBytes,
     <T::StreamFlow as BitStreamCache>::Storage:
-        From<<T::ChunkByteArrayType as FromNeBytes>::Output>,
+        From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
 {
     #[inline]
     fn fill_cache_impl(
