@@ -9,8 +9,7 @@ use rawspeed_memory_endianness::endianness::{
 };
 
 use crate::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
-    ConcatBytesNe, LoadFromSlice,
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits, ConcatBytesNe,
 };
 
 impl BitStreamerTraits for BitOrderJPEG {
@@ -28,7 +27,7 @@ impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
         use crate::bitstreamer::BitStreamerReplenisher as _;
-        let chunk = LoadFromSlice::<[u8; 4]>::load_from_slice(&input[0..4]);
+        let chunk: [u8; 4] = input[0..4].try_into().unwrap();
         if chunk.iter().all(|byte| *byte != 0xFF_u8) {
             type ChunkType = <<T as BitStreamTraits>::ChunkByteArrayType as ConcatBytesNe>::Output;
             let chunk = chunk.concat_bytes_ne();

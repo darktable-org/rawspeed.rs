@@ -10,9 +10,6 @@ use rawspeed_common_generic_num::generic_num::{
     bit_transmutation::ConcatBytesNe, common::Bitwidth,
 };
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
-use rawspeed_memory_fixed_length_load::fixed_length_load::{
-    CopyFromSlice, LoadFromSlice,
-};
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad;
 
 pub trait BitStreamerTraits {
@@ -60,11 +57,12 @@ where
         + BitStreamTraits
         + BitStreamerTraits
         + BitStreamSliceConstraints,
-    <T as BitStreamerTraits>::MaxProcessByteArray:
-        Default + core::ops::IndexMut<core::ops::RangeFull>,
+    <T as BitStreamerTraits>::MaxProcessByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull>
+        + core::ops::Index<core::ops::RangeFull, Output = [u8]>,
     <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
         core::ops::RangeFull,
-    >>::Output: CopyFromSlice + VariableLengthLoad,
+    >>::Output: VariableLengthLoad,
 {
     #[inline]
     fn new(input: BitStreamSlice<'a, T>) -> Self {
@@ -105,7 +103,7 @@ where
             .get(self.pos..)
             .and_then(|s| s.get(..T::MAX_PROCESS_BYTES))
         {
-            tmp[..].copy_from_slice_(chunk);
+            tmp[..].copy_from_slice(chunk);
             return Ok(tmp);
         }
 
@@ -161,19 +159,14 @@ where
 impl<T> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    T::StreamFlow: BitStreamCache,
+    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray:
-        core::ops::Index<core::ops::Range<usize>>,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        core::ops::Range<usize>,
-    >>::Output: LoadFromSlice<T::ChunkByteArrayType>,
-    <T::ChunkByteArrayType as core::ops::Index<core::ops::RangeFull>>::Output:
-        CopyFromSlice,
-    T::ChunkByteArrayType:
-        Default + core::ops::IndexMut<core::ops::RangeFull> + ConcatBytesNe,
-    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth
-        + From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>
-        + SwapBytes,
+        core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
+    for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
+    for<'b> <<T as BitStreamTraits>::ChunkByteArrayType as TryFrom<&'b [u8]>>::Error:
+        core::fmt::Debug,
+    T::ChunkByteArrayType: ConcatBytesNe,
+    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth + SwapBytes,
     <T::StreamFlow as BitStreamCache>::Storage:
         From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
 {
@@ -201,8 +194,7 @@ where
         for i in 0..num_chunks_needed {
             let slice = &input[i * (stream_chunk_bitwidth / 8)
                 ..(i + 1) * (stream_chunk_bitwidth / 8)];
-            let chunk =
-                LoadFromSlice::<T::ChunkByteArrayType>::load_from_slice(slice);
+            let chunk = <T::ChunkByteArrayType>::try_from(slice).unwrap();
             let chunk = chunk.concat_bytes_ne();
             let chunk = chunk
                 .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
@@ -226,19 +218,15 @@ where
         + BitStreamTraits
         + BitStreamerTraits
         + BitStreamerUseDefaultCacheFillImpl,
-    T::StreamFlow: BitStreamCache,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray:
-        core::ops::Index<core::ops::Range<usize>>,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as core::ops::Index<
-        core::ops::Range<usize>,
-    >>::Output: LoadFromSlice<T::ChunkByteArrayType>,
-    <T::ChunkByteArrayType as core::ops::Index<core::ops::RangeFull>>::Output:
-        CopyFromSlice,
-    T::ChunkByteArrayType:
-        Default + core::ops::IndexMut<core::ops::RangeFull> + ConcatBytesNe,
-    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth
-        + From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>
-        + SwapBytes,
+        core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
+    for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
+    for<'b> <<T as BitStreamTraits>::ChunkByteArrayType as TryFrom<&'b [u8]>>::Error:
+        core::fmt::Debug,
+    T::ChunkByteArrayType: ConcatBytesNe,
+    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth + SwapBytes,
     <T::StreamFlow as BitStreamCache>::Storage:
         From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
 {
