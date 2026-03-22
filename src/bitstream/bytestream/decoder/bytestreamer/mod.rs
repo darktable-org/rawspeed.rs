@@ -21,7 +21,7 @@ impl<'a> ByteStreamer<'a> {
 
     pub fn read<T>(&mut self) -> T
     where
-        T: ToBits + FromBits<<T as ToBits>::Output, Output = T>,
+        T: ToBits + FromBits,
         <T as ToBits>::Output: ToNeBytes + SwapBytes,
         <<T as ToBits>::Output as ToNeBytes>::Output: Default
             + FromNeBytes<Output = <T as ToBits>::Output>
@@ -30,8 +30,7 @@ impl<'a> ByteStreamer<'a> {
         <<<T as ToBits>::Output as ToNeBytes>::Output as core::ops::Index<
             core::ops::RangeFull,
         >>::Output: CopyFromSlice,
-        <T as FromBits<<T as ToBits>::Output>>::BitsTy:
-            From<<T as ToBits>::Output>,
+        <T as FromBits>::BitsTy: From<<T as ToBits>::Output>,
     {
         let size: usize = size_of::<T>();
         let (slice, rest) = self.slice.split_at_checked(size).unwrap();

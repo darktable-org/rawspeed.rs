@@ -23,20 +23,18 @@ macro_rules! impl_to_bits {
     };
 }
 
-pub trait FromBits<T> {
+pub trait FromBits {
     type BitsTy;
-    type Output;
-    fn from_bits(bits: Self::BitsTy) -> Self::Output;
+    fn from_bits(bits: Self::BitsTy) -> Self;
 }
 
 macro_rules! impl_from_bits {
     ($true_ty:ty, $bits_ty:ty) => {
-        impl FromBits<$bits_ty> for $true_ty {
+        impl FromBits for $true_ty {
             type BitsTy = $bits_ty;
-            type Output = Self;
 
             #[inline]
-            fn from_bits(val: $bits_ty) -> Self::Output {
+            fn from_bits(val: $bits_ty) -> Self {
                 const {
                     assert!(
                         core::mem::size_of::<$true_ty>()
@@ -44,7 +42,7 @@ macro_rules! impl_from_bits {
                     );
                     assert!(<$bits_ty>::MIN == 0);
                 }
-                Self::Output::from_ne_bytes(val.to_ne_bytes())
+                Self::from_ne_bytes(val.to_ne_bytes())
             }
         }
     };
