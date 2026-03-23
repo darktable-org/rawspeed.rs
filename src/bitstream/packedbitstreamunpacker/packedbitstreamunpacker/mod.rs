@@ -53,6 +53,13 @@ where
         BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
         BitStreamerReplenisherStorage<'a, BitOrder>:
             BitStreamerReplenisher<'a, BitOrder>,
+
+    <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+        + TryFrom<&'a [u8]>,
+    <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
+        core::fmt::Debug,
+
         <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
         BitSeq<u64>: From<
             BitSeq<
