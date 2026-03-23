@@ -19,7 +19,6 @@ rawspeed-bitstream-bitstreamslice = { workspace = true }
 rawspeed-common-bitseq = { workspace = true }
 rawspeed-common-generic_num = { workspace = true }
 rawspeed-memory-endianness = { workspace = true }
-rawspeed-memory-fixed_length_load = { workspace = true }
 rawspeed-memory-variable_length_load = { workspace = true }
 
 [lib]

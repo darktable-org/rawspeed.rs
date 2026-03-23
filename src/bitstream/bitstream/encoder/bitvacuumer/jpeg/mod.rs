@@ -8,7 +8,7 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderJPEG, BitOrderTrait, BitStreamTraits,
 };
 use rawspeed_common_generic_num::generic_num::bit_transmutation::{
-    FromNeBytes, ToNeBytes,
+    ConcatBytesNe, ToNeBytes,
 };
 
 type T = BitOrderJPEG;
@@ -23,19 +23,20 @@ where
     W: std::io::Write,
     u32: From<u8>
         + Bitwidth
-        + From<<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output>
-        + core::ops::Shl<usize>
+        + From<
+            <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output,
+        > + core::ops::Shl<usize>
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
     <T as BitStreamTraits>::StreamFlow: BitStreamCache,
-    <<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output:
+    <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output:
         Bitwidth + SwapBytes + TryFrom<u64>,
 {
     #[inline]
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
     where
         CacheStorage: BitStreamCacheData
-            + From<<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output>
+            + From<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>
             + TryFrom<u64>
             + ToNeBytes + SwapBytes,
         <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,

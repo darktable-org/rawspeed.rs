@@ -93,6 +93,12 @@ where
         + BitStreamSliceConstraints,
     BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
     BitStreamerReplenisherStorage<'a, BitOrder>: BitStreamerReplenisher<'a, BitOrder>,
+    <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+        + TryFrom<&'a [u8]>,
+    <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
+        core::fmt::Debug,
+
     <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
     BitSeq<u64>: From<
         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
@@ -121,6 +127,11 @@ where
         + BitStreamSliceConstraints,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
     for<'a> BitStreamerReplenisherStorage<'a, BitOrder>: BitStreamerReplenisher<'a, BitOrder>,
+    for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+        + TryFrom<&'a [u8]>,
+    for<'a> <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
+        core::fmt::Debug,
     <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
     BitSeq<u64>: From<
         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,

@@ -11,7 +11,7 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 use rawspeed_common_generic_num::generic_num::{
-    bit_transmutation::{FromNeBytes, ToNeBytes},
+    bit_transmutation::{ConcatBytesNe, ToNeBytes},
     common::Bitwidth,
 };
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
@@ -36,12 +36,12 @@ pub trait BitVacuumer {}
 pub trait BitVacuumerDefaultDrainImpl<T>
 where
     T: BitOrderTrait + BitStreamTraits,
-    <T as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+    <T as BitStreamTraits>::MCUByteArrayType: ConcatBytesNe,
 {
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
     where
         CacheStorage: BitStreamCacheData
-            + From<<T::MCUByteArrayType as FromNeBytes>::Output>
+            + From<<T::MCUByteArrayType as ConcatBytesNe>::Output>
             + TryFrom<u64>
             + ToNeBytes
             + SwapBytes,
@@ -52,12 +52,12 @@ where
 pub trait BitVacuumerDrainImpl<T>
 where
     T: BitOrderTrait + BitStreamTraits,
-    <T as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
+    <T as BitStreamTraits>::MCUByteArrayType: ConcatBytesNe,
 {
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
     where
         CacheStorage: BitStreamCacheData
-            + From<<T::MCUByteArrayType as FromNeBytes>::Output>
+            + From<<T::MCUByteArrayType as ConcatBytesNe>::Output>
             + TryFrom<u64>
             + ToNeBytes
             + SwapBytes,
@@ -84,17 +84,17 @@ where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::MCUByteArrayType: FromNeBytes,
-    <T::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
+    T::MCUByteArrayType: ConcatBytesNe,
+    <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
+    <<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
 {
     #[inline]
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
     where
         CacheStorage: BitStreamCacheData
-            + From<<T::MCUByteArrayType as FromNeBytes>::Output>+ TryFrom<u64>
+            + From<<T::MCUByteArrayType as ConcatBytesNe>::Output>+ TryFrom<u64>
             + ToNeBytes + SwapBytes,
         <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,
     {
@@ -112,7 +112,7 @@ where
         assert!(self.cache.fill_level() >= cache.size());
 
         let mcu_chunk_bitwidth =
-            <T::MCUByteArrayType as FromNeBytes>::Output::BITWIDTH;
+            <T::MCUByteArrayType as ConcatBytesNe>::Output::BITWIDTH;
 
         assert!(cache.size() >= mcu_chunk_bitwidth);
         assert!(cache.size().is_multiple_of(mcu_chunk_bitwidth));
@@ -121,7 +121,7 @@ where
 
         for _i in 0..num_chunks_needed {
             let chunk =
-                <<T::MCUByteArrayType as FromNeBytes>::Output>::try_from(
+                <<T::MCUByteArrayType as ConcatBytesNe>::Output>::try_from(
                     self.cache.peek(mcu_chunk_bitwidth).zext(),
                 )
                 .unwrap();
@@ -143,17 +143,17 @@ where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::MCUByteArrayType: FromNeBytes,
-    <T::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
+    T::MCUByteArrayType: ConcatBytesNe,
+    <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
+    <<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
 {
     #[inline]
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
     where
         CacheStorage: BitStreamCacheData
-            + From<<T::MCUByteArrayType as FromNeBytes>::Output>+ TryFrom<u64>
+            + From<<T::MCUByteArrayType as ConcatBytesNe>::Output>+ TryFrom<u64>
             + ToNeBytes + SwapBytes,
         <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,
         <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug,
@@ -168,11 +168,11 @@ where
     Self: BitVacuumerDrainImpl<T>,
     W: std::io::Write,
     T::StreamFlow: BitStreamCache + Default,
-    T::MCUByteArrayType: FromNeBytes,
-    <T::MCUByteArrayType as FromNeBytes>::Output: Bitwidth
+    T::MCUByteArrayType: ConcatBytesNe,
+    <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
         + SwapBytes,
-    u32: From<<T::MCUByteArrayType as FromNeBytes>::Output>,
+    u32: From<<T::MCUByteArrayType as ConcatBytesNe>::Output>,
     BitSeq<<T::StreamFlow as BitStreamCache>::Storage>: From<BitSeq<u64>>,
 {
     #[inline]
@@ -191,7 +191,7 @@ where
     fn flush_impl<MCUCacheStorage>(mut self) -> std::io::Result<()>
     where
         <T as BitStreamTraits>::MCUByteArrayType:
-            FromNeBytes<Output = MCUCacheStorage>,
+            ConcatBytesNe<Output = MCUCacheStorage>,
         MCUCacheStorage: BitStreamCacheData
             + ToNeBytes<Output = <T as BitStreamTraits>::MCUByteArrayType>
             + TryFrom<u64>
@@ -233,23 +233,23 @@ where
     #[inline]
     pub fn flush(self) -> std::io::Result<()>
     where
-        <T as BitStreamTraits>::MCUByteArrayType: FromNeBytes,
-        <<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output: BitStreamCacheData
+        <T as BitStreamTraits>::MCUByteArrayType: ConcatBytesNe,
+        <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: BitStreamCacheData
             + ToNeBytes<Output = <T as BitStreamTraits>::MCUByteArrayType>
             + TryFrom<u64>
             + SwapBytes,
-        <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as ToNeBytes>::Output:
+        <<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as ToNeBytes>::Output:
             AsSlice<EltType = u8>,
-        <<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output as TryFrom<u64>>::Error: core::fmt::Debug
+        <<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<u64>>::Error: core::fmt::Debug
     {
-        self.flush_impl::<<<T as BitStreamTraits>::MCUByteArrayType as FromNeBytes>::Output>()
+        self.flush_impl::<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>()
     }
 
     #[inline]
     pub fn drain_priv<CacheStorage>(&mut self) -> std::io::Result<()>
     where
         CacheStorage: BitStreamCacheData
-            + From<<T::MCUByteArrayType as FromNeBytes>::Output>
+            + From<<T::MCUByteArrayType as ConcatBytesNe>::Output>
             + TryFrom<u64>
             + ToNeBytes
             + SwapBytes,

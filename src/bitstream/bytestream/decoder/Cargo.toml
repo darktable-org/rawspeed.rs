@@ -15,7 +15,6 @@ workspace = true
 [dependencies]
 rawspeed-common-generic_num = { workspace = true }
 rawspeed-memory-endianness = { workspace = true }
-rawspeed-memory-fixed_length_load = { workspace = true }
 
 [lib]
 path = "mod.rs"
