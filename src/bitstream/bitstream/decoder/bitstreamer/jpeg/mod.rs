@@ -9,7 +9,9 @@ use rawspeed_memory_endianness::endianness::{
 };
 
 use crate::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits, ConcatBytesNe,
+    BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead,
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
+    ConcatBytesNe,
 };
 
 impl BitStreamerTraits for BitOrderJPEG {
@@ -20,13 +22,15 @@ impl BitStreamerTraits for BitOrderJPEG {
 
 type T = BitOrderJPEG;
 
-impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
+impl<R> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T, R>
+where
+    R: BitStreamByteSequenceRead<T>,
+{
     #[inline]
     fn fill_cache_impl(
         &mut self,
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
-        use crate::bitstreamer::BitStreamerReplenisher as _;
         let chunk: [u8; 4] = input[0..4].try_into().unwrap();
         if chunk.iter().all(|byte| *byte != 0xFF_u8) {
             type ChunkType = <<T as BitStreamTraits>::ChunkByteArrayType as ConcatBytesNe>::Output;
@@ -75,7 +79,7 @@ impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
             .unwrap();
             self.cache.push(zeros);
 
-            p = self.replenisher.get_remaining_size() + num_bytes_needed;
+            p = self.reader.get_remaining_size() + num_bytes_needed;
             break;
         }
         p
@@ -83,7 +87,8 @@ impl BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T> {
 }
 
 #[cfg_attr(not(test), expect(dead_code))]
-pub type BitStreamerJPEG<'a> = BitStreamerBase<'a, BitOrderJPEG>;
+pub type BitStreamerJPEG<'a, R = BitStreamByteSequenceDefaultReader<'a, T>> =
+    BitStreamerBase<'a, T, R>;
 
 #[cfg(test)]
 mod tests;

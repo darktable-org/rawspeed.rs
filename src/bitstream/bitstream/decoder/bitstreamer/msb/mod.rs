@@ -1,7 +1,8 @@
 use rawspeed_bitstream_bitstreams::bitstreams::{BitOrder, BitOrderMSB};
 
 use crate::bitstreamer::{
-    BitStreamerBase, BitStreamerTraits, BitStreamerUseDefaultCacheFillImpl,
+    BitStreamByteSequenceDefaultReader, BitStreamerBase, BitStreamerTraits,
+    BitStreamerUseDefaultCacheFillImpl,
 };
 
 impl BitStreamerTraits for BitOrderMSB {
@@ -10,10 +11,13 @@ impl BitStreamerTraits for BitOrderMSB {
     type MaxProcessByteArray = [u8; 4];
 }
 
-impl BitStreamerUseDefaultCacheFillImpl for BitOrderMSB {}
+type T = BitOrderMSB;
+
+impl BitStreamerUseDefaultCacheFillImpl for T {}
 
 #[cfg_attr(not(test), expect(dead_code))]
-pub type BitStreamerMSB<'a> = BitStreamerBase<'a, BitOrderMSB>;
+pub type BitStreamerMSB<'a, R = BitStreamByteSequenceDefaultReader<'a, T>> =
+    BitStreamerBase<'a, T, R>;
 
 #[cfg(test)]
 mod tests;

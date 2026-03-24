@@ -1,6 +1,5 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
-    BitStreamerReplenisherStorage, BitStreamerTraits,
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
@@ -51,9 +50,6 @@ where
         BitOrder:
             Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        BitStreamerReplenisherStorage<'a, BitOrder>:
-            BitStreamerReplenisher<'a, BitOrder>,
-
     <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,
@@ -84,7 +80,7 @@ where
         }
         let mut storage = core::array::from_fn(|_| 0_u16);
         let items = storage.get_mut(..Self::len()).unwrap();
-        let mut bs = BitStreamerBase::<BitOrder>::new(slice.get_slice());
+        let mut bs = BitStreamerBase::<BitOrder>::new(slice.get_slice().into());
         for item in items.iter_mut() {
             let item_packed_bitlen_ = ITEM_PACKED_BITLEN.try_into().unwrap();
             bs.fill(item_packed_bitlen_).unwrap();

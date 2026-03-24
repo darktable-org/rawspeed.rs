@@ -3,8 +3,7 @@ use criterion::{
     criterion_group, criterion_main,
 };
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
-    BitStreamerReplenisherStorage, BitStreamerTraits,
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
@@ -92,7 +91,6 @@ where
         + BitStreamerTraits
         + BitStreamSliceConstraints,
     BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    BitStreamerReplenisherStorage<'a, BitOrder>: BitStreamerReplenisher<'a, BitOrder>,
     <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,
@@ -104,8 +102,7 @@ where
         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
     >,
 {
-    let input = input.try_into().unwrap();
-    let mut bs = BitStreamerBase::<BitOrder>::new(input);
+    let mut bs = BitStreamerBase::<BitOrder>::new(input.try_into().unwrap());
     let mut serial = DataSerialDependency::new();
     for _ in 0..item_count {
         bs.fill(item_packed_bitlen).unwrap();
@@ -126,7 +123,6 @@ where
         + BitStreamerTraits
         + BitStreamSliceConstraints,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    for<'a> BitStreamerReplenisherStorage<'a, BitOrder>: BitStreamerReplenisher<'a, BitOrder>,
     for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,

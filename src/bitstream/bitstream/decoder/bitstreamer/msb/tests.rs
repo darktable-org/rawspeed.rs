@@ -14,7 +14,8 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![1, 2, 3, 4, 5, 6, 7, 8],
     ];
     for (num_bytes, input) in inputs.iter().enumerate() {
-        let mut bs = BitStreamerMSB::new(input.as_slice().try_into().unwrap());
+        let mut bs: BitStreamerMSB<'_> =
+            BitStreamerMSB::new(input.as_slice().try_into().unwrap());
         for i in 0..=num_bytes {
             bs.fill(NUM_BITS)?;
             assert_eq!(
@@ -52,7 +53,8 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![18, 52, 86, 120, 154, 188, 222, 240],
     ];
     for (num_nibbles, input) in inputs.iter().enumerate() {
-        let mut bs = BitStreamerMSB::new(input.as_slice().try_into().unwrap());
+        let mut bs: BitStreamerMSB<'_> =
+            BitStreamerMSB::new(input.as_slice().try_into().unwrap());
         for i in 0..=num_nibbles {
             bs.fill(NUM_BITS)?;
             assert_eq!(
@@ -107,7 +109,8 @@ fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![0, 0, 0, 1],
     ];
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
-        let mut bs = BitStreamerMSB::new(input.as_slice().try_into().unwrap());
+        let mut bs: BitStreamerMSB<'_> =
+            BitStreamerMSB::new(input.as_slice().try_into().unwrap());
         for _i in 0..num_leading_zeros {
             bs.fill(NUM_BITS)?;
             assert_eq!(bs.peek_bits_no_fill(NUM_BITS).zext(), 0);
@@ -155,7 +158,8 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![0, 0, 0, 255],
     ];
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
-        let mut bs = BitStreamerMSB::new(input.as_slice().try_into().unwrap());
+        let mut bs: BitStreamerMSB<'_> =
+            BitStreamerMSB::new(input.as_slice().try_into().unwrap());
         for _i in 0..num_leading_zeros {
             bs.fill(NUM_BITS)?;
             assert_eq!(bs.peek_bits_no_fill(NUM_BITS).zext(), 0);
@@ -195,7 +199,8 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
         vec![18, 52, 86, 120, 154, 188, 222, 255, 240, 0, 0, 0],
     ];
     for (num_leading_nibbles, input) in inputs.iter().enumerate() {
-        let mut bs = BitStreamerMSB::new(input.as_slice().try_into().unwrap());
+        let mut bs: BitStreamerMSB<'_> =
+            BitStreamerMSB::new(input.as_slice().try_into().unwrap());
         for i in 0..num_leading_nibbles {
             bs.fill(NUM_BITS)?;
             assert_eq!(

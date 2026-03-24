@@ -1,113 +1,25 @@
+use rawspeed_bitstream_bitstreambytesequencereader::bitstreambytesequencereader::{BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrder, BitOrderTrait, BitStreamTraits,
-};
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
-    BitStreamSlice, BitStreamSliceConstraints,
 };
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use rawspeed_common_generic_num::generic_num::{
     bit_transmutation::ConcatBytesNe, common::Bitwidth,
 };
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
-use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad as _;
 
-pub trait BitStreamerTraits {
+pub trait BitStreamerTraits
+where
+    for<'a> Self::MaxProcessByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+        + TryFrom<&'a [u8]>,
+    for<'a> <Self::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
+        core::fmt::Debug,
+{
     const TAG: BitOrder;
     const MAX_PROCESS_BYTES: usize;
     type MaxProcessByteArray; // = [u8; _];
-}
-
-#[derive(Debug)]
-pub struct BitStreamerReplenisherStorage<'a, T> {
-    input: &'a [u8],
-    pos: usize,
-    _phantom_data: core::marker::PhantomData<T>,
-}
-
-pub trait BitStreamerReplenisher<'a, T>
-where
-    T: BitStreamSliceConstraints,
-{
-    #[must_use]
-    fn new(input: BitStreamSlice<'a, T>) -> Self;
-
-    fn get_pos(&self) -> usize;
-
-    fn get_remaining_size(&self) -> usize;
-
-    fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize);
-
-    fn peek_input<ByteArray>(&self) -> Result<ByteArray, &'static str>
-    where
-        ByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-        <ByteArray as TryFrom<&'a [u8]>>::Error: core::fmt::Debug;
-}
-
-impl<'a, T> BitStreamerReplenisher<'a, T>
-    for BitStreamerReplenisherStorage<'a, T>
-where
-    T: BitStreamSliceConstraints,
-{
-    #[inline]
-    fn new(input: BitStreamSlice<'a, T>) -> Self {
-        Self {
-            input: input.get_bytes(),
-            pos: 0,
-            _phantom_data: core::marker::PhantomData,
-        }
-    }
-
-    #[inline]
-    fn get_pos(&self) -> usize {
-        self.pos
-    }
-
-    #[inline]
-    fn get_remaining_size(&self) -> usize {
-        self.input.len() - self.get_pos()
-    }
-
-    #[inline]
-    fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize) {
-        self.pos += num_bytes;
-    }
-
-    #[inline]
-    fn peek_input<ByteArray>(&self) -> Result<ByteArray, &'static str>
-    where
-        ByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-        <ByteArray as TryFrom<&'a [u8]>>::Error: core::fmt::Debug,
-    {
-        let byte_count = ByteArray::default()[..].len();
-
-        // Do we have N or more bytes left in
-        // the input buffer? If so, then we can just read from said buffer.
-        if let Some(chunk) =
-            self.input.get(self.pos..).and_then(|s| s.get(..byte_count))
-        {
-            return Ok(chunk.try_into().unwrap());
-        }
-
-        // We have to use intermediate buffer,
-        // either because the input is running out of bytes,
-        // or because we want to  enforce bounds checking.
-
-        // Note that in order to keep all fill-level invariants
-        // we must allow to over-read past-the-end a bit.
-        if self.get_pos() > self.input.len() + 2 * byte_count {
-            const ERR: &str = "Buffer overflow read in BitStreamer";
-            return Err(ERR);
-        }
-
-        let mut tmp: ByteArray = ByteArray::default();
-        tmp[..].variable_length_load(self.input, self.pos);
-        Ok(tmp)
-    }
 }
 
 pub trait BitStreamerDefaultCacheFillImpl<T>
@@ -133,19 +45,22 @@ where
 }
 
 #[derive(Debug)]
-pub struct BitStreamerBase<'a, T>
+pub struct BitStreamerBase<'a, T, R = BitStreamByteSequenceDefaultReader<'a, T>>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     <T as BitStreamTraits>::StreamFlow: BitStreamCache,
+    R: BitStreamByteSequenceRead<T>,
 {
-    replenisher: BitStreamerReplenisherStorage<'a, T>,
+    reader: R,
     cache: T::StreamFlow,
     _phantom_data: core::marker::PhantomData<T>,
+    _lifetime_phantom_data: core::marker::PhantomData<&'a u8>,
 }
 
-impl<T> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T>
+impl<T, R> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T, R>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    R: BitStreamByteSequenceRead<T>,
     <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
@@ -196,7 +111,7 @@ where
     }
 }
 
-impl<T> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T>
+impl<T, R> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T, R>
 where
     T: Clone
         + Copy
@@ -206,6 +121,7 @@ where
         + BitStreamerTraits
         + BitStreamerUseDefaultCacheFillImpl,
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    R: BitStreamByteSequenceRead<T>,
     <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
@@ -226,21 +142,11 @@ where
     }
 }
 
-impl<'a, T> BitStreamerBase<'a, T>
+impl<T, R> BitStreamerBase<'_, T, R>
 where
-    T: Clone
-        + Copy
-        + BitOrderTrait
-        + BitStreamTraits
-        + BitStreamerTraits
-        + BitStreamSliceConstraints,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    R: BitStreamByteSequenceRead<T>,
     Self: BitStreamerCacheFillImpl<T>,
-    BitStreamerReplenisherStorage<'a, T>: BitStreamerReplenisher<'a, T>,
-    <T as BitStreamerTraits>::MaxProcessByteArray: Default
-        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-        + TryFrom<&'a [u8]>,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
-        core::fmt::Debug,
     <T as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
     BitSeq<u64>: From<
         BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
@@ -248,11 +154,12 @@ where
 {
     #[inline]
     #[must_use]
-    pub fn new(input: BitStreamSlice<'a, T>) -> Self {
+    pub fn new(reader: R) -> Self {
         Self {
-            replenisher: BitStreamerReplenisher::new(input),
+            reader,
             cache: Default::default(),
             _phantom_data: core::marker::PhantomData,
+            _lifetime_phantom_data: core::marker::PhantomData,
         }
     }
 
@@ -264,10 +171,10 @@ where
             return Ok(());
         }
 
-        let input = self.replenisher.peek_input()?;
+        let input = self.reader.peek_input()?;
         let num_bytes =
             BitStreamerCacheFillImpl::<T>::fill_cache_impl(self, input);
-        self.replenisher.mark_num_bytes_as_consumed(num_bytes);
+        self.reader.mark_num_bytes_as_consumed(num_bytes);
         assert!(self.cache.fill_level() >= nbits);
         Ok(())
     }

@@ -1,6 +1,5 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
-    BitStreamerReplenisherStorage, BitStreamerTraits,
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::bitstreams::{
@@ -38,8 +37,6 @@ where
     BitOrder:
         Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits+ BitStreamSliceConstraints,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    for<'a> BitStreamerReplenisherStorage<'a, BitOrder>:
-        BitStreamerReplenisher<'a, BitOrder>,
     for<'a><BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,
@@ -70,12 +67,13 @@ where
             elts
         };
         let mut full_bs = BitStreamerBase::<BitOrder>::new(
-            get_as_valid_bitstreamslice(input.as_slice()),
+            get_as_valid_bitstreamslice(input.as_slice()).into(),
         );
         let _first_mcu = mcu_getter(&mut full_bs);
         let second_mcu = mcu_getter(&mut full_bs);
         let mut new_bs = BitStreamerBase::<BitOrder>::new(
-            get_as_valid_bitstreamslice(input.get(mcu_bytesize..).unwrap()),
+            get_as_valid_bitstreamslice(input.get(mcu_bytesize..).unwrap())
+                .into(),
         );
         let new_first_mcu = mcu_getter(&mut new_bs);
         if new_first_mcu == second_mcu {

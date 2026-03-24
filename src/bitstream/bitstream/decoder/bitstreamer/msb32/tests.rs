@@ -14,7 +14,7 @@ fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![4, 3, 2, 1, 8, 7, 6, 5],
     ];
     for (num_bytes, input) in inputs.iter().enumerate() {
-        let mut bs =
+        let mut bs: BitStreamerMSB32<'_> =
             BitStreamerMSB32::new(input.as_slice().try_into().unwrap());
         for i in 0..=num_bytes {
             bs.fill(NUM_BITS)?;
@@ -53,7 +53,7 @@ fn nibble_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![120, 86, 52, 18, 240, 222, 188, 154],
     ];
     for (num_nibbles, input) in inputs.iter().enumerate() {
-        let mut bs =
+        let mut bs: BitStreamerMSB32<'_> =
             BitStreamerMSB32::new(input.as_slice().try_into().unwrap());
         for i in 0..=num_nibbles {
             bs.fill(NUM_BITS)?;
@@ -109,7 +109,7 @@ fn bit_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![1, 0, 0, 0],
     ];
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
-        let mut bs =
+        let mut bs: BitStreamerMSB32<'_> =
             BitStreamerMSB32::new(input.as_slice().try_into().unwrap());
         for _i in 0..num_leading_zeros {
             bs.fill(NUM_BITS)?;
@@ -158,7 +158,7 @@ fn sliding_0xff_test() -> Result<(), Box<dyn core::error::Error>> {
         vec![255, 0, 0, 0],
     ];
     for (num_leading_zeros, input) in inputs.iter().enumerate() {
-        let mut bs =
+        let mut bs: BitStreamerMSB32<'_> =
             BitStreamerMSB32::new(input.as_slice().try_into().unwrap());
         for _i in 0..num_leading_zeros {
             bs.fill(NUM_BITS)?;
@@ -199,7 +199,7 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
         vec![120, 86, 52, 18, 255, 222, 188, 154, 0, 0, 0, 240],
     ];
     for (num_leading_nibbles, input) in inputs.iter().enumerate() {
-        let mut bs =
+        let mut bs: BitStreamerMSB32<'_> =
             BitStreamerMSB32::new(input.as_slice().try_into().unwrap());
         for i in 0..num_leading_nibbles {
             bs.fill(NUM_BITS)?;
