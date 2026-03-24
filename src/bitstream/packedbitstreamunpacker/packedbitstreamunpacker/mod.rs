@@ -1,5 +1,4 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead,
     BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
@@ -51,9 +50,6 @@ where
         BitOrder:
             Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        BitStreamByteSequenceDefaultReader<'a, BitOrder>:
-            BitStreamByteSequenceRead<BitOrder>,
-
     <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,

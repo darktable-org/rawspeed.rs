@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-bitstream-bitstream-decoder"
+name = "rawspeed-bitstream-bitstreambytesequencereader"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -13,12 +13,11 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-bitstream-bitstreambytesequencereader = { workspace = true }
-rawspeed-bitstream-bitstreamcache = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
+rawspeed-memory-variable_length_load = { workspace = true }
+
+[dev-dependencies]
 rawspeed-bitstream-bitstreams = { workspace = true }
-rawspeed-common-bitseq = { workspace = true }
-rawspeed-common-generic_num = { workspace = true }
-rawspeed-memory-endianness = { workspace = true }
 
 [lib]
 path = "mod.rs"

@@ -3,7 +3,6 @@ use criterion::{
     criterion_group, criterion_main,
 };
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead,
     BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
@@ -92,7 +91,6 @@ where
         + BitStreamerTraits
         + BitStreamSliceConstraints,
     BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    BitStreamByteSequenceDefaultReader<'a, BitOrder>: BitStreamByteSequenceRead<BitOrder>,
     <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,
@@ -125,7 +123,6 @@ where
         + BitStreamerTraits
         + BitStreamSliceConstraints,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    for<'a> BitStreamByteSequenceDefaultReader<'a, BitOrder>: BitStreamByteSequenceRead<BitOrder>,
     for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>,

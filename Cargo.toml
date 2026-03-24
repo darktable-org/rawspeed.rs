@@ -6,6 +6,7 @@ members = [
     "src",
     "src/bitstream/bitstream/decoder",
     "src/bitstream/bitstream/encoder",
+    "src/bitstream/bitstreambytesequencereader",
     "src/bitstream/bitstreamcache",
     "src/bitstream/bitstreams",
     "src/bitstream/bitstreamslice",
@@ -47,9 +48,9 @@ members = [
 ]
 
 [workspace.dependencies]
-rawspeed-src = { path = "src" }
 rawspeed-bitstream-bitstream-decoder = { path = "src/bitstream/bitstream/decoder" }
 rawspeed-bitstream-bitstream-encoder = { path = "src/bitstream/bitstream/encoder" }
+rawspeed-bitstream-bitstreambytesequencereader = { path = "src/bitstream/bitstreambytesequencereader" }
 rawspeed-bitstream-bitstreamcache = { path = "src/bitstream/bitstreamcache" }
 rawspeed-bitstream-bitstreams = { path = "src/bitstream/bitstreams" }
 rawspeed-bitstream-bitstreamslice = { path = "src/bitstream/bitstreamslice" }
@@ -82,6 +83,7 @@ rawspeed-metadata-xmltokenizer = { path = "src/metadata/xmltokenizer" }
 rawspeed-misc-md5 = { path = "src/misc/md5" }
 rawspeed-parsers = { path = "src/parsers" }
 rawspeed-parsers-rawparser = { path = "src/parsers/rawparser" }
+rawspeed-src = { path = "src" }
 rawspeed-std = { path = "src/std" }
 rawspeed-std-ndslice = { path = "src/std/ndslice" }
 rawspeed-utils-librstest = { path = "src/utils/librstest" }
