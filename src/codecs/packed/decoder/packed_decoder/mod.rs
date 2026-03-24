@@ -1,6 +1,6 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerReplenisher,
-    BitStreamerReplenisherStorage, BitStreamerTraits,
+    BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead,
+    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_bitstream_bitstreams::{
@@ -58,8 +58,8 @@ where
     where
         BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         for<'z> BitStreamerBase<'z, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        for<'z> BitStreamerReplenisherStorage<'z, BitOrder>:
-            BitStreamerReplenisher<'z, BitOrder>,
+        for<'z> BitStreamByteSequenceDefaultReader<'z, BitOrder>:
+            BitStreamByteSequenceRead<BitOrder>,
         <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
             + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
             + TryFrom<&'a [u8]>,
@@ -92,8 +92,8 @@ where
     where
         BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         for<'z> BitStreamerBase<'z, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        for<'z> BitStreamerReplenisherStorage<'z, BitOrder>:
-            BitStreamerReplenisher<'z, BitOrder>,
+        for<'z> BitStreamByteSequenceDefaultReader<'z, BitOrder>:
+            BitStreamByteSequenceRead<BitOrder>,
         <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
             + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
             + TryFrom<&'a [u8]>,
