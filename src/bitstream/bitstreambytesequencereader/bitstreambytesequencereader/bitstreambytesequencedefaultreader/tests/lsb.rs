@@ -12,7 +12,6 @@ fn read_in_1byte_chunks() {
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
     let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
         input.as_slice().try_into().unwrap(),
-        0,
     );
     for i in 1_u8..=255 {
         assert_eq!(reader.get_pos(), usize::from(i) - 1);
@@ -27,7 +26,6 @@ fn read_in_2byte_chunks() {
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
     let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
         input.as_slice().try_into().unwrap(),
-        0,
     );
     for i in 0_u8..=126 {
         assert_eq!(reader.get_pos(), 2 * usize::from(i));
@@ -42,7 +40,6 @@ fn read_in_2byte_chunks_with_1byte_step() {
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
     let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
         input.as_slice().try_into().unwrap(),
-        0,
     );
     for i in 0_u8..=253 {
         assert_eq!(reader.get_pos(), usize::from(i));
@@ -57,7 +54,6 @@ fn get_remaining_size_test() {
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
     let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
         input.as_slice().try_into().unwrap(),
-        0,
     );
     assert_eq!(reader.get_remaining_size(), 255);
     assert_eq!(reader.peek_input(), Ok([1]));
@@ -77,7 +73,6 @@ fn partial_ov_handling_test() {
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
     let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
         input.as_slice().try_into().unwrap(),
-        0,
     );
     assert_eq!(reader.get_pos(), 0);
     assert_eq!(reader.get_remaining_size(), 255);
@@ -109,7 +104,6 @@ fn ov_handling_test() {
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
     let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
         input.as_slice().try_into().unwrap(),
-        0,
     );
     assert_eq!(reader.get_pos(), 0);
     assert_eq!(reader.get_remaining_size(), 255);

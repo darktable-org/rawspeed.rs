@@ -17,10 +17,10 @@ where
 {
     #[inline]
     #[must_use]
-    pub const fn new(input: BitStreamSlice<'a, T>, pos: usize) -> Self {
+    pub const fn new(input: BitStreamSlice<'a, T>) -> Self {
         Self {
             input: input.get_bytes(),
-            pos,
+            pos: 0,
             _phantom_data: core::marker::PhantomData,
         }
     }
@@ -33,7 +33,7 @@ where
 {
     #[inline]
     fn from(input: BitStreamSlice<'a, T>) -> Self {
-        Self::new(input, 0)
+        Self::new(input)
     }
 }
 
