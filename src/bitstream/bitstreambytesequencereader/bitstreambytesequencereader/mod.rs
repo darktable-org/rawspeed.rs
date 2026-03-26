@@ -20,5 +20,13 @@ where
         for<'a> <ByteArray as TryFrom<&'a [u8]>>::Error: core::fmt::Debug;
 }
 
+pub trait BitStreamByteSequenceRewind<T>
+where
+    T: BitStreamSliceConstraints,
+{
+    #[must_use]
+    fn rewind(&self) -> Self;
+}
+
 mod bitstreambytesequencedefaultreader;
 pub use bitstreambytesequencedefaultreader::BitStreamByteSequenceDefaultReader;

@@ -3,7 +3,7 @@ use rawspeed_common_bit_manip::bit_manip::{
 };
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct BitLen {
     val: u32,
@@ -35,7 +35,7 @@ impl<T> BitSeqConstraints for T where
 {
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct BitSeq<T>
 where

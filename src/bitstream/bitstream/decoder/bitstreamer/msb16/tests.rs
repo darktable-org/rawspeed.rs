@@ -1,3 +1,5 @@
+use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
+
 use super::*;
 
 #[test]
@@ -219,3 +221,5 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
     }
     Ok(())
 }
+
+crate::test_bitstreamer_rewind!(BitOrderMSB16, BitStreamerMSB16);

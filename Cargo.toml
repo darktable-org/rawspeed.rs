@@ -8,6 +8,7 @@ members = [
     "src/bitstream/bitstream/encoder",
     "src/bitstream/bitstreambytesequencereader",
     "src/bitstream/bitstreamcache",
+    "src/bitstream/bitstreamposition",
     "src/bitstream/bitstreams",
     "src/bitstream/bitstreamslice",
     "src/bitstream/bytestream/decoder",
@@ -52,6 +53,7 @@ rawspeed-bitstream-bitstream-decoder = { path = "src/bitstream/bitstream/decoder
 rawspeed-bitstream-bitstream-encoder = { path = "src/bitstream/bitstream/encoder" }
 rawspeed-bitstream-bitstreambytesequencereader = { path = "src/bitstream/bitstreambytesequencereader" }
 rawspeed-bitstream-bitstreamcache = { path = "src/bitstream/bitstreamcache" }
+rawspeed-bitstream-bitstreamposition = { path = "src/bitstream/bitstreamposition" }
 rawspeed-bitstream-bitstreams = { path = "src/bitstream/bitstreams" }
 rawspeed-bitstream-bitstreamslice = { path = "src/bitstream/bitstreamslice" }
 rawspeed-bitstream-bytestream-decoder = { path = "src/bitstream/bytestream/decoder" }

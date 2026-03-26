@@ -1,10 +1,12 @@
-use crate::bitstreambytesequencereader::BitStreamByteSequenceRead;
+use crate::bitstreambytesequencereader::{
+    BitStreamByteSequenceRead, BitStreamByteSequenceRewind,
+};
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
     BitStreamSlice, BitStreamSliceConstraints, BitStreamSliceError,
 };
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad as _;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct BitStreamByteSequenceDefaultReader<'a, T> {
     input: &'a [u8],
     pos: usize,
@@ -103,6 +105,17 @@ where
         let mut tmp: ByteArray = ByteArray::default();
         tmp[..].variable_length_load(self.input, self.pos);
         Ok(tmp)
+    }
+}
+
+impl<T> BitStreamByteSequenceRewind<T>
+    for BitStreamByteSequenceDefaultReader<'_, T>
+where
+    T: BitStreamSliceConstraints,
+{
+    #[inline]
+    fn rewind(&self) -> Self {
+        Self::try_from(self.input).unwrap()
     }
 }
 
