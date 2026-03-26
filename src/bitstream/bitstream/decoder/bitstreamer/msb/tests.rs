@@ -1,4 +1,5 @@
 use super::*;
+use rawspeed_bitstream_bitstreams::bitstreams::BitStreamTraits;
 
 #[test]
 fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {
@@ -219,3 +220,5 @@ fn sliding_0xff_prefixed_by_enumerated_nibbles_test()
     }
     Ok(())
 }
+
+crate::test_bitstreamer_rewind!(BitOrderMSB, BitStreamerMSB);

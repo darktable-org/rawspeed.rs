@@ -1,5 +1,6 @@
-use rawspeed_bitstream_bitstreambytesequencereader::bitstreambytesequencereader::{BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead};
+use rawspeed_bitstream_bitstreambytesequencereader::bitstreambytesequencereader::{BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead, BitStreamByteSequenceRewind};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreamposition::bitstreamposition::BitstreamPosition;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrder, BitOrderTrait, BitStreamTraits,
 };
@@ -44,7 +45,7 @@ where
     ) -> usize;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct BitStreamerBase<'a, T, R = BitStreamByteSequenceDefaultReader<'a, T>>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
@@ -188,6 +189,53 @@ where
     pub fn skip_bits_no_fill(&mut self, nbits: u32) {
         self.cache.skip(nbits);
     }
+
+    #[inline]
+    #[expect(clippy::needless_pass_by_value)]
+    pub fn new_with_position(
+        reader: R,
+        pos: BitstreamPosition<T>,
+    ) -> Result<Self, &'static str>
+    where
+        R: BitStreamByteSequenceRewind<T>,
+    {
+        let mut reader = reader.rewind();
+        reader.mark_num_bytes_as_consumed(pos.mcu_index());
+        let mut bs = Self::new(reader);
+        if pos.bit_index() != 0 {
+            bs.fill(pos.bit_index())?;
+            bs.skip_bits_no_fill(pos.bit_index());
+        }
+        Ok(bs)
+    }
+
+    #[inline]
+    pub fn get_bitstream_position(&self) -> BitstreamPosition<T> {
+        let div_ceil_ = |divident: usize, divisor: usize| {
+            assert_ne!(divisor, 0);
+            let quot_ceil = divident.div_ceil(divisor);
+            let rounded_divident = quot_ceil.checked_mul(divisor).unwrap();
+            let bias = rounded_divident.checked_sub(divident).unwrap();
+            (quot_ceil, bias)
+        };
+
+        const { assert!(T::FIXED_SIZE_CHUNKS) };
+
+        let bytes_per_mcu =
+            size_of::<<T as BitStreamTraits>::MCUByteArrayType>();
+        let bits_per_mcu = 8 * bytes_per_mcu;
+        let next_load_pos = self.reader.get_pos();
+        let num_bits_in_cache = self.cache.fill_level();
+        let num_bits_in_cache = usize::try_from(num_bits_in_cache).unwrap();
+        let (num_mcus_in_cache, num_skipped_bits) =
+            div_ceil_(num_bits_in_cache, bits_per_mcu);
+        let num_bytes_in_cache =
+            num_mcus_in_cache.checked_mul(bytes_per_mcu).unwrap();
+        let closest_prev_load_pos =
+            next_load_pos.checked_sub(num_bytes_in_cache).unwrap();
+        let num_skipped_bits = num_skipped_bits.try_into().unwrap();
+        BitstreamPosition::new(closest_prev_load_pos, num_skipped_bits)
+    }
 }
 
 mod jpeg;
@@ -195,3 +243,6 @@ mod lsb;
 mod msb;
 mod msb16;
 mod msb32;
+
+#[cfg(test)]
+mod tests;

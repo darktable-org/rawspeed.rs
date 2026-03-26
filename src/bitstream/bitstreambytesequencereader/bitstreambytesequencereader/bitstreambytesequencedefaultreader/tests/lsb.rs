@@ -2,6 +2,7 @@ use rawspeed_bitstream_bitstreams::bitstreams::BitOrderLSB;
 
 use crate::bitstreambytesequencereader::{
     BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead as _,
+    BitStreamByteSequenceRewind as _,
 };
 
 type BitOrder = BitOrderLSB;
@@ -132,4 +133,22 @@ fn ov_handling_test() {
     assert_eq!(reader.get_pos(), 255 + 3 * 4);
     // assert_eq!(reader.get_remaining_size(), ???); // Ooops, overflow...
     reader.peek_input::<[u8; 4]>().unwrap_err();
+}
+
+#[test]
+fn rewind() {
+    let input: [u8; 255] =
+        core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
+    let mut reader = BitStreamByteSequenceDefaultReader::<BitOrder>::new(
+        input.as_slice().try_into().unwrap(),
+    );
+    for prerewind_pos in 0..=255 {
+        reader.mark_num_bytes_as_consumed(prerewind_pos);
+        reader = reader.rewind();
+        for i in 1_u8..=255 {
+            assert_eq!(reader.get_pos(), usize::from(i) - 1);
+            assert_eq!(reader.peek_input(), Ok([i]));
+            reader.mark_num_bytes_as_consumed(1);
+        }
+    }
 }
