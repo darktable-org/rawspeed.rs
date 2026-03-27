@@ -6,7 +6,6 @@ use rawspeed_bitstream_bitstreams::{
     bitstreams,
     bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits},
 };
-use rawspeed_common_bitseq::bitseq::BitSeq;
 use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::{
@@ -62,12 +61,8 @@ where
             + TryFrom<&'a [u8]>,
         <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
             core::fmt::Debug,
-        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-        BitSeq<u64>: From<
-            BitSeq<
-                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
-            >,
-        >,
+        T: TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+        <T as TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
     {
         let bytes = self.input.get_row(row).unwrap();
         let row = self.output.get_row_mut(row).unwrap();
@@ -94,12 +89,8 @@ where
             + TryFrom<&'a [u8]>,
         <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
             core::fmt::Debug,
-        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-        BitSeq<u64>: From<
-            BitSeq<
-                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
-            >
-        >
+        T: TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+        <T as TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
     {
         assert_eq!(self.input.num_rows(), self.output.num_rows());
         for row in 0..*self.input.num_rows() {

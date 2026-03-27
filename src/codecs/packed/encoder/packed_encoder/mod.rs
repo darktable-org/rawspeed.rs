@@ -237,7 +237,6 @@ where
     ) -> std::io::Result<MinimalOutputRowPitch>
     where
         BitOrder: BitOrderTrait + BitStreamTraits,
-        BitOrder::StreamFlow: bitstreamcache::BitStreamCache + Default,
         BitOrder::MCUByteArrayType: ConcatBytesNe,
         <BitOrder::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
             + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
@@ -271,7 +270,6 @@ where
     fn pack_impl<BitOrder>(&mut self) -> std::io::Result<()>
     where
         BitOrder: BitOrderTrait + BitStreamTraits,
-        BitOrder::StreamFlow: bitstreamcache::BitStreamCache + Default,
         BitOrder::MCUByteArrayType: ConcatBytesNe,
         <BitOrder::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
             + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>

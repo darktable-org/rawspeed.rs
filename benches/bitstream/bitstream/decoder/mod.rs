@@ -96,8 +96,6 @@ where
         + TryFrom<&'a [u8]>,
     <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
         core::fmt::Debug,
-
-    <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
     BitSeq<u64>: From<
         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
     >,
@@ -106,7 +104,7 @@ where
     let mut serial = DataSerialDependency::new();
     for _ in 0..item_count {
         bs.fill(item_packed_bitlen).unwrap();
-        let item = bs.peek_bits_no_fill(item_packed_bitlen);
+        let item: BitSeq<u64> = bs.peek_bits_no_fill(item_packed_bitlen).into();
         serial.serialize(item.zext());
         bs.skip_bits_no_fill(item_packed_bitlen);
     }
@@ -128,7 +126,7 @@ where
         + TryFrom<&'a [u8]>,
     for<'a> <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
         core::fmt::Debug,
-    <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
+
     BitSeq<u64>: From<
         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
     >,

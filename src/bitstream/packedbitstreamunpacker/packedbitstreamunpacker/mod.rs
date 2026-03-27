@@ -8,7 +8,6 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
 use rawspeed_bitstream_packedbitstreamslice::packedbitstreamslice::{
     BitPackingLayout, PackedBitstreamSlice,
 };
-use rawspeed_common_bitseq::bitseq::BitSeq;
 
 #[derive(Debug)]
 pub struct PackedBitstreamUnpacker<BitOrder, const ITEM_PACKED_BITLEN: usize>
@@ -55,14 +54,8 @@ where
         + TryFrom<&'a [u8]>,
     <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
         core::fmt::Debug,
-
-        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-        BitSeq<u64>: From<
-            BitSeq<
-                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
-            >,
-        >,
-        u16: TryFrom<u64>,
+        u16: TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+        <u16 as TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
     {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);

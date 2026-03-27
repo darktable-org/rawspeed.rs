@@ -1,9 +1,10 @@
 use crate::bitvacuumer::{
-    AsSlice, BitStreamCache, BitVacuumer, BitVacuumerBase,
-    BitVacuumerDefaultDrainImpl, BitVacuumerDrainImpl, Bitwidth, SwapBytes,
-    get_host_endianness,
+    AsSlice, BitVacuumer, BitVacuumerBase, BitVacuumerDefaultDrainImpl,
+    BitVacuumerDrainImpl, Bitwidth, SwapBytes, get_host_endianness,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheData;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
+    BitStreamCache as _, BitStreamCacheData,
+};
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderJPEG, BitOrderTrait, BitStreamTraits,
 };
@@ -28,7 +29,6 @@ where
         > + core::ops::Shl<usize>
         + core::ops::ShlAssign<usize>
         + core::ops::BitOrAssign,
-    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output:
         Bitwidth + SwapBytes + TryFrom<u64>,
 {

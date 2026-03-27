@@ -34,21 +34,23 @@ where
 #[must_use]
 pub fn derive_mcu_bytesize<BitOrder>() -> usize
 where
-    BitOrder:
-        Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits+ BitStreamSliceConstraints,
+    BitOrder: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits
+        + BitStreamSliceConstraints,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    for<'a><BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
-        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-        + TryFrom<&'a [u8]>,
-    for<'a><<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
-        core::fmt::Debug,
-    <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
-        BitSeq<u64>: From<
-            BitSeq<
-                <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,
-            >,
-        >,
-{
+    for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
+        Default
+            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+            + TryFrom<&'a [u8]>,
+    for<'a> <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
+        &'a [u8],
+    >>::Error: core::fmt::Debug,
+    BitSeq<u64>: From<
+         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
+>{
     let input: [u8; 255] =
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
 
@@ -58,7 +60,9 @@ where
             let mut elts = vec![];
             for _i in 0..mcu_bytesize {
                 bs.fill(BITS_PER_BYTE).unwrap();
-                let elt = bs.peek_bits_no_fill(BITS_PER_BYTE).zext();
+                let elt: BitSeq<u64> =
+                    bs.peek_bits_no_fill(BITS_PER_BYTE).into();
+                let elt = u8::try_from(elt.zext()).unwrap();
                 assert_ne!(elt, 0);
                 elts.push(elt);
                 bs.skip_bits_no_fill(BITS_PER_BYTE);
