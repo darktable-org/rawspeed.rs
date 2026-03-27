@@ -16,7 +16,7 @@ pub trait BitOrderTrait {}
 
 pub trait BitStreamTraits
 where
-    <Self as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
+    <Self as BitStreamTraits>::StreamFlow: BitStreamCache,
 {
     const TAG: BitOrder;
     type StreamFlow;

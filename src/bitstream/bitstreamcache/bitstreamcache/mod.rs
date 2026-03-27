@@ -29,6 +29,7 @@ impl BitStreamCacheData for u64 {}
 
 pub trait BitStreamCache
 where
+    Self: Default,
     <Self as BitStreamCache>::Storage: BitSeqConstraints,
 {
     type Storage;
