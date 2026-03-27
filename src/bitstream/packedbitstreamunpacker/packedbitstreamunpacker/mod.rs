@@ -56,7 +56,7 @@ where
     <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
         core::fmt::Debug,
 
-        <BitOrder as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
+
         BitSeq<u64>: From<
             BitSeq<
                 <<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage,

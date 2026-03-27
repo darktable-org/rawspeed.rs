@@ -49,7 +49,6 @@ where
 pub struct BitStreamerBase<'a, T, R = BitStreamByteSequenceDefaultReader<'a, T>>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     R: BitStreamByteSequenceRead<T>,
 {
     reader: R,
@@ -62,7 +61,6 @@ impl<T, R> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T, R>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
-    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
     for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
@@ -123,7 +121,6 @@ where
         + BitStreamerUseDefaultCacheFillImpl,
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
-    <T as BitStreamTraits>::StreamFlow: BitStreamCache,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
     for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
@@ -148,7 +145,6 @@ where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
     Self: BitStreamerCacheFillImpl<T>,
-    <T as BitStreamTraits>::StreamFlow: Default + BitStreamCache,
     BitSeq<u64>: From<
         BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
     >,

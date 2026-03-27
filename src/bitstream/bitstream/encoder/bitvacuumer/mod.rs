@@ -72,7 +72,6 @@ pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache + Default,
 {
     cache: T::StreamFlow,
     writer: &'a mut W,
@@ -83,7 +82,7 @@ impl<T, W> BitVacuumerDefaultDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache + Default,
+
     T::MCUByteArrayType: ConcatBytesNe,
     <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
@@ -142,7 +141,7 @@ impl<T, W> BitVacuumerDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache + Default,
+
     T::MCUByteArrayType: ConcatBytesNe,
     <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
@@ -167,7 +166,6 @@ where
     T: BitOrderTrait + BitStreamTraits,
     Self: BitVacuumerDrainImpl<T>,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache + Default,
     T::MCUByteArrayType: ConcatBytesNe,
     <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
         + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
@@ -176,10 +174,7 @@ where
     BitSeq<<T::StreamFlow as BitStreamCache>::Storage>: From<BitSeq<u64>>,
 {
     #[inline]
-    pub fn new(writer: &'a mut W) -> Self
-    where
-        T::StreamFlow: Default,
-    {
+    pub fn new(writer: &'a mut W) -> Self {
         Self {
             cache: Default::default(),
             writer,
@@ -282,7 +277,6 @@ impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
     W: std::io::Write,
-    T::StreamFlow: BitStreamCache + Default,
 {
     #[inline]
     fn drop(&mut self) {
