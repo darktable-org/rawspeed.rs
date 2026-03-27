@@ -145,9 +145,6 @@ where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
     Self: BitStreamerCacheFillImpl<T>,
-    BitSeq<u64>: From<
-        BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
-    >,
 {
     #[inline]
     #[must_use]
@@ -177,8 +174,12 @@ where
     }
 
     #[inline]
-    pub fn peek_bits_no_fill(&mut self, nbits: u32) -> BitSeq<u64> {
-        self.cache.peek(nbits).into()
+    pub fn peek_bits_no_fill(
+        &mut self,
+        nbits: u32,
+    ) -> BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>
+    {
+        self.cache.peek(nbits)
     }
 
     #[inline]

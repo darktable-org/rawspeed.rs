@@ -17,7 +17,6 @@ rawspeed-bitstream-bitstream-decoder = { workspace = true }
 rawspeed-bitstream-bitstreamcache = { workspace = true }
 rawspeed-bitstream-bitstreams = { workspace = true }
 rawspeed-common-generic_num = { workspace = true }
-rawspeed-common-bitseq = { workspace = true }
 rawspeed-std = { workspace = true }
 rawspeed-std-ndslice = { workspace = true }
 
