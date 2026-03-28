@@ -1,5 +1,5 @@
 use rawspeed_bitstream_bitstreambytesequencereader::bitstreambytesequencereader::{BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead, BitStreamByteSequenceRewind};
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{BitStreamCache, BitStreamFlowTrait};
 use rawspeed_bitstream_bitstreamposition::bitstreamposition::BitstreamPosition;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrder, BitOrderTrait, BitStreamTraits,
@@ -50,9 +50,11 @@ pub struct BitStreamerBase<'a, T, R = BitStreamByteSequenceDefaultReader<'a, T>>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
 {
     reader: R,
-    cache: T::StreamFlow,
+    cache:
+        <<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache,
     _phantom_data: core::marker::PhantomData<T>,
     _lifetime_phantom_data: core::marker::PhantomData<&'a u8>,
 }
@@ -61,6 +63,7 @@ impl<T, R> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T, R>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
     for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
@@ -68,7 +71,7 @@ where
         core::fmt::Debug,
     T::ChunkByteArrayType: ConcatBytesNe,
     <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth + SwapBytes,
-    <T::StreamFlow as BitStreamCache>::Storage:
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage:
         From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
 {
     #[inline]
@@ -121,6 +124,7 @@ where
         + BitStreamerUseDefaultCacheFillImpl,
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     <T as BitStreamerTraits>::MaxProcessByteArray:
         core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
     for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
@@ -128,7 +132,7 @@ where
         core::fmt::Debug,
     T::ChunkByteArrayType: ConcatBytesNe,
     <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth + SwapBytes,
-    <T::StreamFlow as BitStreamCache>::Storage:
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage:
         From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
 {
     #[inline]
@@ -144,6 +148,7 @@ impl<T, R> BitStreamerBase<'_, T, R>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     Self: BitStreamerCacheFillImpl<T>,
 {
     #[inline]
@@ -177,7 +182,7 @@ where
     pub fn peek_bits_no_fill(
         &mut self,
         nbits: u32,
-    ) -> BitSeq<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>
+    ) -> BitSeq<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>
     {
         self.cache.peek(nbits)
     }

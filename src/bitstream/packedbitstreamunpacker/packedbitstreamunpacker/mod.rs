@@ -1,7 +1,9 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
     BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
+    BitStreamCache, BitStreamFlowTrait,
+};
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
@@ -49,13 +51,24 @@ where
         BitOrder:
             Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
         BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
-        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-        + TryFrom<&'a [u8]>,
-    <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
-        core::fmt::Debug,
-        u16: TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
-        <u16 as TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
+        <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+        <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
+            Default
+                + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+                + TryFrom<&'a [u8]>,
+        <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
+            &'a [u8],
+        >>::Error: core::fmt::Debug,
+        u16: TryFrom<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >,
+        <u16 as TryFrom<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >>::Error: core::fmt::Debug,
     {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);

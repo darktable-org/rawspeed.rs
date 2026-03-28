@@ -1,7 +1,9 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
     BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
+    BitStreamCache, BitStreamFlowTrait,
+};
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
@@ -40,6 +42,7 @@ where
         + BitStreamTraits
         + BitStreamerTraits
         + BitStreamSliceConstraints,
+    <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
     for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
         Default
@@ -49,8 +52,13 @@ where
         &'a [u8],
     >>::Error: core::fmt::Debug,
     BitSeq<u64>: From<
-         BitSeq<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
->{
+        BitSeq<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >,
+    >,
+{
     let input: [u8; 255] =
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());
 

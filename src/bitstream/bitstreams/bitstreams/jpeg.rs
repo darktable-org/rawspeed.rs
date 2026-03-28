@@ -12,7 +12,7 @@ impl BitOrderTrait for BitOrderJPEG {}
 impl BitStreamTraits for BitOrderJPEG {
     const TAG: BitOrder = BitOrder::JPEG;
 
-    type StreamFlow = bitstreamcache::BitStreamCacheLowInHighOut;
+    type StreamFlow = bitstreamcache::BitStreamFlowLowInHighOut;
 
     const FIXED_SIZE_CHUNKS: bool = false; // Stuffing byte...
 

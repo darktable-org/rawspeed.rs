@@ -5,11 +5,10 @@ pub enum BitStreamFlow {
     HighInLowOut,
 }
 
-pub trait BitStreamFlowTrait {}
-
 pub trait BitStreamCacheData:
     Sized
     + Copy
+    + core::fmt::Debug
     + Bitwidth
     + Integer
     + From<u8>
@@ -27,9 +26,17 @@ impl BitStreamCacheData for u16 {}
 impl BitStreamCacheData for u32 {}
 impl BitStreamCacheData for u64 {}
 
+pub trait BitStreamFlowTrait<T>
+where
+    T: BitStreamCacheData,
+    Self::Cache: BitStreamCache,
+{
+    type Cache;
+}
+
 pub trait BitStreamCache
 where
-    Self: Default,
+    Self: Default + Copy + core::fmt::Debug,
     <Self as BitStreamCache>::Storage: BitSeqConstraints,
 {
     type Storage;
@@ -46,10 +53,7 @@ where
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct BitStreamCacheBase<
-    F: BitStreamFlowTrait,
-    T: BitStreamCacheData = u64,
-> {
+pub struct BitStreamCacheBase<F: BitStreamFlowTrait<T>, T: BitStreamCacheData> {
     // The actual bits stored in the cache
     cache: T,
 
@@ -61,7 +65,7 @@ pub struct BitStreamCacheBase<
 
 impl<F, T> BitStreamCacheBase<F, T>
 where
-    F: BitStreamFlowTrait,
+    F: BitStreamFlowTrait<T>,
     T: BitStreamCacheData,
 {
     // Width of cache, in bits
@@ -72,6 +76,8 @@ mod high_in_low_out;
 mod low_in_high_out;
 
 pub use high_in_low_out::BitStreamCacheHighInLowOut;
+pub use high_in_low_out::BitStreamFlowHighInLowOut;
 pub use low_in_high_out::BitStreamCacheLowInHighOut;
+pub use low_in_high_out::BitStreamFlowLowInHighOut;
 use rawspeed_common_bitseq::bitseq::{BitSeq, BitSeqConstraints};
 use rawspeed_common_generic_num::generic_num::common::{Bitwidth, Integer};

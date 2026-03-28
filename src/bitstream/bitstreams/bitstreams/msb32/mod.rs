@@ -12,7 +12,7 @@ impl BitOrderTrait for BitOrderMSB32 {}
 impl BitStreamTraits for BitOrderMSB32 {
     const TAG: BitOrder = BitOrder::MSB32;
 
-    type StreamFlow = bitstreamcache::BitStreamCacheLowInHighOut;
+    type StreamFlow = bitstreamcache::BitStreamFlowLowInHighOut;
 
     const FIXED_SIZE_CHUNKS: bool = true;
 

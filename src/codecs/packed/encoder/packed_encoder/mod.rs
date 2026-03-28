@@ -2,7 +2,7 @@ use rawspeed_bitstream_bitstream_encoder::bitvacuumer::{
     AsSlice, BitVacuumerBase, BitVacuumerDrainImpl,
 };
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
-    self, BitStreamCacheData,
+    BitStreamCache, BitStreamCacheData, BitStreamFlowTrait,
 };
 use rawspeed_bitstream_bitstreams::{
     bitstreams,
@@ -239,12 +239,17 @@ where
         BitOrder: BitOrderTrait + BitStreamTraits,
         BitOrder::MCUByteArrayType: ConcatBytesNe,
         <BitOrder::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
-            + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
+            + TryFrom<<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage>
             + SwapBytes,
+        <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
         u32: From<<BitOrder::MCUByteArrayType as ConcatBytesNe>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl<BitOrder>,
-        BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
+        BitSeq<<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
         <BitOrder as BitStreamTraits>::MCUByteArrayType: ConcatBytesNe,
         <<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: BitStreamCacheData
@@ -272,12 +277,17 @@ where
         BitOrder: BitOrderTrait + BitStreamTraits,
         BitOrder::MCUByteArrayType: ConcatBytesNe,
         <BitOrder::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
-            + TryFrom<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>
+            + TryFrom<<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage>
             + SwapBytes,
+        <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
         u32: From<<BitOrder::MCUByteArrayType as ConcatBytesNe>::Output>,
         for<'c, 'd> BitVacuumerBase<'d, BitOrder, ByteCountingWriter<'c, W>>:
             BitVacuumerDrainImpl<BitOrder>,
-        BitSeq<<BitOrder::StreamFlow as bitstreamcache::BitStreamCache>::Storage>: From<BitSeq<u64>>,
+        BitSeq<<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage>: From<BitSeq<u64>>,
         u64: From<T>,
         <BitOrder as BitStreamTraits>::MCUByteArrayType: ConcatBytesNe,
         <<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: BitStreamCacheData

@@ -1,4 +1,3 @@
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
 use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 use rawspeed_memory_endianness::endianness::Endianness;
 
@@ -15,8 +14,8 @@ pub enum BitOrder {
 pub trait BitOrderTrait {}
 
 pub trait BitStreamTraits
-where
-    <Self as BitStreamTraits>::StreamFlow: BitStreamCache,
+// where
+//     <Self as BitStreamTraits>::StreamFlow: BitStreamFlowTrait,
 {
     const TAG: BitOrder;
     type StreamFlow;

@@ -3,7 +3,7 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheHighInLowOu
 #[cfg(not(target_endian = "little"))]
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCacheLowInHighOut;
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
-    BitStreamCache, BitStreamCacheBase, BitStreamCacheData,
+    BitStreamCache, BitStreamCacheBase, BitStreamCacheData, BitStreamFlowTrait,
 };
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
@@ -71,9 +71,11 @@ pub trait BitVacuumerUseDefaultDrainImpl {}
 pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     W: std::io::Write,
 {
-    cache: T::StreamFlow,
+    cache:
+        <<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache,
     writer: &'a mut W,
     _phantom_data: core::marker::PhantomData<T>,
 }
@@ -81,13 +83,13 @@ where
 impl<T, W> BitVacuumerDefaultDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     W: std::io::Write,
-
     T::MCUByteArrayType: ConcatBytesNe,
     <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
+        + TryFrom<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>
         + SwapBytes,
-    <<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
+    <<T::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
 {
     #[inline]
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
@@ -140,13 +142,13 @@ where
 impl<T, W> BitVacuumerDrainImpl<T> for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits + BitVacuumerUseDefaultDrainImpl,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     W: std::io::Write,
-
     T::MCUByteArrayType: ConcatBytesNe,
     <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
+        + TryFrom<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>
         + SwapBytes,
-    <<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<<<T as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug
+    <<T::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
 {
     #[inline]
     fn drain_impl<CacheStorage>(&mut self) -> std::io::Result<()>
@@ -164,14 +166,15 @@ where
 impl<'a, T, W> BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     Self: BitVacuumerDrainImpl<T>,
     W: std::io::Write,
     T::MCUByteArrayType: ConcatBytesNe,
     <T::MCUByteArrayType as ConcatBytesNe>::Output: Bitwidth
-        + TryFrom<<T::StreamFlow as BitStreamCache>::Storage>
+        + TryFrom<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>
         + SwapBytes,
     u32: From<<T::MCUByteArrayType as ConcatBytesNe>::Output>,
-    BitSeq<<T::StreamFlow as BitStreamCache>::Storage>: From<BitSeq<u64>>,
+    BitSeq<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>: From<BitSeq<u64>>,
 {
     #[inline]
     pub fn new(writer: &'a mut W) -> Self {
@@ -276,6 +279,7 @@ where
 impl<T, W> Drop for BitVacuumerBase<'_, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     W: std::io::Write,
 {
     #[inline]

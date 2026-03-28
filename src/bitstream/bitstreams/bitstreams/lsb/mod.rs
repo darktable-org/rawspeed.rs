@@ -12,7 +12,7 @@ impl BitOrderTrait for BitOrderLSB {}
 impl BitStreamTraits for BitOrderLSB {
     const TAG: BitOrder = BitOrder::LSB;
 
-    type StreamFlow = bitstreamcache::BitStreamCacheHighInLowOut;
+    type StreamFlow = bitstreamcache::BitStreamFlowHighInLowOut;
 
     const FIXED_SIZE_CHUNKS: bool = true;
 
