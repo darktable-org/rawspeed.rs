@@ -70,10 +70,7 @@ where
             // Found FF/xx with xx != 00. This is the end of stream marker.
             self.cache = prev_cache;
             let zeros = BitSeq::new(
-                BitLen::new(
-                    <T as BitStreamTraits>::StreamFlow::SIZE
-                        - self.cache.fill_level(),
-                ),
+                BitLen::new(self.cache.size() - self.cache.fill_level()),
                 0,
             )
             .unwrap();

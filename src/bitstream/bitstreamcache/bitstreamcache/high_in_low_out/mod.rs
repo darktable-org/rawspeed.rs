@@ -6,11 +6,17 @@ use crate::bitstreamcache::{
 };
 
 #[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
 pub struct BitStreamFlowHighInLowOut;
 
-impl BitStreamFlowTrait for BitStreamFlowHighInLowOut {}
+impl<T> BitStreamFlowTrait<T> for BitStreamFlowHighInLowOut
+where
+    T: BitStreamCacheData,
+{
+    type Cache = BitStreamCacheBase<Self, T>;
+}
 
-pub type BitStreamCacheHighInLowOut<T = u64> =
+pub type BitStreamCacheHighInLowOut<T> =
     BitStreamCacheBase<BitStreamFlowHighInLowOut, T>;
 
 impl<T: BitStreamCacheData> BitStreamCache for BitStreamCacheHighInLowOut<T> {

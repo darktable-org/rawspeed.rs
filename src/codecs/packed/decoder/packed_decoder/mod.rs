@@ -1,7 +1,9 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
     BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamCache;
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
+    BitStreamCache, BitStreamFlowTrait,
+};
 use rawspeed_bitstream_bitstreams::{
     bitstreams,
     bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits},
@@ -54,15 +56,28 @@ where
     #[inline]
     fn unpack_row<BitOrder>(&mut self, row: RowIndex)
     where
-        BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-        for<'z> BitStreamerBase<'z, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-        <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
-            core::fmt::Debug,
-        T: TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
-        <T as TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
+        BitOrder:
+            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+        for<'z> BitStreamerBase<'z, BitOrder>:
+            BitStreamerCacheFillImpl<BitOrder>,
+        <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
+            Default
+                + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+                + TryFrom<&'a [u8]>,
+        <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
+            &'a [u8],
+        >>::Error: core::fmt::Debug,
+        T: TryFrom<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >,
+        <T as TryFrom<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >>::Error: core::fmt::Debug,
     {
         let bytes = self.input.get_row(row).unwrap();
         let row = self.output.get_row_mut(row).unwrap();
@@ -82,15 +97,28 @@ where
     #[inline]
     fn unpack_impl<BitOrder>(&mut self)
     where
-        BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-        for<'z> BitStreamerBase<'z, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-        <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-        <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
-            core::fmt::Debug,
-        T: TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>,
-        <T as TryFrom<<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamCache>::Storage>>::Error: core::fmt::Debug,
+        BitOrder:
+            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+        <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+        for<'z> BitStreamerBase<'z, BitOrder>:
+            BitStreamerCacheFillImpl<BitOrder>,
+        <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
+            Default
+                + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+                + TryFrom<&'a [u8]>,
+        <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
+            &'a [u8],
+        >>::Error: core::fmt::Debug,
+        T: TryFrom<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >,
+        <T as TryFrom<
+            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
+                u64,
+            >>::Cache as BitStreamCache>::Storage,
+        >>::Error: core::fmt::Debug,
     {
         assert_eq!(self.input.num_rows(), self.output.num_rows());
         for row in 0..*self.input.num_rows() {
