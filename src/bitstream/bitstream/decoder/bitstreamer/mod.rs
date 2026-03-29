@@ -1,13 +1,11 @@
 use rawspeed_bitstream_bitstreambytesequencereader::bitstreambytesequencereader::{BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead, BitStreamByteSequenceRewind};
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::{BitStreamCache, BitStreamFlowTrait};
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::{BitStreamCache, BitStreamCacheData, BitStreamFlowTrait};
 use rawspeed_bitstream_bitstreamposition::bitstreamposition::BitstreamPosition;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrder, BitOrderTrait, BitStreamTraits,
 };
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
-use rawspeed_common_generic_num::generic_num::{
-    bit_transmutation::ConcatBytesNe, common::Bitwidth,
-};
+use rawspeed_common_generic_num::generic_num::bit_transmutation::ConcatBytesNe;
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
 
 pub trait BitStreamerTraits
@@ -63,52 +61,46 @@ impl<T, R> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T, R>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
-    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    <T as BitStreamerTraits>::MaxProcessByteArray:
-        core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
-    for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
-    for<'b> <<T as BitStreamTraits>::ChunkByteArrayType as TryFrom<&'b [u8]>>::Error:
-        core::fmt::Debug,
-    T::ChunkByteArrayType: ConcatBytesNe,
-    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth + SwapBytes,
-    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage:
-        From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
+    <T as BitStreamerTraits>::MaxProcessByteArray: ConcatBytesNe,
+    <<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output: BitStreamCacheData,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64> + BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>,
+    for<'b> <T as BitStreamTraits>::MCUByteArrayType: TryFrom<&'b [u8]> + ConcatBytesNe,
+    for<'b> <<T as BitStreamTraits>::MCUByteArrayType as TryFrom<&'b [u8]>>::Error: core::fmt::Debug,
+    <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: SwapBytes,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage: From<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage: From<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage>,
 {
     #[inline]
     fn fill_cache_impl(
         &mut self,
         input: <T as BitStreamerTraits>::MaxProcessByteArray,
     ) -> usize {
-        let stream_chunk_bitwidth: usize =
-            <T::ChunkByteArrayType as ConcatBytesNe>::Output::BITWIDTH
-                .try_into()
-                .unwrap();
-        assert!(stream_chunk_bitwidth >= 1);
-        assert!(stream_chunk_bitwidth.is_multiple_of(8));
-
-        assert!(8 * T::MAX_PROCESS_BYTES >= stream_chunk_bitwidth);
-        assert!(
-            (8 * T::MAX_PROCESS_BYTES).is_multiple_of(stream_chunk_bitwidth)
-        );
-
-        let num_chunks_needed =
-            (8 * T::MAX_PROCESS_BYTES) / stream_chunk_bitwidth;
-        assert!(num_chunks_needed >= 1);
-
-        for i in 0..num_chunks_needed {
-            let slice = &input[i * (stream_chunk_bitwidth / 8)
-                ..(i + 1) * (stream_chunk_bitwidth / 8)];
-            let chunk = <T::ChunkByteArrayType>::try_from(slice).unwrap();
-            let chunk = chunk.concat_bytes_ne();
-            let chunk = chunk
-                .get_byte_swapped(T::CHUNK_ENDIANNESS != get_host_endianness());
-            let bits = BitSeq::new(
-                BitLen::new(stream_chunk_bitwidth.try_into().unwrap()),
-                chunk.into(),
-            )
-            .unwrap();
-            self.cache.push(bits);
+        let mut cache: <<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait< <<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output >>::Cache = Default::default();
+        let chunks =
+            input[..].chunks_exact(size_of::<
+                <T as BitStreamTraits>::MCUByteArrayType,
+            >());
+        assert!(chunks.remainder().is_empty());
+        for chunk in chunks
+            .map(|chunk| {
+                <T as BitStreamTraits>::MCUByteArrayType::try_from(chunk)
+                    .unwrap()
+            })
+            .map(ConcatBytesNe::concat_bytes_ne)
+            .map(|chunk| {
+                chunk.get_byte_swapped(
+                    T::CHUNK_ENDIANNESS != get_host_endianness(),
+                )
+            })
+        {
+            let bits_per_mcu = 8 * size_of_val(&chunk);
+            let bits_per_mcu = bits_per_mcu.try_into().unwrap();
+            let bits =
+                BitSeq::new(BitLen::new(bits_per_mcu), chunk.into()).unwrap();
+            cache.push(bits);
         }
+        let cache = cache.peek(cache.size());
+        self.cache.push(cache.promote());
         T::MAX_PROCESS_BYTES
     }
 }
@@ -122,18 +114,15 @@ where
         + BitStreamTraits
         + BitStreamerTraits
         + BitStreamerUseDefaultCacheFillImpl,
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
     R: BitStreamByteSequenceRead<T>,
-    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    <T as BitStreamerTraits>::MaxProcessByteArray:
-        core::ops::Index<core::ops::Range<usize>, Output = [u8]>,
-    for<'b> <T as BitStreamTraits>::ChunkByteArrayType: TryFrom<&'b [u8]>,
-    for<'b> <<T as BitStreamTraits>::ChunkByteArrayType as TryFrom<&'b [u8]>>::Error:
-        core::fmt::Debug,
-    T::ChunkByteArrayType: ConcatBytesNe,
-    <T::ChunkByteArrayType as ConcatBytesNe>::Output: Bitwidth + SwapBytes,
-    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage:
-        From<<T::ChunkByteArrayType as ConcatBytesNe>::Output>,
+    <T as BitStreamerTraits>::MaxProcessByteArray: ConcatBytesNe,
+    <<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output: BitStreamCacheData,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64> + BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>,
+    for<'b> <T as BitStreamTraits>::MCUByteArrayType: TryFrom<&'b [u8]> + ConcatBytesNe,
+    for<'b> <<T as BitStreamTraits>::MCUByteArrayType as TryFrom<&'b [u8]>>::Error: core::fmt::Debug,
+    <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: SwapBytes,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage: From<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage: From<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage>,
 {
     #[inline]
     fn fill_cache_impl(

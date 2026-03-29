@@ -61,6 +61,18 @@ where
 
     #[must_use]
     #[inline]
+    pub fn promote<U>(self) -> BitSeq<U>
+    where
+        T: BitSeqConstraints,
+        U: BitSeqConstraints + From<T>,
+    {
+        let len = self.len();
+        let value = self.zext();
+        BitSeq::new(len, value.into()).unwrap()
+    }
+
+    #[must_use]
+    #[inline]
     pub fn new(len: BitLen, value: T) -> Option<Self> {
         let val = Self::new_unchecked(BitLen::new(T::BITWIDTH), value)
             .trunc_or_self(len);
