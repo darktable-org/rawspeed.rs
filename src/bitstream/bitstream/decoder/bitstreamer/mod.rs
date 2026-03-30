@@ -17,7 +17,6 @@ where
         core::fmt::Debug,
 {
     const TAG: BitOrder;
-    const MAX_PROCESS_BYTES: usize;
     type MaxProcessByteArray; // = [u8; _];
 }
 
@@ -101,7 +100,7 @@ where
         }
         let cache = cache.peek(cache.size());
         self.cache.push(cache.promote());
-        T::MAX_PROCESS_BYTES
+        input[..].len()
     }
 }
 

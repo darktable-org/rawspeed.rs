@@ -7,7 +7,6 @@ use crate::bitstreamer::{
 
 impl BitStreamerTraits for BitOrderMSB32 {
     const TAG: BitOrder = BitOrder::MSB32;
-    const MAX_PROCESS_BYTES: usize = 4;
     type MaxProcessByteArray = [u8; 4];
 }
 

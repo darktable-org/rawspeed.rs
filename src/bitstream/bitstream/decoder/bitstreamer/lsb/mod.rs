@@ -7,7 +7,6 @@ use crate::bitstreamer::{
 
 impl BitStreamerTraits for BitOrderLSB {
     const TAG: BitOrder = BitOrder::LSB;
-    const MAX_PROCESS_BYTES: usize = 4;
     type MaxProcessByteArray = [u8; 4];
 }
 

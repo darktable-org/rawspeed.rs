@@ -16,7 +16,6 @@ use crate::bitstreamer::{
 
 impl BitStreamerTraits for BitOrderJPEG {
     const TAG: BitOrder = BitOrder::JPEG;
-    const MAX_PROCESS_BYTES: usize = 8;
     type MaxProcessByteArray = [u8; 8];
 }
 
