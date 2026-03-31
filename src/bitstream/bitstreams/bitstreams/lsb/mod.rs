@@ -18,8 +18,6 @@ impl BitStreamTraits for BitOrderLSB {
 
     type MCUByteArrayType = [u8; 1];
 
-    type ChunkByteArrayType = [u8; 4];
-
     const CHUNK_ENDIANNESS: Endianness = Endianness::Little;
 }
 

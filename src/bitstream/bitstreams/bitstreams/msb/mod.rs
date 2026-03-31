@@ -18,8 +18,6 @@ impl BitStreamTraits for BitOrderMSB {
 
     type MCUByteArrayType = [u8; 1];
 
-    type ChunkByteArrayType = [u8; 4];
-
     const CHUNK_ENDIANNESS: Endianness = Endianness::Big;
 }
 

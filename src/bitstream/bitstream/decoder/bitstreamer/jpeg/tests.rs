@@ -1,4 +1,5 @@
 use super::*;
+use crate::bitstreamer::BitStream as _;
 
 #[test]
 fn byte_enumeration_test() -> Result<(), Box<dyn core::error::Error>> {

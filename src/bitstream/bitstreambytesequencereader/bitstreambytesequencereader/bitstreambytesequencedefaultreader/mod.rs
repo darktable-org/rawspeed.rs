@@ -1,10 +1,11 @@
-use crate::bitstreambytesequencereader::{
-    BitStreamByteSequenceRead, BitStreamByteSequenceRewind,
-};
 use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
     BitStreamSlice, BitStreamSliceConstraints, BitStreamSliceError,
 };
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad as _;
+
+use crate::bitstreambytesequencereader::{
+    BitStreamByteSequenceRead, BitStreamByteSequenceRewind,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub struct BitStreamByteSequenceDefaultReader<'a, T> {

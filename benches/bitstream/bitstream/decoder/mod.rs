@@ -3,16 +3,13 @@ use criterion::{
     criterion_group, criterion_main,
 };
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
+    BitStream, BitStreamerBase, BitStreamerTraits,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
-    BitStreamCache, BitStreamFlowTrait,
-};
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamFlowTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderLSB, BitOrderMSB, BitOrderMSB16, BitOrderMSB32, BitOrderTrait,
     BitStreamTraits, MaximalPackedElementCount,
 };
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSliceConstraints;
 use rawspeed_common_bitseq::bitseq::BitSeq;
 
 trait BitOrderName {
@@ -84,33 +81,18 @@ where
 }
 
 #[inline(never)]
-fn run_bench<'a, BitOrder>(
-    input: &'a [u8],
+fn run_bench<BitOrder>(
+    input: &[u8],
     item_count: u64,
     item_packed_bitlen: u32,
 ) -> u64
 where
-    BitOrder: Clone
-        + Copy
-        + BitOrderTrait
-        + BitStreamTraits
-        + BitStreamerTraits
-        + BitStreamSliceConstraints,
+    BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
     <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    <BitOrder as BitStreamerTraits>::MaxProcessByteArray: Default
-        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-        + TryFrom<&'a [u8]>,
-    <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
-        &'a [u8],
-    >>::Error: core::fmt::Debug,
-    BitSeq<u64>: From<
-        BitSeq<
-            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
-                u64,
-            >>::Cache as BitStreamCache>::Storage,
-        >,
-    >,
+    for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+    BitOrder: BitStreamerTraits<[u8; 4]>,
+    for<'d> BitSeq<u64>:
+        From<BitSeq<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>,
 {
     let mut bs = BitStreamerBase::<BitOrder>::new(input.try_into().unwrap());
     let mut serial = DataSerialDependency::new();
@@ -125,29 +107,12 @@ where
 
 fn benchmark<BitOrder>(c: &mut Criterion)
 where
-    BitOrder: BitOrderTrait + BitStreamerTraits + BitOrderName,
-    BitOrder: Clone
-        + Copy
-        + BitOrderTrait
-        + BitStreamTraits
-        + BitStreamerTraits
-        + BitStreamSliceConstraints,
+    BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitOrderName,
     <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
-        Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-    for<'a> <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
-        &'a [u8],
-    >>::Error: core::fmt::Debug,
-    BitSeq<u64>: From<
-        BitSeq<
-            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
-                u64,
-            >>::Cache as BitStreamCache>::Storage,
-        >,
-    >,
+    for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+    BitOrder: BitStreamerTraits<[u8; 4]>,
+    for<'d> BitSeq<u64>:
+        From<BitSeq<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>,
 {
     static KIB: usize = 1024;
 

@@ -5,6 +5,7 @@ macro_rules! test_bitstreamer_rewind {
         fn rewind() -> Result<(), Box<dyn core::error::Error>>
         where
             $BitOrder: BitStreamTraits,
+            for<'a> $BitStreamer<'a>: $crate::bitstreamer::BitStream,
         {
             const MAX_BITS_PER_OP: u32 = 32;
             const INPUT_LEN: usize = 32;
