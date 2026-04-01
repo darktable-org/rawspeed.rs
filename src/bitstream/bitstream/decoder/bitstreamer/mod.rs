@@ -2,80 +2,84 @@ use rawspeed_bitstream_bitstreambytesequencereader::bitstreambytesequencereader:
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::{BitStreamCache, BitStreamCacheData, BitStreamFlowTrait};
 use rawspeed_bitstream_bitstreamposition::bitstreamposition::BitstreamPosition;
 use rawspeed_bitstream_bitstreams::bitstreams::{
-    BitOrder, BitOrderTrait, BitStreamTraits,
+    BitOrderTrait, BitStreamTraits,
 };
-use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
+use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq, BitSeqConstraints};
 use rawspeed_common_generic_num::generic_num::bit_transmutation::ConcatBytesNe;
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
 
-pub trait BitStreamerTraits
-where
-    for<'a> Self::MaxProcessByteArray: Default
-        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-        + TryFrom<&'a [u8]>,
-    for<'a> <Self::MaxProcessByteArray as TryFrom<&'a [u8]>>::Error:
-        core::fmt::Debug,
-{
-    const TAG: BitOrder;
-    const MAX_PROCESS_BYTES: usize;
-    type MaxProcessByteArray; // = [u8; _];
+pub trait BitStreamerTraits<ByteArray> {
+    type ByteArray;
 }
 
-pub trait BitStreamerDefaultCacheFillImpl<T>
+pub trait BitStreamerDefaultCacheFillImpl<T, ByteArray>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
 {
     fn fill_cache_impl(
         &mut self,
-        input: <T as BitStreamerTraits>::MaxProcessByteArray,
-    ) -> usize;
+        input: <T as BitStreamerTraits<ByteArray>>::ByteArray,
+    ) -> usize where;
 }
 
 pub trait BitStreamerUseDefaultCacheFillImpl {}
 
-pub trait BitStreamerCacheFillImpl<T>
+pub trait BitStreamerCacheFillImpl<T, ByteArray>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
 {
     fn fill_cache_impl(
         &mut self,
-        input: <T as BitStreamerTraits>::MaxProcessByteArray,
+        input: <T as BitStreamerTraits<ByteArray>>::ByteArray,
     ) -> usize;
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct BitStreamerBase<'a, T, R = BitStreamByteSequenceDefaultReader<'a, T>>
-where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    R: BitStreamByteSequenceRead<T>,
+pub struct BitStreamerBase<
+    'a,
+    T,
+    R = BitStreamByteSequenceDefaultReader<'a, T>,
+    ByteArray = [u8; 4],
+> where
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits,
     <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
 {
     reader: R,
     cache:
         <<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache,
     _phantom_data: core::marker::PhantomData<T>,
+    _phantom_data2: core::marker::PhantomData<ByteArray>,
     _lifetime_phantom_data: core::marker::PhantomData<&'a u8>,
 }
 
-impl<T, R> BitStreamerDefaultCacheFillImpl<T> for BitStreamerBase<'_, T, R>
+impl<T, R, ByteArray> BitStreamerDefaultCacheFillImpl<T, ByteArray>
+    for BitStreamerBase<'_, T, R, ByteArray>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    R: BitStreamByteSequenceRead<T>,
-    <T as BitStreamerTraits>::MaxProcessByteArray: ConcatBytesNe,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output: BitStreamCacheData,
-    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64> + BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>,
+    T: Clone + Copy + BitOrderTrait + BitStreamTraits+ BitStreamerTraits<ByteArray>,
+    <T as BitStreamerTraits<ByteArray>>::ByteArray: core::ops::Index<core::ops::RangeFull, Output = [u8]> + ConcatBytesNe,
+    <<T as BitStreamerTraits<ByteArray>>::ByteArray as ConcatBytesNe>::Output: BitStreamCacheData,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64> + BitStreamFlowTrait<<<T as BitStreamerTraits<ByteArray>>::ByteArray as ConcatBytesNe>::Output>,
     for<'b> <T as BitStreamTraits>::MCUByteArrayType: TryFrom<&'b [u8]> + ConcatBytesNe,
     for<'b> <<T as BitStreamTraits>::MCUByteArrayType as TryFrom<&'b [u8]>>::Error: core::fmt::Debug,
     <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: SwapBytes,
-    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage: From<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>,
-    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage: From<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage>,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits<ByteArray>>::ByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage: From<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage: From<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits<ByteArray>>::ByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage>,
 {
     #[inline]
-    fn fill_cache_impl(
-        &mut self,
-        input: <T as BitStreamerTraits>::MaxProcessByteArray,
-    ) -> usize {
-        let mut cache: <<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait< <<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output >>::Cache = Default::default();
+        fn fill_cache_impl(
+            &mut self,
+            input: <T as BitStreamerTraits<ByteArray>>::ByteArray,
+        ) -> usize where
+     {
+        let mut cache: <<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait< <<T as BitStreamerTraits<ByteArray>>::ByteArray as ConcatBytesNe>::Output >>::Cache = Default::default();
         let chunks =
             input[..].chunks_exact(size_of::<
                 <T as BitStreamTraits>::MCUByteArrayType,
@@ -101,44 +105,39 @@ where
         }
         let cache = cache.peek(cache.size());
         self.cache.push(cache.promote());
-        T::MAX_PROCESS_BYTES
+        input[..].len()
     }
 }
 
-impl<T, R> BitStreamerCacheFillImpl<T> for BitStreamerBase<'_, T, R>
+impl<T, R, ByteArray> BitStreamerCacheFillImpl<T, ByteArray>
+    for BitStreamerBase<'_, T, R, ByteArray>
 where
     T: Clone
         + Copy
         + BitOrderTrait
-        + BitOrderTrait
         + BitStreamTraits
-        + BitStreamerTraits
+        + BitStreamerTraits<ByteArray>
         + BitStreamerUseDefaultCacheFillImpl,
-    R: BitStreamByteSequenceRead<T>,
-    <T as BitStreamerTraits>::MaxProcessByteArray: ConcatBytesNe,
-    <<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output: BitStreamCacheData,
-    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64> + BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>,
-    for<'b> <T as BitStreamTraits>::MCUByteArrayType: TryFrom<&'b [u8]> + ConcatBytesNe,
-    for<'b> <<T as BitStreamTraits>::MCUByteArrayType as TryFrom<&'b [u8]>>::Error: core::fmt::Debug,
-    <<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output: SwapBytes,
-    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage: From<<<T as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output>,
-    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage: From<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<<<T as BitStreamerTraits>::MaxProcessByteArray as ConcatBytesNe>::Output>>::Cache as BitStreamCache>::Storage>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+    Self: BitStreamerDefaultCacheFillImpl<T, ByteArray>,
 {
     #[inline]
     fn fill_cache_impl(
         &mut self,
-        input: <T as BitStreamerTraits>::MaxProcessByteArray,
+        input: <T as BitStreamerTraits<ByteArray>>::ByteArray,
     ) -> usize {
         BitStreamerDefaultCacheFillImpl::fill_cache_impl(self, input)
     }
 }
 
-impl<T, R> BitStreamerBase<'_, T, R>
+impl<T, R, ByteArray> BitStreamerBase<'_, T, R, ByteArray>
 where
-    T: Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-    R: BitStreamByteSequenceRead<T>,
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
     <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    Self: BitStreamerCacheFillImpl<T>,
 {
     #[inline]
     #[must_use]
@@ -147,38 +146,9 @@ where
             reader,
             cache: Default::default(),
             _phantom_data: core::marker::PhantomData,
+            _phantom_data2: core::marker::PhantomData,
             _lifetime_phantom_data: core::marker::PhantomData,
         }
-    }
-
-    #[inline]
-    pub fn fill(&mut self, nbits: u32) -> Result<(), &'static str> {
-        assert!(nbits != 0);
-
-        if self.cache.fill_level() >= nbits {
-            return Ok(());
-        }
-
-        let input = self.reader.peek_input()?;
-        let num_bytes =
-            BitStreamerCacheFillImpl::<T>::fill_cache_impl(self, input);
-        self.reader.mark_num_bytes_as_consumed(num_bytes);
-        assert!(self.cache.fill_level() >= nbits);
-        Ok(())
-    }
-
-    #[inline]
-    pub fn peek_bits_no_fill(
-        &mut self,
-        nbits: u32,
-    ) -> BitSeq<<<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage>
-    {
-        self.cache.peek(nbits)
-    }
-
-    #[inline]
-    pub fn skip_bits_no_fill(&mut self, nbits: u32) {
-        self.cache.skip(nbits);
     }
 
     #[inline]
@@ -188,7 +158,8 @@ where
         pos: BitstreamPosition<T>,
     ) -> Result<Self, &'static str>
     where
-        R: BitStreamByteSequenceRewind<T>,
+        R: BitStreamByteSequenceRead<T> + BitStreamByteSequenceRewind<T>,
+        Self: BitStream,
     {
         let mut reader = reader.rewind();
         reader.mark_num_bytes_as_consumed(pos.mcu_index());
@@ -201,7 +172,10 @@ where
     }
 
     #[inline]
-    pub fn get_bitstream_position(&self) -> BitstreamPosition<T> {
+    pub fn get_bitstream_position(&self) -> BitstreamPosition<T>
+    where
+        R: BitStreamByteSequenceRead<T>,
+    {
         let div_ceil_ = |divident: usize, divisor: usize| {
             assert_ne!(divisor, 0);
             let quot_ceil = divident.div_ceil(divisor);
@@ -226,6 +200,66 @@ where
             next_load_pos.checked_sub(num_bytes_in_cache).unwrap();
         let num_skipped_bits = num_skipped_bits.try_into().unwrap();
         BitstreamPosition::new(closest_prev_load_pos, num_skipped_bits)
+    }
+}
+
+pub trait BitStream
+where
+    Self::T: BitSeqConstraints + core::fmt::Debug,
+{
+    type T;
+
+    fn fill(&mut self, nbits: u32) -> Result<(), &'static str>;
+
+    fn peek_bits_no_fill(&mut self, nbits: u32) -> BitSeq<Self::T>;
+
+    fn skip_bits_no_fill(&mut self, nbits: u32);
+}
+
+impl<T, R, ByteArray> BitStream for BitStreamerBase<'_, T, R, ByteArray>
+where
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
+    R: BitStreamByteSequenceRead<T>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+    for<'a> <T as BitStreamerTraits<ByteArray>>::ByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+        + TryFrom<&'a [u8]>,
+    for<'a> <<T as BitStreamerTraits<ByteArray>>::ByteArray as TryFrom<&'a [u8]>>::Error: core::fmt::Debug,
+    Self: BitStreamerCacheFillImpl<T, ByteArray>,
+    <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage: core::fmt::Debug,
+{
+    type T = <<<T as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<u64>>::Cache as BitStreamCache>::Storage;
+
+    #[inline]
+    fn fill(&mut self, nbits: u32) -> Result<(), &'static str> {
+        assert!(nbits != 0);
+
+        if self.cache.fill_level() >= nbits {
+            return Ok(());
+        }
+
+        let input = self.reader.peek_input()?;
+        let num_bytes = BitStreamerCacheFillImpl::fill_cache_impl(self, input);
+        self.reader.mark_num_bytes_as_consumed(num_bytes);
+        Ok(())
+    }
+
+    #[inline]
+    fn peek_bits_no_fill(
+        &mut self,
+        nbits: u32,
+    ) -> BitSeq<Self::T>
+    {
+        self.cache.peek(nbits)
+    }
+
+    #[inline]
+    fn skip_bits_no_fill(&mut self, nbits: u32) {
+        self.cache.skip(nbits);
     }
 }
 

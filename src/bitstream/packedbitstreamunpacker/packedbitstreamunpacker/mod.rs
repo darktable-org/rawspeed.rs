@@ -1,9 +1,7 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
+    BitStream, BitStreamerBase, BitStreamerTraits,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
-    BitStreamCache, BitStreamFlowTrait,
-};
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamFlowTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
@@ -44,31 +42,15 @@ where
 {
     #[expect(clippy::needless_pass_by_value)]
     #[inline]
-    pub fn new<'a>(
-        slice: PackedBitstreamSlice<'a, BitOrder, ITEM_PACKED_BITLEN>,
+    pub fn new(
+        slice: PackedBitstreamSlice<'_, BitOrder, ITEM_PACKED_BITLEN>,
     ) -> Result<Self, PackedBitstreamUnpackerError>
     where
-        BitOrder:
-            Clone + Copy + BitOrderTrait + BitStreamTraits + BitStreamerTraits,
-        BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
         <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-        <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
-            Default
-                + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-                + TryFrom<&'a [u8]>,
-        <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
-            &'a [u8],
-        >>::Error: core::fmt::Debug,
-        u16: TryFrom<
-            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
-                u64,
-            >>::Cache as BitStreamCache>::Storage,
-        >,
-        <u16 as TryFrom<
-            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
-                u64,
-            >>::Cache as BitStreamCache>::Storage,
-        >>::Error: core::fmt::Debug,
+        for<'b> BitStreamerBase<'b, BitOrder>: BitStream,
+        BitOrder: BitStreamerTraits<[u8; 4]>,
+        for<'b> u16: TryFrom<<BitStreamerBase<'b, BitOrder> as BitStream>::T>,
+        for<'b> <u16 as TryFrom<<BitStreamerBase<'b, BitOrder> as BitStream>::T>>::Error: core::fmt::Debug,
     {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);

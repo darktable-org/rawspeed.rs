@@ -1,7 +1,3 @@
-use crate::bitvacuumer::{
-    AsSlice, BitVacuumer, BitVacuumerBase, BitVacuumerDefaultDrainImpl,
-    BitVacuumerDrainImpl, Bitwidth, SwapBytes, get_host_endianness,
-};
 use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
     BitStreamCache as _, BitStreamCacheData,
 };
@@ -10,6 +6,11 @@ use rawspeed_bitstream_bitstreams::bitstreams::{
 };
 use rawspeed_common_generic_num::generic_num::bit_transmutation::{
     ConcatBytesNe, ToNeBytes,
+};
+
+use crate::bitvacuumer::{
+    AsSlice, BitVacuumer, BitVacuumerBase, BitVacuumerDefaultDrainImpl,
+    BitVacuumerDrainImpl, Bitwidth, SwapBytes, get_host_endianness,
 };
 
 type T = BitOrderJPEG;

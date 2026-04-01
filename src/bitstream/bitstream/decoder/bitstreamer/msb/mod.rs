@@ -1,14 +1,12 @@
-use rawspeed_bitstream_bitstreams::bitstreams::{BitOrder, BitOrderMSB};
+use rawspeed_bitstream_bitstreams::bitstreams::BitOrderMSB;
 
 use crate::bitstreamer::{
     BitStreamByteSequenceDefaultReader, BitStreamerBase, BitStreamerTraits,
     BitStreamerUseDefaultCacheFillImpl,
 };
 
-impl BitStreamerTraits for BitOrderMSB {
-    const TAG: BitOrder = BitOrder::MSB;
-    const MAX_PROCESS_BYTES: usize = 4;
-    type MaxProcessByteArray = [u8; 4];
+impl<ByteArray> BitStreamerTraits<ByteArray> for BitOrderMSB {
+    type ByteArray = ByteArray;
 }
 
 type T = BitOrderMSB;

@@ -16,7 +16,6 @@ workspace = true
 rawspeed-bitstream-bitstream-decoder = { workspace = true }
 rawspeed-bitstream-bitstreamcache = { workspace = true }
 rawspeed-bitstream-bitstreams = { workspace = true }
-rawspeed-bitstream-bitstreamslice = { workspace = true }
 rawspeed-common-bitseq = { workspace = true }
 criterion = { workspace = true }
 

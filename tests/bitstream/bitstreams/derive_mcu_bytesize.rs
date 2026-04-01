@@ -1,9 +1,7 @@
 use rawspeed_bitstream_bitstream_decoder::bitstreamer::{
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
+    BitStream, BitStreamerBase, BitStreamerTraits,
 };
-use rawspeed_bitstream_bitstreamcache::bitstreamcache::{
-    BitStreamCache, BitStreamFlowTrait,
-};
+use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamFlowTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
@@ -23,7 +21,6 @@ where
         + Copy
         + BitOrderTrait
         + BitStreamTraits
-        + BitStreamerTraits
         + BitStreamSliceConstraints,
 {
     let mcu_size = size_of::<<T as BitStreamTraits>::MCUByteArrayType>();
@@ -36,28 +33,12 @@ where
 #[must_use]
 pub fn derive_mcu_bytesize<BitOrder>() -> usize
 where
-    BitOrder: Clone
-        + Copy
-        + BitOrderTrait
-        + BitStreamTraits
-        + BitStreamerTraits
-        + BitStreamSliceConstraints,
+    BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
     <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    for<'a> BitStreamerBase<'a, BitOrder>: BitStreamerCacheFillImpl<BitOrder>,
-    for<'a> <BitOrder as BitStreamerTraits>::MaxProcessByteArray:
-        Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-    for<'a> <<BitOrder as BitStreamerTraits>::MaxProcessByteArray as TryFrom<
-        &'a [u8],
-    >>::Error: core::fmt::Debug,
-    BitSeq<u64>: From<
-        BitSeq<
-            <<<BitOrder as BitStreamTraits>::StreamFlow as BitStreamFlowTrait<
-                u64,
-            >>::Cache as BitStreamCache>::Storage,
-        >,
-    >,
+    for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+    BitOrder: BitStreamerTraits<[u8; 4]>,
+    for<'d> BitSeq<u64>:
+        From<BitSeq<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>,
 {
     let input: [u8; 255] =
         core::array::from_fn(|i| u8::try_from(1 + i).unwrap());

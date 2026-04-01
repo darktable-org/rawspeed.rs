@@ -75,9 +75,11 @@ where
 mod high_in_low_out;
 mod low_in_high_out;
 
-pub use high_in_low_out::BitStreamCacheHighInLowOut;
-pub use high_in_low_out::BitStreamFlowHighInLowOut;
-pub use low_in_high_out::BitStreamCacheLowInHighOut;
-pub use low_in_high_out::BitStreamFlowLowInHighOut;
+pub use high_in_low_out::{
+    BitStreamCacheHighInLowOut, BitStreamFlowHighInLowOut,
+};
+pub use low_in_high_out::{
+    BitStreamCacheLowInHighOut, BitStreamFlowLowInHighOut,
+};
 use rawspeed_common_bitseq::bitseq::{BitSeq, BitSeqConstraints};
 use rawspeed_common_generic_num::generic_num::common::{Bitwidth, Integer};
