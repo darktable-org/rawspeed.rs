@@ -35,7 +35,8 @@ pub fn derive_mcu_bytesize<BitOrder>() -> usize
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
     <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+    for<'a> BitStreamerBase<'a, BitOrder>:
+        From<BitStreamSlice<'a, BitOrder>> + BitStream,
     BitOrder: BitStreamerTraits<[u8; 4]>,
     for<'d> BitSeq<u64>:
         From<BitSeq<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>,
@@ -59,14 +60,13 @@ where
             assert_eq!(elts.len(), mcu_bytesize);
             elts
         };
-        let mut full_bs = BitStreamerBase::<BitOrder>::new(
-            get_as_valid_bitstreamslice(input.as_slice()).into(),
+        let mut full_bs = BitStreamerBase::<BitOrder>::from(
+            get_as_valid_bitstreamslice(input.as_slice()),
         );
         let _first_mcu = mcu_getter(&mut full_bs);
         let second_mcu = mcu_getter(&mut full_bs);
-        let mut new_bs = BitStreamerBase::<BitOrder>::new(
-            get_as_valid_bitstreamslice(input.get(mcu_bytesize..).unwrap())
-                .into(),
+        let mut new_bs = BitStreamerBase::<BitOrder>::from(
+            get_as_valid_bitstreamslice(input.get(mcu_bytesize..).unwrap()),
         );
         let new_first_mcu = mcu_getter(&mut new_bs);
         if new_first_mcu == second_mcu {

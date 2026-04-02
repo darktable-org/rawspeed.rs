@@ -5,6 +5,7 @@ use rawspeed_bitstream_bitstreamcache::bitstreamcache::BitStreamFlowTrait;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_bitstream_packedbitstreamslice::packedbitstreamslice::{
     BitPackingLayout, PackedBitstreamSlice,
 };
@@ -42,15 +43,15 @@ where
 {
     #[expect(clippy::needless_pass_by_value)]
     #[inline]
-    pub fn new(
-        slice: PackedBitstreamSlice<'_, BitOrder, ITEM_PACKED_BITLEN>,
+    pub fn new<'a>(
+        slice: PackedBitstreamSlice<'a, BitOrder, ITEM_PACKED_BITLEN>,
     ) -> Result<Self, PackedBitstreamUnpackerError>
     where
         <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-        for<'b> BitStreamerBase<'b, BitOrder>: BitStream,
+        BitStreamerBase<'a, BitOrder>: From<BitStreamSlice<'a, BitOrder>> + BitStream,
         BitOrder: BitStreamerTraits<[u8; 4]>,
-        for<'b> u16: TryFrom<<BitStreamerBase<'b, BitOrder> as BitStream>::T>,
-        for<'b> <u16 as TryFrom<<BitStreamerBase<'b, BitOrder> as BitStream>::T>>::Error: core::fmt::Debug,
+        u16: TryFrom<<BitStreamerBase<'a, BitOrder> as BitStream>::T>,
+        <u16 as TryFrom<<BitStreamerBase<'a, BitOrder> as BitStream>::T>>::Error: core::fmt::Debug,
     {
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
@@ -68,7 +69,7 @@ where
         }
         let mut storage = core::array::from_fn(|_| 0_u16);
         let items = storage.get_mut(..Self::len()).unwrap();
-        let mut bs = BitStreamerBase::<BitOrder>::new(slice.get_slice().into());
+        let mut bs = BitStreamerBase::<BitOrder>::from(slice.get_slice());
         for item in items.iter_mut() {
             let item_packed_bitlen_ = ITEM_PACKED_BITLEN.try_into().unwrap();
             bs.fill(item_packed_bitlen_).unwrap();

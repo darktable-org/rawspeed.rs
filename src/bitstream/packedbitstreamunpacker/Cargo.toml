@@ -17,6 +17,7 @@ rawspeed-bitstream-bitstream-decoder = { workspace = true }
 rawspeed-bitstream-bitstreamcache = { workspace = true }
 rawspeed-bitstream-bitstreams = { workspace = true }
 rawspeed-bitstream-packedbitstreamslice = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
 
 [dev-dependencies]
 rawspeed-bitstream-bitstreamslice = { workspace = true }

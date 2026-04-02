@@ -56,7 +56,9 @@ where
     where
         BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
         <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-        for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+        BitStreamerBase<'a, BitOrder>: TryFrom<&'a [u8]> + BitStream,
+        <BitStreamerBase<'a, BitOrder> as TryFrom<&'a [u8]>>::Error:
+            core::fmt::Debug,
         BitOrder: BitStreamerTraits<[u8; 4]>,
         for<'d> T: TryFrom<<BitStreamerBase<'d, BitOrder> as BitStream>::T>,
         for<'d> <T as TryFrom<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>::Error:
@@ -64,8 +66,7 @@ where
     {
         let bytes = self.input.get_row(row).unwrap();
         let row = self.output.get_row_mut(row).unwrap();
-        let mut bs =
-            BitStreamerBase::<BitOrder>::new(bytes.try_into().unwrap());
+        let mut bs = BitStreamerBase::<BitOrder>::try_from(bytes).unwrap();
         for item in row.iter_mut() {
             bs.fill(self.item_bitlen).unwrap();
             *item = bs
@@ -82,7 +83,9 @@ where
     where
         BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
         <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-        for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+        BitStreamerBase<'a, BitOrder>: TryFrom<&'a [u8]> + BitStream,
+        <BitStreamerBase<'a, BitOrder> as TryFrom<&'a [u8]>>::Error:
+            core::fmt::Debug,
         BitOrder: BitStreamerTraits<[u8; 4]>,
         for<'d> T: TryFrom<<BitStreamerBase<'d, BitOrder> as BitStream>::T>,
         for<'d> <T as TryFrom<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>::Error:

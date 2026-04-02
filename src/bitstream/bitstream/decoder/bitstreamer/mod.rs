@@ -4,6 +4,7 @@ use rawspeed_bitstream_bitstreamposition::bitstreamposition::BitstreamPosition;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq, BitSeqConstraints};
 use rawspeed_common_generic_num::generic_num::bit_transmutation::ConcatBytesNe;
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
@@ -200,6 +201,43 @@ where
             next_load_pos.checked_sub(num_bytes_in_cache).unwrap();
         let num_skipped_bits = num_skipped_bits.try_into().unwrap();
         BitstreamPosition::new(closest_prev_load_pos, num_skipped_bits)
+    }
+}
+
+impl<'a, T, R, ByteArray> From<BitStreamSlice<'a, T>>
+    for BitStreamerBase<'a, T, R, ByteArray>
+where
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+    R: From<BitStreamSlice<'a, T>>,
+{
+    #[inline]
+    fn from(value: BitStreamSlice<'a, T>) -> Self {
+        Self::new(value.into())
+    }
+}
+
+impl<'a, T, R, ByteArray> TryFrom<&'a [u8]>
+    for BitStreamerBase<'a, T, R, ByteArray>
+where
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+    R: TryFrom<&'a [u8]>,
+{
+    type Error = <R as TryFrom<&'a [u8]>>::Error;
+
+    #[inline]
+    fn try_from(value: &'a [u8]) -> Result<Self, Self::Error> {
+        let reader = R::try_from(value)?;
+        Ok(Self::new(reader))
     }
 }
 
