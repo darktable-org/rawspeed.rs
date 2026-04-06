@@ -1,9 +1,9 @@
-use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSliceConstraints;
+pub trait BitStreamByteSequenceReadResult {
+    type ByteArray;
+    type Error;
+}
 
-pub trait BitStreamByteSequenceRead<T>
-where
-    T: BitStreamSliceConstraints,
-{
+pub trait BitStreamByteSequenceRead: BitStreamByteSequenceReadResult {
     #[must_use]
     fn get_pos(&self) -> usize;
 
@@ -12,21 +12,19 @@ where
 
     fn mark_num_bytes_as_consumed(&mut self, num_bytes: usize);
 
-    fn peek_input<ByteArray>(&self) -> Result<ByteArray, &'static str>
-    where
-        for<'a> ByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-        for<'a> <ByteArray as TryFrom<&'a [u8]>>::Error: core::fmt::Debug;
+    fn peek_input(&self) -> Result<Self::ByteArray, Self::Error>;
 }
 
-pub trait BitStreamByteSequenceRewind<T>
-where
-    T: BitStreamSliceConstraints,
-{
+pub trait BitStreamByteSequenceRewind {
     #[must_use]
     fn rewind(&self) -> Self;
 }
 
 mod bitstreambytesequencedefaultreader;
 pub use bitstreambytesequencedefaultreader::BitStreamByteSequenceDefaultReader;
+
+mod bitstreambytesequenceprefetchingreader;
+pub use bitstreambytesequenceprefetchingreader::BitStreamByteSequencePrefetchingReader;
+
+#[cfg(test)]
+mod tests;

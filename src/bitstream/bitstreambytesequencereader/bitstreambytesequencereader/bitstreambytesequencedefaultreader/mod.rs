@@ -4,17 +4,19 @@ use rawspeed_bitstream_bitstreamslice::bitstreamslice::{
 use rawspeed_memory_variable_length_load::variable_length_load::VariableLengthLoad as _;
 
 use crate::bitstreambytesequencereader::{
-    BitStreamByteSequenceRead, BitStreamByteSequenceRewind,
+    BitStreamByteSequenceRead, BitStreamByteSequenceReadResult,
+    BitStreamByteSequenceRewind,
 };
 
 #[derive(Debug, Clone, Copy)]
-pub struct BitStreamByteSequenceDefaultReader<'a, T> {
+pub struct BitStreamByteSequenceDefaultReader<'a, T, ByteArray> {
     input: &'a [u8],
     pos: usize,
     _phantom_data: core::marker::PhantomData<T>,
+    _phantom_peeked_data: core::marker::PhantomData<ByteArray>,
 }
 
-impl<'a, T> BitStreamByteSequenceDefaultReader<'a, T>
+impl<'a, T, ByteArray> BitStreamByteSequenceDefaultReader<'a, T, ByteArray>
 where
     T: BitStreamSliceConstraints,
 {
@@ -25,12 +27,13 @@ where
             input: input.get_bytes(),
             pos: 0,
             _phantom_data: core::marker::PhantomData,
+            _phantom_peeked_data: core::marker::PhantomData,
         }
     }
 }
 
-impl<'a, T> From<BitStreamSlice<'a, T>>
-    for BitStreamByteSequenceDefaultReader<'a, T>
+impl<'a, T, ByteArray> From<BitStreamSlice<'a, T>>
+    for BitStreamByteSequenceDefaultReader<'a, T, ByteArray>
 where
     T: BitStreamSliceConstraints,
 {
@@ -40,7 +43,8 @@ where
     }
 }
 
-impl<'a, T> TryFrom<&'a [u8]> for BitStreamByteSequenceDefaultReader<'a, T>
+impl<'a, T, ByteArray> TryFrom<&'a [u8]>
+    for BitStreamByteSequenceDefaultReader<'a, T, ByteArray>
 where
     T: BitStreamSliceConstraints,
     Self: From<BitStreamSlice<'a, T>>,
@@ -54,10 +58,21 @@ where
     }
 }
 
-impl<'a, T> BitStreamByteSequenceRead<T>
-    for BitStreamByteSequenceDefaultReader<'a, T>
+impl<T, ByteArray> BitStreamByteSequenceReadResult
+    for BitStreamByteSequenceDefaultReader<'_, T, ByteArray>
+{
+    type ByteArray = ByteArray;
+    type Error = &'static str;
+}
+
+impl<T, ByteArray> BitStreamByteSequenceRead
+    for BitStreamByteSequenceDefaultReader<'_, T, ByteArray>
 where
     T: BitStreamSliceConstraints,
+    for<'b> ByteArray: Default
+        + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
+        + TryFrom<&'b [u8]>,
+    for<'b> <ByteArray as TryFrom<&'b [u8]>>::Error: core::fmt::Debug,
 {
     #[inline]
     fn get_pos(&self) -> usize {
@@ -75,14 +90,8 @@ where
     }
 
     #[inline]
-    fn peek_input<ByteArray>(&self) -> Result<ByteArray, &'static str>
-    where
-        ByteArray: Default
-            + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
-            + TryFrom<&'a [u8]>,
-        <ByteArray as TryFrom<&'a [u8]>>::Error: core::fmt::Debug,
-    {
-        let byte_count = ByteArray::default()[..].len();
+    fn peek_input(&self) -> Result<Self::ByteArray, Self::Error> {
+        let byte_count = Self::ByteArray::default()[..].len();
 
         // Do we have N or more bytes left in
         // the input buffer? If so, then we can just read from said buffer.
@@ -103,14 +112,14 @@ where
             return Err(ERR);
         }
 
-        let mut tmp: ByteArray = ByteArray::default();
+        let mut tmp: Self::ByteArray = Self::ByteArray::default();
         tmp[..].variable_length_load(self.input, self.pos);
         Ok(tmp)
     }
 }
 
-impl<T> BitStreamByteSequenceRewind<T>
-    for BitStreamByteSequenceDefaultReader<'_, T>
+impl<T, ByteArray> BitStreamByteSequenceRewind
+    for BitStreamByteSequenceDefaultReader<'_, T, ByteArray>
 where
     T: BitStreamSliceConstraints,
 {
