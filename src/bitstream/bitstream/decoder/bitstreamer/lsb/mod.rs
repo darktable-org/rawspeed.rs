@@ -1,8 +1,7 @@
 use rawspeed_bitstream_bitstreams::bitstreams::BitOrderLSB;
 
 use crate::bitstreamer::{
-    BitStreamByteSequenceDefaultReader, BitStreamerBase, BitStreamerTraits,
-    BitStreamerUseDefaultCacheFillImpl,
+    BitStreamerBase, BitStreamerTraits, BitStreamerUseDefaultCacheFillImpl,
 };
 
 impl<ByteArray> BitStreamerTraits<ByteArray> for BitOrderLSB {
@@ -14,8 +13,7 @@ type T = BitOrderLSB;
 impl BitStreamerUseDefaultCacheFillImpl for T {}
 
 #[cfg_attr(not(test), expect(dead_code))]
-pub type BitStreamerLSB<'a, R = BitStreamByteSequenceDefaultReader<'a, T>> =
-    BitStreamerBase<'a, T, R>;
+pub type BitStreamerLSB<'a> = BitStreamerBase<'a, T>;
 
 #[cfg(test)]
 mod tests;

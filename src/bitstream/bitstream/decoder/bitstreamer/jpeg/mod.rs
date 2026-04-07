@@ -6,9 +6,8 @@ use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq};
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
 
 use crate::bitstreamer::{
-    BitStreamByteSequenceDefaultReader, BitStreamByteSequenceRead,
-    BitStreamerBase, BitStreamerCacheFillImpl, BitStreamerTraits,
-    ConcatBytesNe,
+    BitStreamByteSequenceRead, BitStreamerBase, BitStreamerCacheFillImpl,
+    BitStreamerTraits, ConcatBytesNe,
 };
 
 pub trait DoubleLengthByteArray {
@@ -35,9 +34,9 @@ where
 type T = BitOrderJPEG;
 
 impl<R, ByteArray> BitStreamerCacheFillImpl<T, ByteArray>
-    for BitStreamerBase<'_, T, R, ByteArray>
+    for BitStreamerBase<'_, T, ByteArray, R>
 where
-    R: BitStreamByteSequenceRead<T>,
+    R: BitStreamByteSequenceRead,
     for<'a> ByteArray: Default
         + core::ops::Index<core::ops::RangeFull, Output = [u8]>
         + TryFrom<&'a [u8]>
@@ -110,11 +109,7 @@ where
 }
 
 #[cfg_attr(not(test), expect(dead_code))]
-pub type BitStreamerJPEG<
-    'a,
-    R = BitStreamByteSequenceDefaultReader<'a, T>,
-    ByteArray = [u8; 4],
-> = BitStreamerBase<'a, T, R, ByteArray>;
+pub type BitStreamerJPEG<'a> = BitStreamerBase<'a, T>;
 
 #[cfg(test)]
 mod tests;

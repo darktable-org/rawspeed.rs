@@ -17,6 +17,7 @@ rawspeed-bitstream-bitstreambytesequencereader = { workspace = true }
 rawspeed-bitstream-bitstreamcache = { workspace = true }
 rawspeed-bitstream-bitstreamposition = { workspace = true }
 rawspeed-bitstream-bitstreams = { workspace = true }
+rawspeed-bitstream-bitstreamslice = { workspace = true }
 rawspeed-common-bitseq = { workspace = true }
 rawspeed-common-generic_num = { workspace = true }
 rawspeed-memory-endianness = { workspace = true }

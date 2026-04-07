@@ -89,12 +89,14 @@ fn run_bench<BitOrder>(
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
     <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+    for<'a> BitStreamerBase<'a, BitOrder>: TryFrom<&'a [u8]> + BitStream,
+    for<'a> <BitStreamerBase<'a, BitOrder> as TryFrom<&'a [u8]>>::Error:
+        core::fmt::Debug,
     BitOrder: BitStreamerTraits<[u8; 4]>,
     for<'d> BitSeq<u64>:
         From<BitSeq<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>,
 {
-    let mut bs = BitStreamerBase::<BitOrder>::new(input.try_into().unwrap());
+    let mut bs = BitStreamerBase::<BitOrder>::try_from(input).unwrap();
     let mut serial = DataSerialDependency::new();
     for _ in 0..item_count {
         bs.fill(item_packed_bitlen).unwrap();
@@ -109,7 +111,9 @@ fn benchmark<BitOrder>(c: &mut Criterion)
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits + BitOrderName,
     <BitOrder as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
-    for<'d> BitStreamerBase<'d, BitOrder>: BitStream,
+    for<'a> BitStreamerBase<'a, BitOrder>: TryFrom<&'a [u8]> + BitStream,
+    for<'a> <BitStreamerBase<'a, BitOrder> as TryFrom<&'a [u8]>>::Error:
+        core::fmt::Debug,
     BitOrder: BitStreamerTraits<[u8; 4]>,
     for<'d> BitSeq<u64>:
         From<BitSeq<<BitStreamerBase<'d, BitOrder> as BitStream>::T>>,

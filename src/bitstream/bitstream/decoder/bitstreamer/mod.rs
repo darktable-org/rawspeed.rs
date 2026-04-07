@@ -4,6 +4,7 @@ use rawspeed_bitstream_bitstreamposition::bitstreamposition::BitstreamPosition;
 use rawspeed_bitstream_bitstreams::bitstreams::{
     BitOrderTrait, BitStreamTraits,
 };
+use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSlice;
 use rawspeed_common_bitseq::bitseq::{BitLen, BitSeq, BitSeqConstraints};
 use rawspeed_common_generic_num::generic_num::bit_transmutation::ConcatBytesNe;
 use rawspeed_memory_endianness::endianness::{SwapBytes, get_host_endianness};
@@ -46,8 +47,12 @@ where
 pub struct BitStreamerBase<
     'a,
     T,
-    R = BitStreamByteSequenceDefaultReader<'a, T>,
     ByteArray = [u8; 4],
+    R = BitStreamByteSequenceDefaultReader<
+        'a,
+        T,
+        <T as BitStreamerTraits<ByteArray>>::ByteArray,
+    >,
 > where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits,
     <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
@@ -61,7 +66,7 @@ pub struct BitStreamerBase<
 }
 
 impl<T, R, ByteArray> BitStreamerDefaultCacheFillImpl<T, ByteArray>
-    for BitStreamerBase<'_, T, R, ByteArray>
+    for BitStreamerBase<'_, T, ByteArray, R>
 where
     T: Clone + Copy + BitOrderTrait + BitStreamTraits+ BitStreamerTraits<ByteArray>,
     <T as BitStreamerTraits<ByteArray>>::ByteArray: core::ops::Index<core::ops::RangeFull, Output = [u8]> + ConcatBytesNe,
@@ -110,7 +115,7 @@ where
 }
 
 impl<T, R, ByteArray> BitStreamerCacheFillImpl<T, ByteArray>
-    for BitStreamerBase<'_, T, R, ByteArray>
+    for BitStreamerBase<'_, T, ByteArray, R>
 where
     T: Clone
         + Copy
@@ -130,7 +135,7 @@ where
     }
 }
 
-impl<T, R, ByteArray> BitStreamerBase<'_, T, R, ByteArray>
+impl<T, R, ByteArray> BitStreamerBase<'_, T, ByteArray, R>
 where
     T: Clone
         + Copy
@@ -158,7 +163,7 @@ where
         pos: BitstreamPosition<T>,
     ) -> Result<Self, &'static str>
     where
-        R: BitStreamByteSequenceRead<T> + BitStreamByteSequenceRewind<T>,
+        R: BitStreamByteSequenceRead + BitStreamByteSequenceRewind,
         Self: BitStream,
     {
         let mut reader = reader.rewind();
@@ -174,7 +179,7 @@ where
     #[inline]
     pub fn get_bitstream_position(&self) -> BitstreamPosition<T>
     where
-        R: BitStreamByteSequenceRead<T>,
+        R: BitStreamByteSequenceRead,
     {
         let div_ceil_ = |divident: usize, divisor: usize| {
             assert_ne!(divisor, 0);
@@ -203,6 +208,43 @@ where
     }
 }
 
+impl<'a, T, ByteArray, R> From<BitStreamSlice<'a, T>>
+    for BitStreamerBase<'a, T, ByteArray, R>
+where
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+    R: From<BitStreamSlice<'a, T>>,
+{
+    #[inline]
+    fn from(value: BitStreamSlice<'a, T>) -> Self {
+        Self::new(value.into())
+    }
+}
+
+impl<'a, T, ByteArray, R> TryFrom<&'a [u8]>
+    for BitStreamerBase<'a, T, ByteArray, R>
+where
+    T: Clone
+        + Copy
+        + BitOrderTrait
+        + BitStreamTraits
+        + BitStreamerTraits<ByteArray>,
+    <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
+    R: TryFrom<&'a [u8]>,
+{
+    type Error = <R as TryFrom<&'a [u8]>>::Error;
+
+    #[inline]
+    fn try_from(value: &'a [u8]) -> Result<Self, Self::Error> {
+        let reader = R::try_from(value)?;
+        Ok(Self::new(reader))
+    }
+}
+
 pub trait BitStream
 where
     Self::T: BitSeqConstraints + core::fmt::Debug,
@@ -216,14 +258,14 @@ where
     fn skip_bits_no_fill(&mut self, nbits: u32);
 }
 
-impl<T, R, ByteArray> BitStream for BitStreamerBase<'_, T, R, ByteArray>
+impl<T, R, ByteArray> BitStream for BitStreamerBase<'_, T, ByteArray, R>
 where
     T: Clone
         + Copy
         + BitOrderTrait
         + BitStreamTraits
         + BitStreamerTraits<ByteArray>,
-    R: BitStreamByteSequenceRead<T>,
+    R: BitStreamByteSequenceRead<ByteArray = <T as BitStreamerTraits<ByteArray>>::ByteArray, Error = &'static str>,
     <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
     for<'a> <T as BitStreamerTraits<ByteArray>>::ByteArray: Default
         + core::ops::IndexMut<core::ops::RangeFull, Output = [u8]>
