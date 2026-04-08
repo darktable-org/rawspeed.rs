@@ -1,13 +1,13 @@
 use rawspeed_common_generic_num::generic_num::{
     arith::{BorrowingSub, CarryingAdd, CheckedAdd, CheckedRem, WrappingAdd},
-    common::{CastUnsigned, ConstOne, ConstZero, Integer, Max, Min},
+    common::{CastUnsigned, ConstOne, ConstZero, Integer, Max},
 };
 
 use crate::{
     bound_numerics::BoundUnsigned, wrapping_numerics::WrappingUnsigned,
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct SumAndCarry<T>((T, bool));
 
 struct SumWithZeroCarry<T>(T);
@@ -20,6 +20,7 @@ impl<T> core::ops::Deref for SumWithZeroCarry<T> {
     }
 }
 
+#[derive(Debug)]
 struct HasNonZeroCarry;
 
 impl<T> TryFrom<SumAndCarry<T>> for SumWithZeroCarry<T> {
@@ -47,25 +48,37 @@ where
 
     fn sub(self, rhs: T) -> Self::Output {
         let (lhs, carry) = (self.0.0, self.0.1);
-        assert!(carry);
 
         let (mut lhs_hi, mut lhs_lo): (T, T) = (carry.into(), lhs);
         let (rhs_hi, rhs_lo): (T, T) = (T::ZERO, rhs);
 
         let mut borrow = false;
         (lhs_lo, borrow) = lhs_lo.borrowing_sub(rhs_lo, borrow);
-        assert!(borrow);
         (lhs_hi, borrow) = lhs_hi.borrowing_sub(rhs_hi, borrow);
         assert!(!borrow);
         assert_eq!(lhs_hi, T::ZERO);
-        assert!(lhs_lo < rhs);
         lhs_lo
+    }
+}
+
+#[expect(clippy::missing_trait_methods)]
+impl<T> PartialOrd<SumAndCarry<T>> for SumAndCarry<T>
+where
+    T: PartialEq<T> + PartialOrd<T>,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        match self.0.1.partial_cmp(&other.0.1) {
+            None => unreachable!(),
+            Some(core::cmp::Ordering::Equal) => {}
+            Some(ord) => return Some(ord),
+        }
+        self.0.0.partial_cmp(&other.0.0)
     }
 }
 
 impl<T> core::ops::Rem<T> for SumAndCarry<T>
 where
-    Self: core::ops::Sub<T, Output = T>,
+    Self: core::ops::Sub<T, Output = T> + PartialOrd<SumAndCarry<T>>,
     T: core::fmt::Debug
         + Copy
         + PartialOrd
@@ -77,28 +90,16 @@ where
         + Max
         + CheckedRem<Output = Option<T>>,
     SumWithZeroCarry<T>: TryFrom<SumAndCarry<T>>,
+    <SumWithZeroCarry<T> as TryFrom<SumAndCarry<T>>>::Error: core::fmt::Debug,
 {
     type Output = T;
 
     fn rem(self, rhs: T) -> Self::Output {
-        if let Ok(lhs) = SumWithZeroCarry::try_from(self) {
-            return lhs.checked_rem(rhs).unwrap();
+        if self < SumAndCarry((rhs, false)) {
+            let lhs = SumWithZeroCarry::try_from(self).unwrap();
+            return lhs.0;
         }
-        assert!(rhs >= (T::MAX >> 1) + T::ONE + T::ONE);
         self - rhs
-    }
-}
-
-trait TypeSignednessCheck {
-    fn is_signed() -> bool;
-}
-
-impl<T> TypeSignednessCheck for T
-where
-    T: ConstZero + Min + PartialOrd,
-{
-    fn is_signed() -> bool {
-        T::MIN < T::ZERO
     }
 }
 
@@ -114,7 +115,6 @@ where
     T: Clone
         + Copy
         + CastUnsigned
-        + TypeSignednessCheck
         + TryFrom<<T as CastUnsigned>::Output>
         + CheckedRem<Output = Option<T>>
         + CheckedAdd<Output = Option<T>>,
@@ -129,10 +129,7 @@ where
         rhs: Self,
         domain: <Self as CastUnsigned>::Output,
     ) -> <Self as CastUnsigned>::Output {
-        if let Ok(rhs) = rhs.try_into() {
-            if <T as TypeSignednessCheck>::is_signed() {
-                return rhs;
-            }
+        if let Ok(rhs) = <T as CastUnsigned>::Output::try_from(rhs) {
             return rhs.checked_rem(domain).unwrap();
         }
 
