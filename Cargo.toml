@@ -42,6 +42,7 @@ members = [
     "src/parsers/rawparser",
     "src/std",
     "src/std/ndslice",
+    "src/std/range_rotation",
     "src/utils/librstest",
     "src/utils/rstest",
     "tests/bitstream/bitstreams",
@@ -88,6 +89,7 @@ rawspeed-parsers-rawparser = { path = "src/parsers/rawparser" }
 rawspeed-src = { path = "src" }
 rawspeed-std = { path = "src/std" }
 rawspeed-std-ndslice = { path = "src/std/ndslice" }
+rawspeed-std-range_rotation = { path = "src/std/range_rotation" }
 rawspeed-utils-librstest = { path = "src/utils/librstest" }
 rawspeed-utils-rstest = { path = "src/utils/rstest" }
 criterion = { version = "0.8.2", default-features = false, features = [] }
