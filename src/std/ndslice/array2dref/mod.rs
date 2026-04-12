@@ -69,7 +69,7 @@ impl<'a, T> Array2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
+    pub fn get_elt(&self, index: Coord2D) -> Option<&'a T> {
         let row = self.get_row(RowIndex::new(*index.row()))?;
         row.get(*index.col())
     }
@@ -84,11 +84,11 @@ impl<'a, T> core::ops::Index<RowIndex> for Array2DRef<'a, T> {
     }
 }
 
-impl<T> core::ops::Index<Coord2D> for Array2DRef<'_, T> {
+impl<'a, T> core::ops::Index<Coord2D> for Array2DRef<'a, T> {
     type Output = T;
 
     #[inline]
-    fn index(&self, index: Coord2D) -> &Self::Output {
+    fn index(&self, index: Coord2D) -> &'a Self::Output {
         self.get_elt(index).unwrap()
     }
 }

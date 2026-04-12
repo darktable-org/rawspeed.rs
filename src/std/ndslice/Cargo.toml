@@ -13,8 +13,9 @@ license.workspace = true
 workspace = true
 
 [dependencies]
-rawspeed-std = { workspace = true }
 rawspeed-common-exact_ops = { workspace = true }
+rawspeed-std = { workspace = true }
+rawspeed-std-range_rotation = { workspace = true }
 
 [lib]
 path = "mod.rs"
