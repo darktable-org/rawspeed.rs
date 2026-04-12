@@ -6,6 +6,10 @@ use rawspeed_std::{
 
 use crate::array2dref::Array2DRef;
 
+mod iteration;
+
+#[non_exhaustive]
+#[must_use]
 #[derive(Debug, Clone, Copy)]
 pub struct OffsetArray2DRef<'a, T> {
     data: Array2DRef<'a, T>,
@@ -14,7 +18,6 @@ pub struct OffsetArray2DRef<'a, T> {
 
 impl<'a, T> OffsetArray2DRef<'a, T> {
     #[inline]
-    #[must_use]
     pub const fn new(data: Array2DRef<'a, T>, origin: CoordOffset2D) -> Self {
         Self { data, origin }
     }
@@ -51,6 +54,11 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
         let col = WrappingColIndex::from(col) + self.origin.col();
         let col = ***col;
         row.get(col)
+    }
+
+    #[inline]
+    pub const fn rows<'b>(&'b self) -> iteration::Rows<'a, 'b, T> {
+        iteration::Rows::new(self)
     }
 }
 

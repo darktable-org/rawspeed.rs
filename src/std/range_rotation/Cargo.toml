@@ -1,5 +1,5 @@
 [package]
-name = "rawspeed-std-rotated_range"
+name = "rawspeed-std-range_rotation"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
