@@ -1,0 +1,23 @@
+[package]
+name = "rawspeed-bench-std-ndslice"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+rawspeed-std = { workspace = true }
+rawspeed-std-ndslice = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "rawspeed-bench-std-ndslice"
+path = "mod.rs"
+harness = false
