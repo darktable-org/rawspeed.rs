@@ -1,9 +1,23 @@
 #[non_exhaustive]
 #[must_use]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LeftRotatedRange<Idx> {
     range: core::ops::Range<Idx>,
     mid: usize,
+}
+
+#[non_exhaustive]
+#[must_use]
+#[derive(Debug, Clone)]
+pub struct LeftRotatedRangeIterator<Idx>
+where
+    core::ops::Range<Idx>: Iterator<Item = Idx>,
+{
+    bounds: core::ops::Range<Idx>,
+    range: core::iter::Chain<
+        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
+        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
+    >,
 }
 
 impl<Idx> LeftRotatedRange<Idx> {
@@ -15,30 +29,53 @@ impl<Idx> LeftRotatedRange<Idx> {
 
 impl<Idx> IntoIterator for LeftRotatedRange<Idx>
 where
-    Idx: Copy + Default,
+    Idx: Copy,
     core::ops::Range<Idx>: Clone + Iterator<Item = Idx> + ExactSizeIterator,
+    LeftRotatedRangeIterator<Idx>: Iterator<Item = Idx>,
 {
     type Item = Idx;
 
-    type IntoIter = core::iter::Chain<
-        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
-        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
-    >;
+    type IntoIter = LeftRotatedRangeIterator<Idx>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        let Ok(range_len) = core::num::NonZero::try_from(self.range.len())
-        else {
-            return core::iter::Chain::default();
+        let mid_elt = match core::num::NonZero::try_from(self.range.len()) {
+            Ok(range_len) => {
+                let normalized_mid = self.mid % range_len;
+                let elt = self.range.clone().nth(normalized_mid);
+                #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+                unsafe {
+                    elt.unwrap_unchecked()
+                }
+            }
+            Err(_) => self.range.start,
         };
-        let normalized_mid = self.mid % range_len;
-        let Some(mid_elt) = self.range.clone().nth(normalized_mid) else {
-            debug_assert_eq!(self.range.len(), 0);
-            return core::iter::Chain::default();
-        };
+
         let front_part = mid_elt..self.range.end;
         let back_part = self.range.start..mid_elt;
-        front_part.chain(back_part)
+        LeftRotatedRangeIterator {
+            bounds: self.range,
+            range: front_part.chain(back_part),
+        }
+    }
+}
+
+#[expect(clippy::missing_trait_methods)]
+impl<Idx> Iterator for LeftRotatedRangeIterator<Idx>
+where
+    Idx: PartialOrd,
+    core::ops::Range<Idx>: Iterator<Item = Idx>,
+{
+    type Item = Idx;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        let item = self.range.next()?;
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(self.bounds.contains(&item));
+        }
+        Some(item)
     }
 }
 

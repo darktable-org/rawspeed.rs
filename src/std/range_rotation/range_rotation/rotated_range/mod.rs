@@ -1,9 +1,23 @@
 #[non_exhaustive]
 #[must_use]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RotatedRange<Idx> {
     range: core::ops::Range<Idx>,
     mid: isize,
+}
+
+#[non_exhaustive]
+#[must_use]
+#[derive(Debug, Clone)]
+pub struct RotatedRangeIterator<Idx>
+where
+    core::ops::Range<Idx>: Iterator<Item = Idx>,
+{
+    bounds: core::ops::Range<Idx>,
+    range: core::iter::Chain<
+        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
+        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
+    >,
 }
 
 impl<Idx> RotatedRange<Idx> {
@@ -15,34 +29,59 @@ impl<Idx> RotatedRange<Idx> {
 
 impl<Idx> IntoIterator for RotatedRange<Idx>
 where
-    Idx: Copy + Default,
+    Idx: Copy,
     core::ops::Range<Idx>: Clone + Iterator<Item = Idx> + ExactSizeIterator,
+    RotatedRangeIterator<Idx>: Iterator<Item = Idx>,
 {
     type Item = Idx;
 
-    type IntoIter = core::iter::Chain<
-        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
-        <core::ops::Range<Idx> as IntoIterator>::IntoIter,
-    >;
+    type IntoIter = RotatedRangeIterator<Idx>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        let Ok(range_len) = core::num::NonZero::try_from(self.range.len())
-        else {
-            return core::iter::Chain::default();
+        let mid_elt = match core::num::NonZero::try_from(self.range.len()) {
+            Ok(range_len) => {
+                let normalized_mid = match self.mid.try_into() {
+                    Ok(mid) => mid,
+                    Err(_) => {
+                        range_len.get() - (self.mid.unsigned_abs() % range_len)
+                    }
+                };
+                let normalized_mid = normalized_mid % range_len;
+                let elt = self.range.clone().nth(normalized_mid);
+                #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+                unsafe {
+                    elt.unwrap_unchecked()
+                }
+            }
+            Err(_) => self.range.start,
         };
-        let normalized_mid = match self.mid.try_into() {
-            Ok(mid) => mid,
-            Err(_) => range_len.get() - (self.mid.unsigned_abs() % range_len),
-        };
-        let normalized_mid = normalized_mid % range_len;
-        let Some(mid_elt) = self.range.clone().nth(normalized_mid) else {
-            debug_assert_eq!(self.range.len(), 0);
-            return core::iter::Chain::default();
-        };
+
         let front_part = mid_elt..self.range.end;
         let back_part = self.range.start..mid_elt;
-        front_part.chain(back_part)
+        RotatedRangeIterator {
+            bounds: self.range,
+            range: front_part.chain(back_part),
+        }
+    }
+}
+
+#[expect(clippy::missing_trait_methods)]
+impl<Idx> Iterator for RotatedRangeIterator<Idx>
+where
+    Idx: PartialOrd,
+    core::ops::Range<Idx>: Iterator<Item = Idx>,
+{
+    type Item = Idx;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        let item = self.range.next()?;
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(self.bounds.contains(&item));
+        }
+        Some(item)
     }
 }
 
