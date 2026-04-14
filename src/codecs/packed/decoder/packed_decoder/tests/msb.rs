@@ -67,18 +67,20 @@ fn u8_enumeration_test() {
                 inputs_ = remaining;
 
                 assert!(input.len().is_multiple_of(num_rows));
-                let pitch = RowPitch::new(input.len() / num_rows);
-                let bytes = Array2DRef::new(
-                    input,
-                    RowLength::new(*pitch - num_padding_bytes),
-                    pitch,
+                let pitch = RowPitch::new(
+                    core::num::NonZero::new(input.len() / num_rows).unwrap(),
                 );
+                let row_length = RowLength::new(
+                    core::num::NonZero::new(pitch.get() - num_padding_bytes)
+                        .unwrap(),
+                );
+                let bytes = Array2DRef::new(input, row_length, pitch);
 
                 let mut storage: Vec<T> = vec![0; num_rows * num_cols];
                 let mut img = Array2DRefMut::new(
                     &mut storage,
-                    RowLength::new(num_cols),
-                    RowPitch::new(num_cols),
+                    RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                    RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
                 );
 
                 let unpacker =
@@ -146,18 +148,20 @@ fn u4_enumeration_test() {
                 inputs_ = remaining;
 
                 assert!(input.len().is_multiple_of(num_rows));
-                let pitch = RowPitch::new(input.len() / num_rows);
-                let bytes = Array2DRef::new(
-                    input,
-                    RowLength::new(*pitch - num_padding_bytes),
-                    pitch,
+                let pitch = RowPitch::new(
+                    core::num::NonZero::new(input.len() / num_rows).unwrap(),
                 );
+                let row_length = RowLength::new(
+                    core::num::NonZero::new(pitch.get() - num_padding_bytes)
+                        .unwrap(),
+                );
+                let bytes = Array2DRef::new(input, row_length, pitch);
 
                 let mut storage: Vec<T> = vec![0; num_rows * num_cols];
                 let mut img = Array2DRefMut::new(
                     &mut storage,
-                    RowLength::new(num_cols),
-                    RowPitch::new(num_cols),
+                    RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                    RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
                 );
 
                 let unpacker =
@@ -253,18 +257,20 @@ fn u16_enumeration_test() {
                 inputs_ = remaining;
 
                 assert!(input.len().is_multiple_of(num_rows));
-                let pitch = RowPitch::new(input.len() / num_rows);
-                let bytes = Array2DRef::new(
-                    input,
-                    RowLength::new(*pitch - num_padding_bytes),
-                    pitch,
+                let pitch = RowPitch::new(
+                    core::num::NonZero::new(input.len() / num_rows).unwrap(),
                 );
+                let row_length = RowLength::new(
+                    core::num::NonZero::new(pitch.get() - num_padding_bytes)
+                        .unwrap(),
+                );
+                let bytes = Array2DRef::new(input, row_length, pitch);
 
                 let mut storage: Vec<T> = vec![0; num_rows * num_cols];
                 let mut img = Array2DRefMut::new(
                     &mut storage,
-                    RowLength::new(num_cols),
-                    RowPitch::new(num_cols),
+                    RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                    RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
                 );
 
                 let unpacker =
@@ -289,6 +295,7 @@ fn u16_enumeration_test() {
 }
 
 #[test]
+#[expect(clippy::too_many_lines)]
 fn u12_enumeration_test() {
     const BIT_ORDER: BitOrder = BitOrder::MSB;
     type T = u16;
@@ -362,18 +369,20 @@ fn u12_enumeration_test() {
                 inputs_ = remaining;
 
                 assert!(input.len().is_multiple_of(num_rows));
-                let pitch = RowPitch::new(input.len() / num_rows);
-                let bytes = Array2DRef::new(
-                    input,
-                    RowLength::new(*pitch - num_padding_bytes),
-                    pitch,
+                let pitch = RowPitch::new(
+                    core::num::NonZero::new(input.len() / num_rows).unwrap(),
                 );
+                let row_length = RowLength::new(
+                    core::num::NonZero::new(pitch.get() - num_padding_bytes)
+                        .unwrap(),
+                );
+                let bytes = Array2DRef::new(input, row_length, pitch);
 
                 let mut storage: Vec<T> = vec![0; num_rows * num_cols];
                 let mut img = Array2DRefMut::new(
                     &mut storage,
-                    RowLength::new(num_cols),
-                    RowPitch::new(num_cols),
+                    RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                    RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
                 );
 
                 let unpacker =
@@ -512,18 +521,20 @@ fn u32_enumeration_test() {
                 inputs_ = remaining;
 
                 assert!(input.len().is_multiple_of(num_rows));
-                let pitch = RowPitch::new(input.len() / num_rows);
-                let bytes = Array2DRef::new(
-                    input,
-                    RowLength::new(*pitch - num_padding_bytes),
-                    pitch,
+                let pitch = RowPitch::new(
+                    core::num::NonZero::new(input.len() / num_rows).unwrap(),
                 );
+                let row_length = RowLength::new(
+                    core::num::NonZero::new(pitch.get() - num_padding_bytes)
+                        .unwrap(),
+                );
+                let bytes = Array2DRef::new(input, row_length, pitch);
 
                 let mut storage: Vec<T> = vec![0; num_rows * num_cols];
                 let mut img = Array2DRefMut::new(
                     &mut storage,
-                    RowLength::new(num_cols),
-                    RowPitch::new(num_cols),
+                    RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                    RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
                 );
 
                 let unpacker =

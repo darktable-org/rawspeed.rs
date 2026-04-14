@@ -60,9 +60,10 @@ fn layout_u8_test() {
         ((layout_size, layout_align), row_pitch),
     ) in params
     {
+        let row_pitch = core::num::NonZero::new(row_pitch).unwrap();
         let layout = NDSliceProcurementRequest::<T>::new(Dimensions2D::new(
-            RowLength::new(width),
-            RowCount::new(height),
+            RowLength::new(core::num::NonZero::new(width).unwrap()),
+            RowCount::new(core::num::NonZero::new(height).unwrap()),
         ))
         .set_extra_row_padding(EltCount::new(extra_row_padding))
         .set_row_alignment(
@@ -131,9 +132,10 @@ fn layout_u16_test() {
         ((layout_size, layout_align), row_pitch),
     ) in params
     {
+        let row_pitch = core::num::NonZero::new(row_pitch).unwrap();
         let layout = NDSliceProcurementRequest::<T>::new(Dimensions2D::new(
-            RowLength::new(width),
-            RowCount::new(height),
+            RowLength::new(core::num::NonZero::new(width).unwrap()),
+            RowCount::new(core::num::NonZero::new(height).unwrap()),
         ))
         .set_extra_row_padding(EltCount::new(extra_row_padding))
         .set_row_alignment(
@@ -159,7 +161,7 @@ fn layout_u16_test() {
 }
 
 fn test_config<T>(
-    dims: Dimensions2D,
+    dims: Dimensions2D<core::num::NonZero<usize>>,
     extra_row_padding: EltCount,
     row_alignment: Align,
     base_alignment: Align,
@@ -176,7 +178,7 @@ fn test_config<T>(
             &img[Coord2D::new(RowIndex::new(0), ColIndex::new(0))]
         ) >= base_alignment
     );
-    for row in 0..*dims.row_count() {
+    for row in 0..dims.row_count().get() {
         assert!(
             runtime_align_of(
                 &img[Coord2D::new(RowIndex::new(row), ColIndex::new(0))]
@@ -188,8 +190,10 @@ fn test_config<T>(
 fn basic_test<T>() {
     for width in 1..=2 {
         for height in 1..=2 {
-            let dims =
-                Dimensions2D::new(RowLength::new(width), RowCount::new(height));
+            let dims = Dimensions2D::new(
+                RowLength::new(core::num::NonZero::new(width).unwrap()),
+                RowCount::new(core::num::NonZero::new(height).unwrap()),
+            );
             for extra_row_padding in 0..=1 {
                 let extra_row_padding = EltCount::new(extra_row_padding);
                 for row_alignment in 0..=1 {
@@ -238,8 +242,11 @@ fn usable_max_test() {
     assert_eq!(
         Err(NDSliceProcurementRequestError::OutOfMemory),
         NDSliceProcurementRequest::<u8>::new(Dimensions2D::new(
-            RowLength::new(isize::MAX.try_into().unwrap()),
-            RowCount::new(1)
+            RowLength::new(
+                core::num::NonZero::new(isize::MAX.try_into().unwrap())
+                    .unwrap()
+            ),
+            RowCount::new(core::num::NonZero::new(1).unwrap())
         ))
         .fulfill()
     );

@@ -42,8 +42,8 @@ impl From<OffsetArray2DRef<'_, ColorVariant>> for ColorVariantArray<bool> {
     #[inline]
     fn from(cfa: OffsetArray2DRef<'_, ColorVariant>) -> Self {
         let mut seen = ColorVariantArray::<bool>::default();
-        for row in 0..*cfa.num_rows() {
-            for col in 0..*cfa.row_length() {
+        for row in 0..cfa.num_rows().get() {
+            for col in 0..cfa.row_length().get() {
                 let i = Coord2D::new(RowIndex::new(row), ColIndex::new(col));
                 let color = cfa[i];
                 seen[color] = true;
@@ -231,13 +231,13 @@ impl TryFrom<OffsetArray2DRef<'_, ColorVariant>> for DCrawFilter {
     fn try_from(
         cfa: OffsetArray2DRef<'_, ColorVariant>,
     ) -> Result<Self, Self::Error> {
-        if *cfa.num_rows() == 6 && *cfa.row_length() == 6 {
+        if cfa.num_rows().get() == 6 && cfa.row_length().get() == 6 {
             return Err(DCrawFilterError::XTrans);
         }
-        if !(*cfa.num_rows() > 0
-            && *cfa.row_length() > 0
-            && *cfa.num_rows() <= 8
-            && *cfa.row_length() <= 2
+        if !(cfa.num_rows().get() > 0
+            && cfa.row_length().get() > 0
+            && cfa.num_rows().get() <= 8
+            && cfa.row_length().get() <= 2
             && cfa.num_rows().is_power_of_two()
             && cfa.row_length().is_power_of_two())
         {

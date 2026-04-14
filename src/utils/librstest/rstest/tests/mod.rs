@@ -27,8 +27,10 @@ where
     (hi << (bitwidth / 2)) | lo
 }
 
-fn image_hash_test<T>(dims: Dimensions2D, str: &'static str)
-where
+fn image_hash_test<T>(
+    dims: Dimensions2D<core::num::NonZero<usize>>,
+    str: &'static str,
+) where
     T: Bitwidth + core::ops::Shl<u32> + Copy + TryFrom<usize> + ToLeBytes,
     <T as core::ops::Shl<u32>>::Output: core::ops::BitOr<T, Output = T>,
     <T as ToLeBytes>::Output: AsSlice<Element = u8>,
@@ -36,8 +38,8 @@ where
 {
     let mut out = NDSliceProcurementRequest::<T>::new(dims).fulfill().unwrap();
     let mut img = out.get_mut();
-    for row in 1..=*dims.row_count() {
-        for col in 1..=*dims.row_len() {
+    for row in 1..=dims.row_count().get() {
+        for col in 1..=dims.row_len().get() {
             img[Coord2D::new(RowIndex::new(row - 1), ColIndex::new(col - 1))] =
                 from_halves::<T>(
                     row.try_into().unwrap(),
@@ -60,7 +62,10 @@ fn image_hash_u8_test() {
     ];
     for ((w, h), str) in params {
         image_hash_test::<T>(
-            Dimensions2D::new(RowLength::new(w), RowCount::new(h)),
+            Dimensions2D::new(
+                RowLength::new(core::num::NonZero::new(w).unwrap()),
+                RowCount::new(core::num::NonZero::new(h).unwrap()),
+            ),
             str,
         );
     }
@@ -77,7 +82,10 @@ fn image_hash_u16_test() {
     ];
     for ((w, h), str) in params {
         image_hash_test::<T>(
-            Dimensions2D::new(RowLength::new(w), RowCount::new(h)),
+            Dimensions2D::new(
+                RowLength::new(core::num::NonZero::new(w).unwrap()),
+                RowCount::new(core::num::NonZero::new(h).unwrap()),
+            ),
             str,
         );
     }

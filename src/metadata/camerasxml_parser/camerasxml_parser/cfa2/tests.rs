@@ -315,7 +315,7 @@ fn parse_test() {
             Ok(CFA2 {
                 data: ColorFilterArray::new(
                     vec![ColorVariant::Green],
-                    RowLength::new(1),
+                    RowLength::new(core::num::NonZero::new(1).unwrap()),
                 ),
             }),
         ),
@@ -332,7 +332,7 @@ fn parse_test() {
             Ok(CFA2 {
                 data: ColorFilterArray::new(
                     vec![ColorVariant::Red],
-                    RowLength::new(1),
+                    RowLength::new(core::num::NonZero::new(1).unwrap()),
                 ),
             }),
         ),
@@ -365,7 +365,7 @@ fn parse_test() {
             Ok(CFA2 {
                 data: ColorFilterArray::new(
                     vec![ColorVariant::Red, ColorVariant::Green],
-                    RowLength::new(1),
+                    RowLength::new(core::num::NonZero::new(1).unwrap()),
                 ),
             }),
         ),
@@ -402,7 +402,7 @@ fn parse_test() {
             Ok(CFA2 {
                 data: ColorFilterArray::new(
                     vec![ColorVariant::Red, ColorVariant::Green],
-                    RowLength::new(2),
+                    RowLength::new(core::num::NonZero::new(2).unwrap()),
                 ),
             }),
         ),
@@ -444,7 +444,7 @@ fn parse_test() {
                         ColorVariant::Green,
                         ColorVariant::Blue,
                     ],
-                    RowLength::new(2),
+                    RowLength::new(core::num::NonZero::new(2).unwrap()),
                 ),
             }),
         ),

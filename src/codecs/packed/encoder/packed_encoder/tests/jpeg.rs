@@ -10,8 +10,11 @@ fn vec_ctor_test() {
     use std::io::Cursor;
     let bit_order = BitOrder::JPEG;
     let img_storage: Vec<u8> = vec![1];
-    let img =
-        Array2DRef::new(&img_storage, RowLength::new(1), RowPitch::new(1));
+    let img = Array2DRef::new(
+        &img_storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let mut buf = Cursor::new(vec![]);
     let _packer = Packer::new(&mut buf, bit_order, 8, img, |_| {
         ExtraPadding::new(NumBytes::new(0))

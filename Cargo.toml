@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "benches/bitstream/bitstream/decoder",
     "benches/misc/md5",
+    "benches/std/ndslice",
     "src",
     "src/bitstream/bitstream/decoder",
     "src/bitstream/bitstream/encoder",

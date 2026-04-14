@@ -4,11 +4,11 @@ type T = super::colormatrix::T;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PlaneValues {
-    pub values: [T; super::colormatrix::COLUMN_COUNT],
+    pub values: [T; super::colormatrix::COLUMN_COUNT.get()],
 }
 
 impl core::ops::Deref for PlaneValues {
-    type Target = [T; super::colormatrix::COLUMN_COUNT];
+    type Target = [T; super::colormatrix::COLUMN_COUNT.get()];
 
     fn deref(&self) -> &Self::Target {
         &self.values

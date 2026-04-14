@@ -24,20 +24,21 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> RowLength {
+    pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.data.row_length()
     }
 
     #[inline]
     #[must_use]
-    pub fn num_rows(&self) -> RowCount {
+    pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
         self.data.num_rows()
     }
 
     #[inline]
     #[must_use]
     fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
-        let row = BoundRowIndex::new(self.data.num_rows(), row)?;
+        let row =
+            BoundRowIndex::new(RowCount::new(self.data.num_rows().get()), row)?;
         let row = WrappingRowIndex::from(row) + self.origin.row();
         self.data.get_row(**row)
     }
@@ -48,7 +49,7 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
         let row = self.get_row(index.row())?;
 
         let col = BoundColIndex::new(
-            RowLength::new(*self.data.row_length()),
+            RowLength::new(self.data.row_length().get()),
             index.col(),
         )?;
         let col = WrappingColIndex::from(col) + self.origin.col();

@@ -1,24 +1,27 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct RowLength {
-    val: usize,
+pub struct RowLength<T = usize> {
+    val: T,
 }
 
-impl RowLength {
+impl<T> RowLength<T>
+where
+    T: Copy,
+{
     #[inline]
     #[must_use]
-    pub const fn new(len: usize) -> Self {
+    pub const fn new(len: T) -> Self {
         Self { val: len }
     }
 
     #[inline]
     #[must_use]
-    pub const fn val(&self) -> usize {
+    pub const fn val(&self) -> T {
         self.val
     }
 }
 
-impl core::ops::Deref for RowLength {
-    type Target = usize;
+impl<T> core::ops::Deref for RowLength<T> {
+    type Target = T;
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -27,26 +30,29 @@ impl core::ops::Deref for RowLength {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct RowCount {
-    val: usize,
+pub struct RowCount<T = usize> {
+    val: T,
 }
 
-impl RowCount {
+impl<T> RowCount<T>
+where
+    T: Copy,
+{
     #[inline]
     #[must_use]
-    pub const fn new(len: usize) -> Self {
+    pub const fn new(len: T) -> Self {
         Self { val: len }
     }
 
     #[inline]
     #[must_use]
-    pub const fn val(&self) -> usize {
+    pub const fn val(&self) -> T {
         self.val
     }
 }
 
-impl core::ops::Deref for RowCount {
-    type Target = usize;
+impl<T> core::ops::Deref for RowCount<T> {
+    type Target = T;
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -55,52 +61,58 @@ impl core::ops::Deref for RowCount {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Dimensions2D {
-    row_len: RowLength,
-    row_count: RowCount,
+pub struct Dimensions2D<T = usize> {
+    row_len: RowLength<T>,
+    row_count: RowCount<T>,
 }
 
-impl Dimensions2D {
+impl<T> Dimensions2D<T>
+where
+    T: Copy,
+{
     #[inline]
     #[must_use]
-    pub const fn new(row_len: RowLength, row_count: RowCount) -> Self {
+    pub const fn new(row_len: RowLength<T>, row_count: RowCount<T>) -> Self {
         Self { row_len, row_count }
     }
 
     #[inline]
     #[must_use]
-    pub const fn row_len(&self) -> RowLength {
+    pub const fn row_len(&self) -> RowLength<T> {
         self.row_len
     }
 
     #[inline]
     #[must_use]
-    pub const fn row_count(&self) -> RowCount {
+    pub const fn row_count(&self) -> RowCount<T> {
         self.row_count
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct RowPitch {
-    val: usize,
+pub struct RowPitch<T = usize> {
+    val: T,
 }
 
-impl RowPitch {
+impl<T> RowPitch<T>
+where
+    T: Copy,
+{
     #[inline]
     #[must_use]
-    pub const fn new(pitch: usize) -> Self {
+    pub const fn new(pitch: T) -> Self {
         Self { val: pitch }
     }
 
     #[inline]
     #[must_use]
-    pub const fn val(&self) -> usize {
+    pub const fn val(&self) -> T {
         self.val
     }
 }
 
-impl core::ops::Deref for RowPitch {
-    type Target = usize;
+impl<T> core::ops::Deref for RowPitch<T> {
+    type Target = T;
 
     #[inline]
     fn deref(&self) -> &Self::Target {

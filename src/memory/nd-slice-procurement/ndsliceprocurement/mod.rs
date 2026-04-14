@@ -38,8 +38,8 @@ impl_strict_type!(EltCount of usize);
 #[non_exhaustive]
 pub struct OwnedNDSlice<T> {
     storage: LayoutfulBox<T>,
-    row_len: RowLength,
-    pitch: RowPitch,
+    row_len: RowLength<core::num::NonZero<usize>>,
+    pitch: RowPitch<core::num::NonZero<usize>>,
 }
 
 impl<T> OwnedNDSlice<T> {
@@ -47,8 +47,8 @@ impl<T> OwnedNDSlice<T> {
     #[must_use]
     const fn new(
         storage: LayoutfulBox<T>,
-        row_len: RowLength,
-        pitch: RowPitch,
+        row_len: RowLength<core::num::NonZero<usize>>,
+        pitch: RowPitch<core::num::NonZero<usize>>,
     ) -> Self {
         Self {
             storage,
@@ -94,7 +94,7 @@ pub struct NDSliceProcurementRequest<T>
 where
     T: Sized,
 {
-    dims: Dimensions2D,
+    dims: Dimensions2D<core::num::NonZero<usize>>,
     extra_row_padding: EltCount,
     row_alignment: Align,
     base_alignment: Align,
@@ -104,7 +104,7 @@ where
 impl<T> NDSliceProcurementRequest<T> {
     #[inline]
     #[must_use]
-    pub fn new(dims: Dimensions2D) -> Self {
+    pub fn new(dims: Dimensions2D<core::num::NonZero<usize>>) -> Self {
         Self {
             dims,
             extra_row_padding: EltCount::new(0),
@@ -116,7 +116,7 @@ impl<T> NDSliceProcurementRequest<T> {
 
     #[inline]
     #[must_use]
-    pub const fn dims(&self) -> Dimensions2D {
+    pub const fn dims(&self) -> Dimensions2D<core::num::NonZero<usize>> {
         self.dims
     }
 
@@ -153,22 +153,30 @@ impl<T> NDSliceProcurementRequest<T> {
     #[inline]
     pub fn get_layout(
         &self,
-    ) -> Result<(core::alloc::Layout, RowPitch), core::alloc::LayoutError> {
+    ) -> Result<
+        (core::alloc::Layout, RowPitch<core::num::NonZero<usize>>),
+        core::alloc::LayoutError,
+    > {
         let row_len = self
             .dims()
             .row_len()
             .checked_add(*self.extra_row_padding)
             .unwrap();
-        let mut row_layout = core::alloc::Layout::array::<T>(row_len)?
+        let mut row_layout = core::alloc::Layout::array::<T>(row_len.get())?
             .align_to(**self.row_alignment)?;
-        if *self.dims().row_count() > 1 {
+        if self.dims().row_count().get() > 1 {
             row_layout = row_layout.pad_to_align();
         }
 
-        let row_pitch = RowPitch::new(row_layout.size() / size_of::<T>());
+        let row_pitch = RowPitch::new(
+            core::num::NonZero::new(row_layout.size() / size_of::<T>())
+                .unwrap(),
+        );
 
-        let size = row_pitch.checked_mul(*self.dims().row_count()).unwrap();
-        let layout = core::alloc::Layout::array::<T>(size)?
+        let size = row_pitch
+            .checked_mul(self.dims().row_count().val())
+            .unwrap();
+        let layout = core::alloc::Layout::array::<T>(size.get())?
             .align_to(row_layout.align())?
             .align_to(**self.base_alignment)?;
 

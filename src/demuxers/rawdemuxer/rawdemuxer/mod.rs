@@ -63,8 +63,8 @@ pub trait RawDemuxer {
     fn bpp(&self) -> usize;
     fn cpp(&self) -> usize;
     fn datatype(&self) -> DataType;
-    fn dim_uncropped(&self) -> Dimensions2D;
-    fn dim_cropped(&self) -> Option<Dimensions2D>;
+    fn dim_uncropped(&self) -> Dimensions2D<core::num::NonZero<usize>>;
+    fn dim_cropped(&self) -> Option<Dimensions2D<core::num::NonZero<usize>>>;
     fn crop_offset(&self) -> Option<Coord2D>;
     fn black_areas(&self) -> Option<&[BlackArea]>;
     fn fuji_rotation_pos(&self) -> Option<u32>;

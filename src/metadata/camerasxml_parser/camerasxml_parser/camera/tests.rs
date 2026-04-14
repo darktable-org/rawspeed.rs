@@ -562,7 +562,7 @@ fn parse_cfa_test() {
             id: None,
             cfa: MaybeCFA::some(ColorFilterArray::new(
                 vec![ColorVariant::Red],
-                RowLength::new(1),
+                RowLength::new(core::num::NonZero::new(1).unwrap()),
             )),
             crop: None,
             sensors: Sensors { values: vec![] },
@@ -603,7 +603,7 @@ fn parse_cfa2_test() {
             id: None,
             cfa: MaybeCFA::some(ColorFilterArray::new(
                 vec![ColorVariant::Green],
-                RowLength::new(1),
+                RowLength::new(core::num::NonZero::new(1).unwrap()),
             )),
             crop: None,
             sensors: Sensors { values: vec![] },

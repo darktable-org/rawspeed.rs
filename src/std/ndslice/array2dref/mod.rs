@@ -6,22 +6,20 @@ use rawspeed_std::coord_common::{
 #[derive(Debug, Clone, Copy)]
 pub struct Array2DRef<'a, T> {
     slice: &'a [T],
-    pitch: RowPitch,
-    row_length: RowLength,
+    pitch: RowPitch<core::num::NonZero<usize>>,
+    row_length: RowLength<core::num::NonZero<usize>>,
 }
 
 impl<'a, T> Array2DRef<'a, T> {
     #[inline]
     pub const fn new(
         slice: &'a [T],
-        row_length: RowLength,
-        pitch: RowPitch,
+        row_length: RowLength<core::num::NonZero<usize>>,
+        pitch: RowPitch<core::num::NonZero<usize>>,
     ) -> Self {
         assert!(!slice.is_empty());
-        assert!(row_length.val() > 0);
-        assert!(pitch.val() > 0);
-        assert!(pitch.val() >= row_length.val());
-        assert!(slice.len().is_multiple_of(pitch.val()));
+        assert!(pitch.val().get() >= row_length.val().get());
+        assert!(slice.len().is_multiple_of(pitch.val().get()));
         Self {
             slice,
             pitch,
@@ -29,39 +27,39 @@ impl<'a, T> Array2DRef<'a, T> {
         }
     }
 
-    const fn pitch(&self) -> RowPitch {
+    const fn pitch(&self) -> RowPitch<core::num::NonZero<usize>> {
         self.pitch
     }
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> RowLength {
+    pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.row_length
     }
 
     #[inline]
     #[must_use]
-    pub fn num_rows(&self) -> RowCount {
-        RowCount::new(
-            CheckedDivExact::checked_div_exact(
-                self.slice.len(),
-                self.pitch().val(),
-            )
-            .unwrap(),
+    pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
+        CheckedDivExact::checked_div_exact(
+            self.slice.len(),
+            self.pitch().val().get(),
         )
+        .and_then(|v| v.try_into().ok())
+        .map(RowCount::new)
+        .unwrap()
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
-        if *row >= *self.num_rows() {
+        if *row >= self.num_rows().get() {
             return None;
         }
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(*self.pitch()).nth(*row)?;
-                full_row.get(..*self.row_length())
+                    self.slice.chunks_exact(self.pitch().get()).nth(*row)?;
+                full_row.get(..self.row_length().get())
             }
             .unwrap(),
         )

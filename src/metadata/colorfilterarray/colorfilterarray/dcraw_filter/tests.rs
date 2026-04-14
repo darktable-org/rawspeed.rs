@@ -14,7 +14,11 @@ fn bayer_rggb() {
         ColorVariant::Green,
         ColorVariant::Blue,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0x9494_9494);
 }
 
@@ -26,7 +30,11 @@ fn bayer_gbrg() {
         ColorVariant::Red,
         ColorVariant::Green,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0x4949_4949);
 }
 
@@ -38,7 +46,11 @@ fn bayer_bggr() {
         ColorVariant::Green,
         ColorVariant::Red,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0x1616_1616);
 }
 
@@ -50,7 +62,11 @@ fn bayer_grgb() {
         ColorVariant::Blue,
         ColorVariant::Green,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0x6161_6161);
 }
 
@@ -62,7 +78,11 @@ fn bayer_rygb() {
         ColorVariant::Green,
         ColorVariant::Blue,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0x9c9c_9c9c);
 }
 
@@ -74,7 +94,11 @@ fn bayer_gmyc() {
         ColorVariant::Yellow,
         ColorVariant::Cyan,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0xb4b4_b4b4);
 }
 
@@ -86,7 +110,11 @@ fn invalid_basis() {
         ColorVariant::Green,
         ColorVariant::Magenta,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(
         DCrawFilter::try_from(mat),
         Err(DCrawFilterError::UnknownCFABasis)
@@ -101,7 +129,11 @@ fn bayer_rgbr() {
         ColorVariant::Blue,
         ColorVariant::Red,
     ];
-    let mat = Array2DRef::new(&data, RowLength::new(2), RowPitch::new(2));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat).unwrap().filter(), 0x2424_2424);
 }
 
@@ -109,7 +141,11 @@ fn bayer_rgbr() {
 fn xtrans() {
     let data =
         core::iter::repeat_n(ColorVariant::Red, 6 * 6).collect::<Vec<_>>();
-    let mat = Array2DRef::new(&data, RowLength::new(6), RowPitch::new(6));
+    let mat = Array2DRef::new(
+        &data,
+        RowLength::new(core::num::NonZero::new(6).unwrap()),
+        RowPitch::new(core::num::NonZero::new(6).unwrap()),
+    );
     assert_eq!(DCrawFilter::try_from(mat), Err(DCrawFilterError::XTrans));
 }
 
@@ -119,8 +155,11 @@ fn bad_dims() {
         for w in 1..=8 {
             let data = core::iter::repeat_n(ColorVariant::Red, w * h)
                 .collect::<Vec<_>>();
-            let mat =
-                Array2DRef::new(&data, RowLength::new(w), RowPitch::new(w));
+            let mat = Array2DRef::new(
+                &data,
+                RowLength::new(core::num::NonZero::new(w).unwrap()),
+                RowPitch::new(core::num::NonZero::new(w).unwrap()),
+            );
             let res = DCrawFilter::try_from(mat);
             let expected = match (w, h) {
                 (6, 6) => DCrawFilterError::XTrans,

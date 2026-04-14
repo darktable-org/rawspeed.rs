@@ -370,8 +370,8 @@ macro_rules! impl_generic_tests {
                         vec![0_u16; test_height * test_width];
                     let mut output = Array2DRefMut::new(
                         &mut output_storage,
-                        RowLength::new(test_width),
-                        RowPitch::new(test_width),
+                        RowLength::new(core::num::NonZero::new(test_width).unwrap()),
+                        RowPitch::new(core::num::NonZero::new(test_width).unwrap()),
                     );
                     let res = res.decode(&mut output);
                     if test_width == width && test_height == height {
