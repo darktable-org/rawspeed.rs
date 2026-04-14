@@ -48,26 +48,27 @@ fn match_camera_by_filesize<'a>(
 
 fn compute_pitch(
     total_bytecount: usize,
-    row_count: u64,
-) -> Result<usize, String> {
+    row_count: core::num::NonZero<u64>,
+) -> Result<core::num::NonZero<usize>, String> {
     assert!(total_bytecount > 0);
-    assert!(row_count > 0);
 
     let total_bytecount: u64 = total_bytecount.try_into().unwrap();
 
-    if !total_bytecount.is_multiple_of(row_count) {
+    if !total_bytecount.is_multiple_of(row_count.get()) {
         return Err("Input size is not multiple of the row count".to_owned());
     }
 
     let bytes_per_row = total_bytecount / row_count;
-    assert!(bytes_per_row > 0);
+    let bytes_per_row = core::num::NonZero::new(bytes_per_row).unwrap();
 
     Ok(bytes_per_row.try_into().unwrap())
 }
 
-fn guess_bits(bytes_per_row: usize, num_cols: u64) -> Result<u64, String> {
+fn guess_bits(
+    bytes_per_row: usize,
+    num_cols: core::num::NonZero<u64>,
+) -> Result<u64, String> {
     assert!(bytes_per_row > 0);
-    assert!(num_cols > 0);
 
     let bytes_per_row: u64 = bytes_per_row.try_into().unwrap();
 
@@ -75,7 +76,7 @@ fn guess_bits(bytes_per_row: usize, num_cols: u64) -> Result<u64, String> {
         return Err("Overflow when computing per-row bit count".to_owned());
     };
 
-    if !bits_per_row.is_multiple_of(num_cols) {
+    if !bits_per_row.is_multiple_of(num_cols.get()) {
         return Err("Input size is not multiple of the column count".to_owned());
     }
     let bits_per_pixel = bits_per_row / num_cols;
@@ -88,7 +89,7 @@ fn guess_bits(bytes_per_row: usize, num_cols: u64) -> Result<u64, String> {
 pub struct NakedDemuxer<'a> {
     camera: &'a Camera<'a>,
     input: Array2DRef<'a, u8>,
-    dims: Dimensions2D,
+    dims: Dimensions2D<core::num::NonZero<usize>>,
     order: BitOrder,
     bits: u64,
 }
@@ -134,12 +135,11 @@ impl<'a> NakedDemuxer<'a> {
             _ => return Err("The specified offset is invalid".to_owned()),
         };
 
-        let (col_count, row_count) = match (
+        let (Some(Ok(col_count)), Some(Ok(row_count))) = (
             get_hint_with_name(hints, "full_width").map(str::parse),
             get_hint_with_name(hints, "full_height").map(str::parse),
-        ) {
-            (Some(Ok(w)), Some(Ok(h))) if w > 0 && h > 0 => (w, h),
-            (_, _) => return Err("The width/height is invalid".to_owned()),
+        ) else {
+            return Err("The width/height is invalid".to_owned());
         };
 
         let input_bytes_per_row = compute_pitch(input.len(), row_count)?;
@@ -157,7 +157,7 @@ impl<'a> NakedDemuxer<'a> {
 
         let bits = match get_hint_with_name(hints, "bits").map(str::parse) {
             Some(Ok(bits)) => bits,
-            None => guess_bits(input_bytes_per_row, col_count)?,
+            None => guess_bits(input_bytes_per_row.get(), col_count)?,
             _ => return Err("The bitwidth is invalid".to_owned()),
         };
 
@@ -307,20 +307,20 @@ impl RawDemuxer for NakedDemuxer<'_> {
     }
 
     #[inline]
-    fn dim_uncropped(&self) -> Dimensions2D {
+    fn dim_uncropped(&self) -> Dimensions2D<core::num::NonZero<usize>> {
         self.dims
     }
 
     #[expect(clippy::unwrap_in_result)]
     #[inline]
-    fn dim_cropped(&self) -> Option<Dimensions2D> {
+    fn dim_cropped(&self) -> Option<Dimensions2D<core::num::NonZero<usize>>> {
         const ZERO_POINT: Coord2D =
             Coord2D::new(RowIndex::new(0), ColIndex::new(0));
         let crop_pos = self.crop_offset().unwrap_or(ZERO_POINT);
         let crop_xy = (crop_pos - ZERO_POINT).unwrap();
         let dim_remaining = Coord2D::new(
-            RowIndex::new(*self.dim_uncropped().row_count()),
-            ColIndex::new(*self.dim_uncropped().row_len()),
+            RowIndex::new(self.dim_uncropped().row_count().get()),
+            ColIndex::new(self.dim_uncropped().row_len().get()),
         );
         let dim_remaining = (dim_remaining - crop_xy).unwrap();
         let crop_dim = CoordOffset2D::new(
@@ -344,8 +344,10 @@ impl RawDemuxer for NakedDemuxer<'_> {
         let crop_wh = (-crop_dim).unwrap();
         let cropped_dim = (dim_remaining - crop_wh).unwrap();
         Some(Dimensions2D::new(
-            RowLength::new(*cropped_dim.col()),
-            RowCount::new(*cropped_dim.row()),
+            RowLength::new(
+                core::num::NonZero::new(*cropped_dim.col()).unwrap(),
+            ),
+            RowCount::new(core::num::NonZero::new(*cropped_dim.row()).unwrap()),
         ))
     }
 

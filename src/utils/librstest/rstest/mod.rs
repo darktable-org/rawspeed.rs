@@ -38,7 +38,7 @@ where
     <T as ToLeBytes>::Output: AsSlice<Element = u8>,
 {
     let mut per_row_states = vec![];
-    for row in 0..*img.num_rows() {
+    for row in 0..img.num_rows().get() {
         let row = &img[RowIndex::new(row)];
         let mut hasher = MD5::default();
         for e in row {
@@ -111,8 +111,8 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
         colorMatrix = {
             let mut repr = String::new();
             if let Some(mat) = demux.colormatrix() {
-                for row in 0..*mat.num_rows() {
-                    for col in 0..*mat.row_length() {
+                for row in 0..mat.num_rows().get() {
+                    for col in 0..mat.row_length().get() {
                         use core::fmt::Write as _;
                         if row != 0 || col != 0 {
                             repr.push(' ');
@@ -136,8 +136,8 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             let mut repr = String::new();
             let pos = demux.crop_offset().unwrap_or(ZERO_POINT);
             if let Some(cfa) = demux.cfa(pos) {
-                for row in 0..*cfa.num_rows() {
-                    for col in 0..*cfa.row_length() {
+                for row in 0..cfa.num_rows().get() {
+                    for col in 0..cfa.row_length().get() {
                         if col != 0 {
                             repr.push(',');
                         }

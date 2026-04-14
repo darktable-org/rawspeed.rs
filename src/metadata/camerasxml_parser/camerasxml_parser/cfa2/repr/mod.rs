@@ -9,11 +9,14 @@ use crate::camerasxml_parser::colorrow::{self, ColorVariant};
 #[non_exhaustive]
 pub struct Matrix {
     data: Vec<ColorVariant>,
-    row_length: RowLength,
+    row_length: RowLength<core::num::NonZero<usize>>,
 }
 
 impl Matrix {
-    pub const fn new(data: Vec<ColorVariant>, row_length: RowLength) -> Self {
+    pub const fn new(
+        data: Vec<ColorVariant>,
+        row_length: RowLength<core::num::NonZero<usize>>,
+    ) -> Self {
         let ret = Self { data, row_length };
         let _ = ret.mat();
         ret
@@ -63,7 +66,9 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Matrix {
         let data: Vec<ColorVariant> = matrix_elts.collect();
         Ok(Matrix::new(
             data,
-            RowLength::new(rows.first().unwrap().len()),
+            RowLength::new(
+                core::num::NonZero::new(rows.first().unwrap().len()).unwrap(),
+            ),
         ))
     }
 }

@@ -15,8 +15,11 @@ fn vec_ctor_test() {
     use std::io::Cursor;
     let bit_order = BitOrder::LSB;
     let img_storage: Vec<u8> = vec![1];
-    let img =
-        Array2DRef::new(&img_storage, RowLength::new(1), RowPitch::new(1));
+    let img = Array2DRef::new(
+        &img_storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let mut buf = Cursor::new(vec![]);
     let _packer = Packer::new(&mut buf, bit_order, 8, img, |_| {
         ExtraPadding::new(NumBytes::new(0))
@@ -28,8 +31,11 @@ fn arr_ctor_test() {
     use std::io::Cursor;
     let bit_order = BitOrder::LSB;
     let img_storage: Vec<u8> = vec![1];
-    let img =
-        Array2DRef::new(&img_storage, RowLength::new(1), RowPitch::new(1));
+    let img = Array2DRef::new(
+        &img_storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let mut buf = [0_u8; 1024];
     let mut buf = Cursor::new(buf.as_mut());
     let _packer = Packer::new(&mut buf, bit_order, 8, img, |_| {
@@ -42,8 +48,11 @@ fn flush_arr_overflow_test() {
     use std::io::Cursor;
     let bit_order = BitOrder::LSB;
     let img_storage: Vec<u8> = vec![1];
-    let img =
-        Array2DRef::new(&img_storage, RowLength::new(1), RowPitch::new(1));
+    let img = Array2DRef::new(
+        &img_storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let mut buf = [0_u8; 0];
     let mut buf = Cursor::new(buf.as_mut());
     let packer = Packer::new(&mut buf, bit_order, 8, img, |_| {
@@ -63,8 +72,8 @@ fn u8_enumeration_test() -> std::io::Result<()> {
             let mut storage: Vec<T> = vec![0; num_rows * num_cols];
             let mut img = Array2DRefMut::new(
                 &mut storage,
-                RowLength::new(num_cols),
-                RowPitch::new(num_cols),
+                RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
             );
             for row in 1..=num_rows {
                 for col in 1..=num_cols {
@@ -142,8 +151,8 @@ fn u4_enumeration_test() -> std::io::Result<()> {
             let mut storage: Vec<T> = vec![0; num_rows * num_cols];
             let mut img = Array2DRefMut::new(
                 &mut storage,
-                RowLength::new(num_cols),
-                RowPitch::new(num_cols),
+                RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
             );
             for row in 0..num_rows {
                 for col in 0..num_cols {
@@ -210,8 +219,8 @@ fn u16_enumeration_test() -> std::io::Result<()> {
             let mut storage: Vec<T> = vec![0; num_rows * num_cols];
             let mut img = Array2DRefMut::new(
                 &mut storage,
-                RowLength::new(num_cols),
-                RowPitch::new(num_cols),
+                RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
             );
             for row in 1..=num_rows {
                 for col in 1..=num_cols {
@@ -308,8 +317,8 @@ fn u12_enumeration_test() -> std::io::Result<()> {
             let mut storage: Vec<T> = vec![0; num_rows * num_cols];
             let mut img = Array2DRefMut::new(
                 &mut storage,
-                RowLength::new(num_cols),
-                RowPitch::new(num_cols),
+                RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
             );
             for row in 1..=num_rows {
                 for col in 1..=num_cols {
@@ -402,8 +411,8 @@ fn u32_enumeration_test() -> std::io::Result<()> {
             let mut storage: Vec<T> = vec![0; num_rows * num_cols];
             let mut img = Array2DRefMut::new(
                 &mut storage,
-                RowLength::new(num_cols),
-                RowPitch::new(num_cols),
+                RowLength::new(core::num::NonZero::new(num_cols).unwrap()),
+                RowPitch::new(core::num::NonZero::new(num_cols).unwrap()),
             );
             for row in 1..=num_rows {
                 for col in 1..=num_cols {

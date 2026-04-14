@@ -92,7 +92,7 @@ where
             core::fmt::Debug,
     {
         assert_eq!(self.input.num_rows(), self.output.num_rows());
-        for row in 0..*self.input.num_rows() {
+        for row in 0..self.input.num_rows().get() {
             self.unpack_row::<BitOrder>(RowIndex::new(row));
         }
     }

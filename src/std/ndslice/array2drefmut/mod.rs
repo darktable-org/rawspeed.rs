@@ -6,22 +6,20 @@ use rawspeed_std::coord_common::{
 #[derive(Debug)]
 pub struct Array2DRefMut<'a, T> {
     slice: &'a mut [T],
-    pitch: RowPitch,
-    row_length: RowLength,
+    pitch: RowPitch<core::num::NonZero<usize>>,
+    row_length: RowLength<core::num::NonZero<usize>>,
 }
 
 impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     pub const fn new(
         slice: &'a mut [T],
-        row_length: RowLength,
-        pitch: RowPitch,
+        row_length: RowLength<core::num::NonZero<usize>>,
+        pitch: RowPitch<core::num::NonZero<usize>>,
     ) -> Self {
         assert!(!slice.is_empty());
-        assert!(row_length.val() > 0);
-        assert!(pitch.val() > 0);
-        assert!(pitch.val() >= row_length.val());
-        assert!(slice.len().is_multiple_of(pitch.val()));
+        assert!(pitch.val().get() >= row_length.val().get());
+        assert!(slice.len().is_multiple_of(pitch.val().get()));
         Self {
             slice,
             pitch,
@@ -29,45 +27,45 @@ impl<'a, T> Array2DRefMut<'a, T> {
         }
     }
 
-    const fn pitch(&self) -> RowPitch {
+    const fn pitch(&self) -> RowPitch<core::num::NonZero<usize>> {
         self.pitch
     }
 
     #[inline]
     #[must_use]
-    pub const fn row_length(&self) -> RowLength {
+    pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.row_length
     }
 
     #[inline]
     #[must_use]
-    pub fn num_rows(&self) -> RowCount {
-        RowCount::new(
-            CheckedDivExact::checked_div_exact(
-                self.slice.len(),
-                self.pitch().val(),
-            )
-            .unwrap(),
+    pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
+        CheckedDivExact::checked_div_exact(
+            self.slice.len(),
+            self.pitch().val().get(),
         )
+        .and_then(|v| v.try_into().ok())
+        .map(RowCount::new)
+        .unwrap()
     }
 
     #[inline]
     #[must_use]
-    pub fn dims(&self) -> Dimensions2D {
+    pub fn dims(&self) -> Dimensions2D<core::num::NonZero<usize>> {
         Dimensions2D::new(self.row_length(), self.num_rows())
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&[T]> {
-        if *row >= *self.num_rows() {
+        if *row >= self.num_rows().get() {
             return None;
         }
         Some(
             {
                 let full_row =
-                    self.slice.chunks_exact(*self.pitch()).nth(*row)?;
-                full_row.get(..*self.row_length())
+                    self.slice.chunks_exact(self.pitch().get()).nth(*row)?;
+                full_row.get(..self.row_length().get())
             }
             .unwrap(),
         )
@@ -76,15 +74,17 @@ impl<'a, T> Array2DRefMut<'a, T> {
     #[inline]
     #[must_use]
     pub fn get_row_mut(&mut self, row: RowIndex) -> Option<&mut [T]> {
-        if *row >= *self.num_rows() {
+        if *row >= self.num_rows().get() {
             return None;
         }
         Some(
             {
                 let row_len = self.row_length();
-                let full_row =
-                    self.slice.chunks_exact_mut(*self.pitch()).nth(*row)?;
-                full_row.get_mut(..*row_len)
+                let full_row = self
+                    .slice
+                    .chunks_exact_mut(self.pitch().get())
+                    .nth(*row)?;
+                full_row.get_mut(..row_len.get())
             }
             .unwrap(),
         )

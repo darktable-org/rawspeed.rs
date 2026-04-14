@@ -27,13 +27,16 @@ pub mod dcraw_filter;
 #[non_exhaustive]
 pub struct ColorFilterArray {
     data: Vec<ColorVariant>,
-    row_length: RowLength,
+    row_length: RowLength<core::num::NonZero<usize>>,
 }
 
 impl ColorFilterArray {
     #[inline]
     #[must_use]
-    pub const fn new(data: Vec<ColorVariant>, row_length: RowLength) -> Self {
+    pub const fn new(
+        data: Vec<ColorVariant>,
+        row_length: RowLength<core::num::NonZero<usize>>,
+    ) -> Self {
         let ret = Self { data, row_length };
         let _ = ret.mat();
         ret

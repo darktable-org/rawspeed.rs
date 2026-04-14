@@ -56,10 +56,10 @@ fn run_bench(input: OffsetArray2DRef<'_, T>) -> T {
 
 fn prepare_and_run_bench(
     b: &mut Bencher<'_>,
-    p: &(Dimensions2D, CoordOffset2D),
+    p: &(Dimensions2D<core::num::NonZero<usize>>, CoordOffset2D),
 ) {
     let dims = p.0;
-    let num_elts = dims.row_count().val() * dims.row_len().val();
+    let num_elts = dims.row_count().get() * dims.row_len().get();
     let storage = vec![0; num_elts];
     let view = Array2DRef::new(
         storage.as_slice(),
@@ -72,7 +72,7 @@ fn prepare_and_run_bench(
 
 fn bench_quadrant(
     group: &mut criterion::BenchmarkGroup<'_, criterion::measurement::WallTime>,
-    dims: Dimensions2D,
+    dims: Dimensions2D<core::num::NonZero<usize>>,
     off: CoordOffset2D,
 ) {
     let quadrants = match (*off.row(), *off.col()) {
@@ -82,7 +82,7 @@ fn bench_quadrant(
         (row, col) if (row != 0 && col != 0) => "I_II_IV_III",
         (_, _) => unreachable!(),
     };
-    let num_elts = *dims.row_count() * *dims.row_len();
+    let num_elts = dims.row_count().get() * dims.row_len().get();
     group.throughput(Throughput::ElementsAndBytes {
         elements: num_elts.try_into().unwrap(),
         bytes: (size_of::<T>() * num_elts).try_into().unwrap(),
@@ -90,7 +90,8 @@ fn bench_quadrant(
     group.bench_with_input(
         BenchmarkId::from_parameter(quadrants.to_owned()),
         &(dims, off),
-        |b: &mut Bencher<'_>, p: &(Dimensions2D, CoordOffset2D)| {
+        |b: &mut Bencher<'_>,
+         p: &(Dimensions2D<core::num::NonZero<usize>>, CoordOffset2D)| {
             prepare_and_run_bench(b, p);
         },
     );
@@ -98,8 +99,10 @@ fn bench_quadrant(
 
 fn enumerate_quadrants(c: &mut Criterion) {
     let unit = 512;
-    let dims =
-        Dimensions2D::new(RowLength::new(2 * unit), RowCount::new(2 * unit));
+    let dims = Dimensions2D::new(
+        RowLength::new(core::num::NonZero::new(2 * unit).unwrap()),
+        RowCount::new(core::num::NonZero::new(2 * unit).unwrap()),
+    );
 
     let mut group = c.benchmark_group("iter");
     for row_offset in [0, unit] {

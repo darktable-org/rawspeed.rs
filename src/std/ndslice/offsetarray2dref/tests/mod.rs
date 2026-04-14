@@ -11,9 +11,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<T>> = vec![];
-    for row in 0..*input.num_rows() {
+    for row in 0..input.num_rows().get() {
         let mut elts: Vec<T> = vec![];
-        for col in 0..*input.row_length() {
+        for col in 0..input.row_length().get() {
             elts.push(
                 input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))],
             );
@@ -29,7 +29,11 @@ fn basic_copy_2x2_test() {
     for i in 1..=4 {
         input.push(i);
     }
-    let base = Array2DRef::new(&input, RowLength::new(2), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(
         get_copy_index(&OffsetArray2DRef::new(
             base,
@@ -87,7 +91,11 @@ fn elt_oob_1x1_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -124,7 +132,11 @@ fn elt_oob_1x2_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -173,7 +185,11 @@ fn elt_oob_2x1_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -219,7 +235,11 @@ fn elt_oob_2x1_test() {
 #[test]
 fn padded_elt_oob_1x1_test() {
     let storage = vec![1, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -253,7 +273,11 @@ fn padded_elt_oob_1x1_test() {
 #[test]
 fn padded_elt_oob_1x2_test() {
     let storage = vec![1, 2, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -299,7 +323,11 @@ fn padded_elt_oob_1x2_test() {
 #[test]
 fn padded_elt_oob_2x1_test() {
     let storage = vec![1, 0, 2, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -348,7 +376,11 @@ fn index_oob_00_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -363,7 +395,11 @@ fn index_oob_01_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -378,7 +414,11 @@ fn index_oob_10_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -393,7 +433,11 @@ fn index_oob_11_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -404,7 +448,11 @@ fn index_oob_11_test() {
 #[test]
 fn padded_index_oob_00_test() {
     let storage = vec![1, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -416,7 +464,11 @@ fn padded_index_oob_00_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_01_test() {
     let storage = vec![1, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -428,7 +480,11 @@ fn padded_index_oob_01_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_10_test() {
     let storage = vec![1, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),
@@ -440,7 +496,11 @@ fn padded_index_oob_10_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_11_test() {
     let storage = vec![1, 0];
-    let base = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let base = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let input = OffsetArray2DRef::new(
         base,
         CoordOffset2D::new(RowOffset::new(0), ColOffset::new(0)),

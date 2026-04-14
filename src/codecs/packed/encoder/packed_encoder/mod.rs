@@ -214,7 +214,7 @@ where
         let min_pitch = MinimalOutputRowPitch::new(NumBytes::new(
             bit_order
                 .predict_exact_bitstream_bytelen(
-                    *input.row_length(),
+                    input.row_length().get(),
                     item_bitlen,
                 )
                 .try_into()
@@ -297,7 +297,7 @@ where
         <<<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as ToNeBytes>::Output: AsSlice<EltType = u8>,
         <<<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<u64>>::Error: core::fmt::Debug
     {
-        for row in 0..*self.input.num_rows() {
+        for row in 0..self.input.num_rows().get() {
             let real_pitch = self.pack_row::<BitOrder>(RowIndex::new(row))?;
             assert_eq!(real_pitch, self.pitch.base);
 

@@ -3,7 +3,8 @@ use rawspeed_std_ndslice::array2dref::Array2DRef;
 
 use super::xmlparser;
 
-pub const COLUMN_COUNT: usize = 3;
+pub const COLUMN_COUNT: core::num::NonZero<usize> =
+    core::num::NonZero::new(3).unwrap();
 
 pub type T = i16;
 
@@ -40,7 +41,7 @@ mod repr {
                         rows.len()
                     ));
                 }
-                assert_eq!(row.values.len(), super::COLUMN_COUNT);
+                assert_eq!(row.values.len(), super::COLUMN_COUNT.get());
                 rows.push(row.values);
             }
             Ok(Self { elts: rows })

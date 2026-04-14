@@ -17,7 +17,7 @@ macro_rules! test {
                     .into_iter()
                     .map(|row| row.into_iter().collect::<Vec<_>>())
                     .collect::<Vec<_>>();
-                let row_length = $data.get(0).unwrap().len();
+                let row_length = core::num::NonZero::new($data.get(0).unwrap().len()).unwrap();
                 for padding_len in 0..=1 {
                     let data_storage = $data
                         .iter()
@@ -32,7 +32,7 @@ macro_rules! test {
                     let base = Array2DRef::new(
                         &data_storage,
                         RowLength::new(row_length),
-                        RowPitch::new(row_length + padding_len),
+                        RowPitch::new(row_length.checked_add(padding_len).unwrap()),
                     );
                     let input = OffsetArray2DRef::new(base, origin);
                     let mut res = vec![];

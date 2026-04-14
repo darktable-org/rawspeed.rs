@@ -324,7 +324,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::G],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -347,7 +349,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -362,7 +366,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -381,7 +387,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -405,7 +413,9 @@ fn parse_test() {
                         ColorVariant::G,
                         ColorVariant::B,
                     ],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -420,7 +430,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -435,7 +447,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -454,7 +468,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -478,7 +494,9 @@ fn parse_test() {
                         ColorVariant::G,
                         ColorVariant::B,
                     ],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -493,7 +511,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -508,7 +528,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -527,7 +549,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -551,7 +575,9 @@ fn parse_test() {
                         ColorVariant::G,
                         ColorVariant::B,
                     ],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -566,7 +592,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -581,7 +609,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(1),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(1).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -600,7 +630,9 @@ fn parse_test() {
                 },
                 body: Matrix {
                     data: vec![ColorVariant::R, ColorVariant::G],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),
@@ -624,7 +656,9 @@ fn parse_test() {
                         ColorVariant::G,
                         ColorVariant::B,
                     ],
-                    row_length: RowLength::new(2),
+                    row_length: RowLength::new(
+                        core::num::NonZero::new(2).unwrap(),
+                    ),
                 },
             }),
         ),

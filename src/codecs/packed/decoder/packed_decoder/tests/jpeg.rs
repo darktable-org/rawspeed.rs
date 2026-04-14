@@ -13,9 +13,16 @@ fn u8_enumeration_test() {
     type T = u8;
     const NUM_BITS: u32 = 8;
     let input: Vec<u8> = vec![0];
-    let bytes = Array2DRef::new(&input, RowLength::new(1), RowPitch::new(1));
+    let bytes = Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let mut storage: Vec<T> = vec![0];
-    let mut img =
-        Array2DRefMut::new(&mut storage, RowLength::new(1), RowPitch::new(1));
+    let mut img = Array2DRefMut::new(
+        &mut storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = Unpacker::new(bytes, BIT_ORDER, NUM_BITS, &mut img);
 }

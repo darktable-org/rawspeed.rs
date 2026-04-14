@@ -9,9 +9,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<Option<T>>> = vec![];
-    for row in 0..*input.num_rows() {
+    for row in 0..input.num_rows().get() {
         let mut elts: Vec<Option<T>> = vec![];
-        for col in 0..*input.row_length() {
+        for col in 0..input.row_length().get() {
             elts.push(
                 input
                     .get_elt(Coord2D::new(
@@ -31,9 +31,9 @@ where
     T: Copy,
 {
     let mut rows: Vec<Vec<T>> = vec![];
-    for row in 0..*input.num_rows() {
+    for row in 0..input.num_rows().get() {
         let mut elts: Vec<T> = vec![];
-        for col in 0..*input.row_length() {
+        for col in 0..input.row_length().get() {
             elts.push(
                 input[Coord2D::new(RowIndex::new(row), ColIndex::new(col))],
             );
@@ -52,8 +52,8 @@ fn basic_copy_test() {
     assert_eq!(
         get_copy(&Array2DRef::new(
             &input,
-            RowLength::new(3),
-            RowPitch::new(3)
+            RowLength::new(core::num::NonZero::new(3).unwrap()),
+            RowPitch::new(core::num::NonZero::new(3).unwrap())
         )),
         vec![
             vec![Some(1), Some(2), Some(3)],
@@ -71,8 +71,8 @@ fn basic_padded_copy_test() {
     assert_eq!(
         get_copy(&Array2DRef::new(
             &input,
-            RowLength::new(2),
-            RowPitch::new(3)
+            RowLength::new(core::num::NonZero::new(2).unwrap()),
+            RowPitch::new(core::num::NonZero::new(3).unwrap())
         )),
         vec![vec![Some(1), Some(2)], vec![Some(4), Some(5)]]
     );
@@ -87,8 +87,8 @@ fn basic_copy_index_test() {
     assert_eq!(
         get_copy_index(&Array2DRef::new(
             &input,
-            RowLength::new(3),
-            RowPitch::new(3)
+            RowLength::new(core::num::NonZero::new(3).unwrap()),
+            RowPitch::new(core::num::NonZero::new(3).unwrap())
         )),
         vec![vec![1, 2, 3], vec![4, 5, 6]]
     );
@@ -103,41 +103,25 @@ fn basic_padded_copy_index_test() {
     assert_eq!(
         get_copy_index(&Array2DRef::new(
             &input,
-            RowLength::new(2),
-            RowPitch::new(3)
+            RowLength::new(core::num::NonZero::new(2).unwrap()),
+            RowPitch::new(core::num::NonZero::new(3).unwrap())
         )),
         vec![vec![1, 2], vec![4, 5]]
     );
 }
 
 #[test]
-#[should_panic(expected = "row_length.val() > 0")]
-fn no_cols_test() {
-    let mut input = vec![];
-    for i in 1..=6 {
-        input.push(i);
-    }
-    Array2DRef::new(&input, RowLength::new(0), RowPitch::new(3));
-}
-
-#[test]
-#[should_panic(expected = "pitch.val() > 0")]
-fn no_pitch_test() {
-    let mut input = vec![];
-    for i in 1..=6 {
-        input.push(i);
-    }
-    Array2DRef::new(&input, RowLength::new(3), RowPitch::new(0));
-}
-
-#[test]
-#[should_panic(expected = "pitch.val() >= row_length")]
+#[should_panic(expected = "pitch.val().get() >= row_length.val().get()")]
 fn unsufficient_pitch_test() {
     let mut input = vec![];
     for i in 1..=6 {
         input.push(i);
     }
-    Array2DRef::new(&input, RowLength::new(3), RowPitch::new(2));
+    Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(3).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
 }
 
 #[test]
@@ -147,7 +131,11 @@ fn slice_too_small_test() {
     for i in 1..=5 {
         input.push(i);
     }
-    Array2DRef::new(&input, RowLength::new(3), RowPitch::new(3));
+    Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(3).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
 }
 
 #[test]
@@ -157,7 +145,11 @@ fn slice_too_small_for_single_row_test() {
     for i in 1..=1 {
         input.push(i);
     }
-    Array2DRef::new(&input, RowLength::new(1), RowPitch::new(2));
+    Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
 }
 
 #[test]
@@ -167,7 +159,11 @@ fn slice_too_large_test() {
     for i in 1..=7 {
         input.push(i);
     }
-    Array2DRef::new(&input, RowLength::new(3), RowPitch::new(3));
+    Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(3).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
 }
 
 #[test]
@@ -177,7 +173,11 @@ fn slice_too_large_for_single_row_test() {
     for i in 1..=3 {
         input.push(i);
     }
-    Array2DRef::new(&input, RowLength::new(1), RowPitch::new(2));
+    Array2DRef::new(
+        &input,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
 }
 
 #[test]
@@ -186,7 +186,11 @@ fn elt_oob_1x1_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     assert_eq!(
         input
             .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
@@ -219,7 +223,11 @@ fn elt_oob_1x2_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(
         input
             .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
@@ -264,7 +272,11 @@ fn elt_oob_2x1_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     assert_eq!(
         input
             .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
@@ -306,7 +318,11 @@ fn elt_oob_2x1_test() {
 #[test]
 fn padded_elt_oob_1x1_test() {
     let storage = vec![1, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(
         input
             .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
@@ -336,7 +352,11 @@ fn padded_elt_oob_1x1_test() {
 #[test]
 fn padded_elt_oob_1x2_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     assert_eq!(
         input
             .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
@@ -378,7 +398,11 @@ fn padded_elt_oob_1x2_test() {
 #[test]
 fn padded_elt_oob_2x1_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(
         input
             .get_elt(Coord2D::new(RowIndex::new(0), ColIndex::new(0)))
@@ -423,7 +447,11 @@ fn index_oob_1x1_00_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
 }
 
@@ -434,7 +462,11 @@ fn index_oob_1x1_01_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
 }
 
@@ -445,7 +477,11 @@ fn index_oob_1x1_10_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
 }
 
@@ -456,7 +492,11 @@ fn index_oob_1x1_11_test() {
     for i in 1..=1 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
 }
 
@@ -466,7 +506,11 @@ fn index_oob_1x2_00_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
 }
 
@@ -476,7 +520,11 @@ fn index_oob_1x2_01_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))], 2);
 }
 
@@ -487,7 +535,11 @@ fn index_oob_1x2_02_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
 }
 
@@ -498,7 +550,11 @@ fn index_oob_1x2_10_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
 }
 
@@ -509,7 +565,11 @@ fn index_oob_1x2_11_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
 }
 
@@ -520,7 +580,11 @@ fn index_oob_1x2_12_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
 }
 
@@ -530,7 +594,11 @@ fn index_oob_2x1_00_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
 }
 
@@ -541,7 +609,11 @@ fn index_oob_2x1_01_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
 }
 
@@ -551,7 +623,11 @@ fn index_oob_2x1_10_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))], 2);
 }
 
@@ -562,7 +638,11 @@ fn index_oob_2x1_11_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
 }
 
@@ -573,7 +653,11 @@ fn index_oob_2x1_20_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(0))];
 }
 
@@ -584,7 +668,11 @@ fn index_oob_2x1_21_test() {
     for i in 1..=2 {
         storage.push(i);
     }
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(1));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(1).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(1))];
 }
 
@@ -593,7 +681,11 @@ fn index_oob_2x1_21_test() {
 #[test]
 fn padded_index_oob_1x1_00_test() {
     let storage = vec![1, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
 }
 
@@ -601,7 +693,11 @@ fn padded_index_oob_1x1_00_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x1_01_test() {
     let storage = vec![1, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
 }
 
@@ -609,7 +705,11 @@ fn padded_index_oob_1x1_01_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x1_10_test() {
     let storage = vec![1, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
 }
 
@@ -617,21 +717,33 @@ fn padded_index_oob_1x1_10_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x1_11_test() {
     let storage = vec![1, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
 }
 
 #[test]
 fn padded_index_oob_1x2_00_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
 }
 
 #[test]
 fn padded_index_oob_1x2_01_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))], 2);
 }
 
@@ -639,7 +751,11 @@ fn padded_index_oob_1x2_01_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x2_02_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
 }
 
@@ -647,7 +763,11 @@ fn padded_index_oob_1x2_02_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x2_10_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))];
 }
 
@@ -655,7 +775,11 @@ fn padded_index_oob_1x2_10_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x2_11_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
 }
 
@@ -663,14 +787,22 @@ fn padded_index_oob_1x2_11_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_1x2_12_test() {
     let storage = vec![1, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(2), RowPitch::new(3));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(2).unwrap()),
+        RowPitch::new(core::num::NonZero::new(3).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(2))];
 }
 
 #[test]
 fn padded_index_oob_2x1_00_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(0), ColIndex::new(0))], 1);
 }
 
@@ -678,14 +810,22 @@ fn padded_index_oob_2x1_00_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_2x1_01_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(0), ColIndex::new(1))];
 }
 
 #[test]
 fn padded_index_oob_2x1_10_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     assert_eq!(input[Coord2D::new(RowIndex::new(1), ColIndex::new(0))], 2);
 }
 
@@ -693,7 +833,11 @@ fn padded_index_oob_2x1_10_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_2x1_11_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(1), ColIndex::new(1))];
 }
 
@@ -701,7 +845,11 @@ fn padded_index_oob_2x1_11_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_2x1_20_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(0))];
 }
 
@@ -709,6 +857,10 @@ fn padded_index_oob_2x1_20_test() {
 #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn padded_index_oob_2x1_21_test() {
     let storage = vec![1, 0, 2, 0];
-    let input = Array2DRef::new(&storage, RowLength::new(1), RowPitch::new(2));
+    let input = Array2DRef::new(
+        &storage,
+        RowLength::new(core::num::NonZero::new(1).unwrap()),
+        RowPitch::new(core::num::NonZero::new(2).unwrap()),
+    );
     let _ = input[Coord2D::new(RowIndex::new(2), ColIndex::new(1))];
 }

@@ -74,7 +74,7 @@ impl<'a, 'b, T> IntoIterator for Rows<'a, 'b, T> {
 impl<'a, 'b, T> RowIterator<'a, 'b, T> {
     #[inline]
     fn new(underlying: &'b OffsetArray2DRef<'a, T>) -> Self {
-        let rows = 0..*underlying.num_rows();
+        let rows = 0..underlying.num_rows().get();
         let rotated_rows = rows.rotate(*underlying.origin.row());
         let rotated_rows = rotated_rows.into_iter();
         Self {
@@ -131,7 +131,7 @@ impl<'a, 'b, 'c, T> IntoIterator for Columns<'a, 'b, 'c, T> {
 impl<'a, 'b, 'c, T> ColumnIterator<'a, 'b, 'c, T> {
     #[inline]
     fn new(underlying: &'c Row<'a, 'b, T>) -> Self {
-        let cols = 0..*underlying.underlying.row_length();
+        let cols = 0..underlying.underlying.row_length().get();
         let rotated_cols = cols.rotate(*underlying.underlying.origin.col());
         let rotated_cols = rotated_cols.into_iter();
         Self {
