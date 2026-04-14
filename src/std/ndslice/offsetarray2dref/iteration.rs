@@ -165,6 +165,10 @@ impl<'a, T> core::ops::Deref for Element<'a, '_, T> {
 
     #[inline]
     fn deref(&self) -> &'a Self::Target {
-        self.underlying.get_elt(self.coord).unwrap()
+        let elt = self.underlying.get_elt(self.coord);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            elt.unwrap_unchecked()
+        }
     }
 }
