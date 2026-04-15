@@ -14,7 +14,7 @@ fn sufficient_for_1_packed_mcu_test() {
     let input: [_; 3] = core::array::from_fn(|_| 0);
     let s = BitStreamSlice::<T>::new(&input).unwrap();
     let s = PackedBitstreamSlice::<T, 3>::new(s).unwrap();
-    PackedBitstreamUnpacker::new(s).unwrap();
+    let _ = PackedBitstreamUnpacker::new(s).unwrap();
 }
 
 #[test]

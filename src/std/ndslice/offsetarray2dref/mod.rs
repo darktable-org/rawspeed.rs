@@ -23,20 +23,18 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.data.row_length()
     }
 
     #[inline]
-    #[must_use]
     pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
         self.data.num_rows()
     }
 
     #[inline]
     #[must_use]
-    fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
+    pub(self) fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
         if row.val() >= self.num_rows().val().get() {
             return None;
         }
@@ -53,7 +51,7 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
 
     #[inline]
     #[must_use]
-    pub fn get_elt(&self, index: Coord2D) -> Option<&'a T> {
+    pub(self) fn get_elt(&self, index: Coord2D) -> Option<&'a T> {
         let row = self.get_row(RowIndex::new(*index.row()))?;
         if *index.col() >= self.row_length().val().get() {
             return None;

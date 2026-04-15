@@ -2,6 +2,7 @@ use super::{camera, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct IndividualCameras<'a> {
     pub values: Vec<camera::Camera<'a>>,
 }

@@ -1,26 +1,28 @@
 use crate::vfs::VFS;
 
 #[derive(Debug, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct VirtualFile {
     path: String,
     content: Vec<u8>,
 }
 
 impl VirtualFile {
-    #[must_use]
     pub const fn new(path: String, content: Vec<u8>) -> Self {
         Self { path, content }
     }
 }
 
 #[derive(Debug, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct TestFileSystem {
     log: Vec<String>,
     files: Vec<VirtualFile>,
 }
 
 impl TestFileSystem {
-    #[must_use]
     pub const fn new() -> Self {
         Self {
             log: vec![],

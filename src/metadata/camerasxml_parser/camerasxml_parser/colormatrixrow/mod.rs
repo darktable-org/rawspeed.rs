@@ -3,6 +3,8 @@ use super::{BodyStr, plane, xmlparser};
 type T = super::colormatrix::T;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct PlaneValues {
     pub values: [T; super::colormatrix::COLUMN_COUNT.get()],
 }

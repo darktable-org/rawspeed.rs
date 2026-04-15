@@ -3,13 +3,14 @@ macro_rules! wrap {
         use crate::bound_coord::$bty;
 
         #[derive(Debug, Clone, Copy, PartialEq)]
+        #[non_exhaustive]
+        #[must_use]
         pub struct $wty {
             value: $bty,
         }
 
         impl $wty {
             #[inline]
-            #[must_use]
             pub const fn new(value: $bty) -> Self {
                 Self { value }
             }

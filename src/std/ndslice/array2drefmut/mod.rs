@@ -4,6 +4,8 @@ use rawspeed_std::coord_common::{
 };
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct Array2DRefMut<'a, T> {
     slice: &'a mut [T],
     pitch: RowPitch<core::num::NonZero<usize>>,
@@ -32,13 +34,11 @@ impl<'a, T> Array2DRefMut<'a, T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.row_length
     }
 
     #[inline]
-    #[must_use]
     pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
         CheckedDivExact::checked_div_exact(
             self.slice.len(),
@@ -50,7 +50,6 @@ impl<'a, T> Array2DRefMut<'a, T> {
     }
 
     #[inline]
-    #[must_use]
     pub fn dims(&self) -> Dimensions2D<core::num::NonZero<usize>> {
         Dimensions2D::new(self.row_length(), self.num_rows())
     }

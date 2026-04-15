@@ -26,6 +26,8 @@ impl core::ops::Deref for ByteIndex {
 }
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct MCUIndex<T>
 where
     T: BitStreamSliceConstraints,
@@ -38,7 +40,6 @@ impl<T> MCUIndex<T>
 where
     T: BitStreamSliceConstraints,
 {
-    #[must_use]
     #[inline]
     pub const fn new(index: usize) -> Self {
         Self {
@@ -66,6 +67,7 @@ where
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct MCUIndexByteOverflow;
 
 impl<T> TryFrom<MCUIndex<T>> for ByteIndex
@@ -86,6 +88,8 @@ where
 }
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct MCURange<T, R>
 where
     T: BitStreamSliceConstraints,
@@ -100,7 +104,6 @@ where
     T: BitStreamSliceConstraints,
     R: core::ops::RangeBounds<MCUIndex<T>>,
 {
-    #[must_use]
     #[inline]
     const fn new(range: R) -> Self {
         Self {
@@ -232,6 +235,8 @@ impl<T> BitStreamSliceConstraints for T where
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct BitStreamSlice<'a, T>
 where
     T: BitStreamSliceConstraints,

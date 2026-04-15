@@ -13,6 +13,8 @@ use rawspeed_std_ndslice::{
 };
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct Unpacker<'a, 'b, 'c, T>
 where
     T: Bitwidth + TryFrom<u64>,
@@ -30,7 +32,6 @@ where
     <T as TryFrom<u64>>::Error: core::fmt::Debug,
 {
     #[inline]
-    #[must_use]
     pub fn new(
         input: Array2DRef<'a, u8>,
         bit_order: BitOrder,

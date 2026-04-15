@@ -6,19 +6,19 @@ use super::{
 };
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct MaybeCFA {
     val: Option<ColorFilterArray>,
 }
 
 impl MaybeCFA {
     #[inline]
-    #[must_use]
     pub const fn some(val: ColorFilterArray) -> Self {
         Self { val: Some(val) }
     }
 
     #[inline]
-    #[must_use]
     pub const fn none() -> Self {
         Self { val: None }
     }
@@ -49,6 +49,8 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for MaybeCFA {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct Sensors {
     pub values: Vec<sensor::Sensor>,
 }
@@ -97,6 +99,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Sensors {
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct Camera<'a> {
     pub make: make::Make<'a>,
     pub model: model::Model<'a>,

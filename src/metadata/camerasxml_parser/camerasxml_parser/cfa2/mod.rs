@@ -10,6 +10,7 @@ mod repr;
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct CFA2 {
     data: ColorFilterArray,
 }

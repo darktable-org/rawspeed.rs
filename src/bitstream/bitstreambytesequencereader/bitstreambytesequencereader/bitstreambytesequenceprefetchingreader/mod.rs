@@ -23,6 +23,8 @@ where
 }
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct BitStreamByteSequencePrefetchingReader<R>
 where
     R: BitStreamByteSequenceReadResult,
@@ -37,7 +39,6 @@ where
     Self: BitStreamByteSequenceRead,
 {
     #[inline]
-    #[must_use]
     pub fn new_from_reader(reader: R) -> Self {
         let mut reader = Self {
             reader,
@@ -48,7 +49,6 @@ where
     }
 
     #[inline]
-    #[must_use]
     pub fn new<'a, T>(input: BitStreamSlice<'a, T>) -> Self
     where
         T: BitStreamSliceConstraints,

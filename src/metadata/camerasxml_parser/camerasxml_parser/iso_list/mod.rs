@@ -1,6 +1,8 @@
 use super::{Str, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct IsoValues {
     pub values: Vec<i32>,
 }
@@ -24,6 +26,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for IsoValues {
 
 impl_attr_matcher!(
     #[derive(Debug, Clone, PartialEq)]
+
     struct IsoList {
         iso_list: IsoValues,
     }

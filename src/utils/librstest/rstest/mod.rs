@@ -136,16 +136,12 @@ fn img_hash(demux: &dyn RawDemuxer, img: Array2DRef<'_, u16>) -> Hash {
             let mut repr = String::new();
             let pos = demux.crop_offset().unwrap_or(ZERO_POINT);
             if let Some(cfa) = demux.cfa(pos) {
-                for row in 0..cfa.num_rows().get() {
-                    for col in 0..cfa.row_length().get() {
-                        if col != 0 {
+                for row in cfa.rows() {
+                    for col in row.cols().into_iter().enumerate() {
+                        if col.0 != 0 {
                             repr.push(',');
                         }
-                        let e = cfa[Coord2D::new(
-                            RowIndex::new(row),
-                            ColIndex::new(col),
-                        )];
-                        let e = match e {
+                        let e = match *col.1 {
                             ColorVariant::Red => "RED",
                             ColorVariant::Green => "GREEN",
                             ColorVariant::Blue => "BLUE",

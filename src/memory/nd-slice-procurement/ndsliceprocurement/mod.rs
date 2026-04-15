@@ -9,13 +9,14 @@ use rawspeed_std_ndslice::array2drefmut::Array2DRefMut;
 macro_rules! impl_strict_type {
     ($struct:ident of $type:ident) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd)]
+        #[non_exhaustive]
+        #[must_use]
         pub struct $struct {
             val: $type,
         }
 
         impl $struct {
             #[inline]
-            #[must_use]
             pub const fn new(val: $type) -> Self {
                 Self { val }
             }
@@ -36,6 +37,7 @@ impl_strict_type!(EltCount of usize);
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct OwnedNDSlice<T> {
     storage: LayoutfulBox<T>,
     row_len: RowLength<core::num::NonZero<usize>>,
@@ -44,7 +46,6 @@ pub struct OwnedNDSlice<T> {
 
 impl<T> OwnedNDSlice<T> {
     #[inline]
-    #[must_use]
     const fn new(
         storage: LayoutfulBox<T>,
         row_len: RowLength<core::num::NonZero<usize>>,
@@ -58,7 +59,6 @@ impl<T> OwnedNDSlice<T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn get_mut(&mut self) -> Array2DRefMut<'_, T> {
         Array2DRefMut::new(
             self.storage.get_slice_mut(),
@@ -90,6 +90,8 @@ impl core::fmt::Display for NDSliceProcurementRequestError {
 }
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct NDSliceProcurementRequest<T>
 where
     T: Sized,
@@ -103,7 +105,6 @@ where
 
 impl<T> NDSliceProcurementRequest<T> {
     #[inline]
-    #[must_use]
     pub fn new(dims: Dimensions2D<core::num::NonZero<usize>>) -> Self {
         Self {
             dims,
@@ -115,13 +116,11 @@ impl<T> NDSliceProcurementRequest<T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn dims(&self) -> Dimensions2D<core::num::NonZero<usize>> {
         self.dims
     }
 
     #[inline]
-    #[must_use]
     pub const fn set_extra_row_padding(
         self,
         extra_row_padding: EltCount,
@@ -133,7 +132,6 @@ impl<T> NDSliceProcurementRequest<T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn set_row_alignment(self, row_alignment: Align) -> Self {
         Self {
             row_alignment,
@@ -142,7 +140,6 @@ impl<T> NDSliceProcurementRequest<T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn set_base_alignment(self, base_alignment: Align) -> Self {
         Self {
             base_alignment,

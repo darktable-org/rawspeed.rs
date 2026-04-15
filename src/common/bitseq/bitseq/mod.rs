@@ -5,12 +5,12 @@ use rawspeed_common_generic_num::generic_num::common::Bitwidth;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
+#[must_use]
 pub struct BitLen {
     val: u32,
 }
 
 impl BitLen {
-    #[must_use]
     #[inline]
     pub const fn new(val: u32) -> Self {
         Self { val }
@@ -37,6 +37,7 @@ impl<T> BitSeqConstraints for T where
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
+#[must_use]
 pub struct BitSeq<T>
 where
     T: BitSeqConstraints,
@@ -49,7 +50,6 @@ impl<T> BitSeq<T>
 where
     T: BitSeqConstraints,
 {
-    #[must_use]
     #[inline]
     fn new_unchecked(len: BitLen, value: T) -> Self {
         assert!(*len <= T::BITWIDTH);
@@ -59,7 +59,6 @@ where
         }
     }
 
-    #[must_use]
     #[inline]
     pub fn promote<U>(self) -> BitSeq<U>
     where
@@ -84,7 +83,6 @@ where
         Some(val)
     }
 
-    #[must_use]
     #[inline]
     pub fn len(&self) -> BitLen {
         assert!(*self.len <= T::BITWIDTH);
@@ -98,7 +96,6 @@ where
     }
 
     #[inline]
-    #[must_use]
     fn trunc(self, new_len: BitLen) -> Self {
         assert!(*new_len <= T::BITWIDTH);
         assert!(*new_len < *self.len());
@@ -107,7 +104,6 @@ where
     }
 
     #[inline]
-    #[must_use]
     fn trunc_or_self(self, new_len: BitLen) -> Self {
         assert!(*new_len <= T::BITWIDTH);
         assert!(*new_len <= *self.len());

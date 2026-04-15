@@ -18,13 +18,14 @@ use rawspeed_std::coord_common::RowIndex;
 use rawspeed_std_ndslice::array2dref::Array2DRef;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+#[must_use]
 pub struct NumBytes {
     val: usize,
 }
 
 impl NumBytes {
     #[inline]
-    #[must_use]
     pub const fn new(val: usize) -> Self {
         Self { val }
     }
@@ -46,19 +47,19 @@ impl core::ops::Deref for NumBytes {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+#[must_use]
 pub struct MinimalOutputRowPitch {
     val: NumBytes,
 }
 
 impl MinimalOutputRowPitch {
     #[inline]
-    #[must_use]
     pub const fn new(val: NumBytes) -> Self {
         Self { val }
     }
 
     #[inline]
-    #[must_use]
     pub const fn val(&self) -> NumBytes {
         self.val
     }
@@ -74,19 +75,19 @@ impl core::ops::Deref for MinimalOutputRowPitch {
 }
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct ExtraPadding {
     val: NumBytes,
 }
 
 impl ExtraPadding {
     #[inline]
-    #[must_use]
     pub const fn new(val: NumBytes) -> Self {
         Self { val }
     }
 
     #[inline]
-    #[must_use]
     pub const fn val(&self) -> NumBytes {
         self.val
     }
@@ -103,6 +104,7 @@ impl core::ops::Deref for ExtraPadding {
 
 #[derive(Debug, Clone, Copy)]
 #[non_exhaustive]
+#[must_use]
 pub struct OutputRowPitch {
     base: MinimalOutputRowPitch,
     padding: ExtraPadding,
@@ -110,7 +112,6 @@ pub struct OutputRowPitch {
 
 impl OutputRowPitch {
     #[inline]
-    #[must_use]
     pub const fn new_with_padding(
         base: MinimalOutputRowPitch,
         padding: ExtraPadding,
@@ -121,7 +122,6 @@ impl OutputRowPitch {
     }
 
     #[inline]
-    #[must_use]
     pub const fn val(&self) -> NumBytes {
         NumBytes::new(
             self.base
@@ -178,6 +178,8 @@ where
 }
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct Packer<'a, 'b, W, T>
 where
     W: std::io::Write,
@@ -196,7 +198,6 @@ where
     u64: From<T>,
 {
     #[inline]
-    #[must_use]
     pub fn new<F>(
         writer: &'b mut W,
         bit_order: BitOrder,

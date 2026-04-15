@@ -3,6 +3,8 @@ macro_rules! wrap {
         use crate::coord_common::{$dty, $ty};
 
         #[derive(Debug, Clone, Copy, PartialEq)]
+        #[non_exhaustive]
+        #[must_use]
         pub struct $bty {
             domain: $dty,
             value: $ty,
@@ -19,7 +21,6 @@ macro_rules! wrap {
             }
 
             #[inline]
-            #[must_use]
             pub fn value(&self) -> $ty {
                 #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
                 unsafe {
@@ -29,7 +30,6 @@ macro_rules! wrap {
             }
 
             #[inline]
-            #[must_use]
             pub const fn domain(&self) -> $dty {
                 self.domain
             }

@@ -25,6 +25,7 @@ pub mod dcraw_filter;
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct ColorFilterArray {
     data: Vec<ColorVariant>,
     row_length: RowLength<core::num::NonZero<usize>>,
@@ -32,7 +33,6 @@ pub struct ColorFilterArray {
 
 impl ColorFilterArray {
     #[inline]
-    #[must_use]
     pub const fn new(
         data: Vec<ColorVariant>,
         row_length: RowLength<core::num::NonZero<usize>>,
@@ -43,7 +43,6 @@ impl ColorFilterArray {
     }
 
     #[inline]
-    #[must_use]
     pub const fn mat(&self) -> Array2DRef<'_, ColorVariant> {
         Array2DRef::new(
             self.data.as_slice(),

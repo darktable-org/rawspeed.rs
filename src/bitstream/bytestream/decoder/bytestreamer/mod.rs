@@ -5,6 +5,8 @@ use rawspeed_memory_endianness::endianness::{
     Endianness, SwapBytes, get_host_endianness,
 };
 
+#[non_exhaustive]
+#[must_use]
 pub struct ByteStreamer<'a> {
     slice: &'a [u8],
     endianness: Endianness,

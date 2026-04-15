@@ -117,7 +117,7 @@ fn unsufficient_pitch_test() {
     for i in 1..=6 {
         input.push(i);
     }
-    Array2DRef::new(
+    let _ = Array2DRef::new(
         &input,
         RowLength::new(core::num::NonZero::new(3).unwrap()),
         RowPitch::new(core::num::NonZero::new(2).unwrap()),
@@ -131,7 +131,7 @@ fn slice_too_small_test() {
     for i in 1..=5 {
         input.push(i);
     }
-    Array2DRef::new(
+    let _ = Array2DRef::new(
         &input,
         RowLength::new(core::num::NonZero::new(3).unwrap()),
         RowPitch::new(core::num::NonZero::new(3).unwrap()),
@@ -145,7 +145,7 @@ fn slice_too_small_for_single_row_test() {
     for i in 1..=1 {
         input.push(i);
     }
-    Array2DRef::new(
+    let _ = Array2DRef::new(
         &input,
         RowLength::new(core::num::NonZero::new(1).unwrap()),
         RowPitch::new(core::num::NonZero::new(2).unwrap()),
@@ -159,7 +159,7 @@ fn slice_too_large_test() {
     for i in 1..=7 {
         input.push(i);
     }
-    Array2DRef::new(
+    let _ = Array2DRef::new(
         &input,
         RowLength::new(core::num::NonZero::new(3).unwrap()),
         RowPitch::new(core::num::NonZero::new(3).unwrap()),
@@ -173,7 +173,7 @@ fn slice_too_large_for_single_row_test() {
     for i in 1..=3 {
         input.push(i);
     }
-    Array2DRef::new(
+    let _ = Array2DRef::new(
         &input,
         RowLength::new(core::num::NonZero::new(1).unwrap()),
         RowPitch::new(core::num::NonZero::new(2).unwrap()),

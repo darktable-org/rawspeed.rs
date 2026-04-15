@@ -51,6 +51,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Bounds {
 
 impl_elt_matcher!(
     #[derive(Debug, Clone, PartialEq)]
+
     struct Sensor {
         black: black::Black,
         white: white::White,

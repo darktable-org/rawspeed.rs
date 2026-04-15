@@ -10,11 +10,11 @@ pub trait VFS {
 
 #[derive(Debug)]
 #[non_exhaustive]
+#[must_use]
 pub struct NativeFileSystem;
 
 impl NativeFileSystem {
     #[inline]
-    #[must_use]
     pub const fn new() -> Self {
         Self {}
     }

@@ -80,6 +80,8 @@ fn intersect_test() {
 #[test]
 fn const_time_lcm_test() {
     #[derive(Default)]
+    #[non_exhaustive]
+    #[must_use]
     struct Ty([u8; constant::lcm!(2_u8, 3).unwrap() as usize]);
     let q: Ty = Ty::default();
     assert_eq!(q.0.len(), 6);

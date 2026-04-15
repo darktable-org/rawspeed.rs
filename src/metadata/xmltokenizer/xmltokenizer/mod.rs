@@ -142,13 +142,13 @@ const fn is_xml_whitespace(c: char) -> bool {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct Token<'a> {
     pub tok: TokenTy,
     pub buf: &'a str,
 }
 
 impl<'a> Token<'a> {
-    #[must_use]
     #[inline]
     const fn new(tok: TokenTy, buf: &'a str) -> Self {
         Self { tok, buf }
@@ -156,13 +156,14 @@ impl<'a> Token<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct TokenStream<'a> {
     buf: &'a str,
     prev_tok: TokenTy,
 }
 
 impl<'a> TokenStream<'a> {
-    #[must_use]
     #[inline]
     pub const fn new(buf: &'a str) -> Self {
         Self {

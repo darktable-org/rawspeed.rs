@@ -49,6 +49,7 @@ where
 
 #[derive(Debug)]
 #[non_exhaustive]
+#[must_use]
 pub struct MaximalPackedElementCount {
     pub bytelen: usize,
     pub item_count: u64,
@@ -56,7 +57,6 @@ pub struct MaximalPackedElementCount {
 
 impl MaximalPackedElementCount {
     #[inline]
-    #[must_use]
     pub fn new<BitOrder>(bytelen: usize, item_packed_bitlen: u32) -> Self
     where
         BitOrder: BitOrderTrait + BitStreamTraits,

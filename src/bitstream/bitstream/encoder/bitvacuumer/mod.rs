@@ -68,6 +68,8 @@ where
 pub trait BitVacuumerUseDefaultDrainImpl {}
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct BitVacuumerBase<'a, T, W>
 where
     T: BitOrderTrait + BitStreamTraits,
