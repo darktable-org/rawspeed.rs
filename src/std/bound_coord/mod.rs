@@ -20,7 +20,11 @@ macro_rules! wrap {
 
             #[inline]
             #[must_use]
-            pub const fn value(&self) -> $ty {
+            pub fn value(&self) -> $ty {
+                #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+                unsafe {
+                    core::hint::assert_unchecked(self.value < self.domain);
+                }
                 self.value
             }
 
