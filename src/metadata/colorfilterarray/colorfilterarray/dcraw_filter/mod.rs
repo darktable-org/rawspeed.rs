@@ -42,11 +42,9 @@ impl From<OffsetArray2DRef<'_, ColorVariant>> for ColorVariantArray<bool> {
     #[inline]
     fn from(cfa: OffsetArray2DRef<'_, ColorVariant>) -> Self {
         let mut seen = ColorVariantArray::<bool>::default();
-        for row in 0..cfa.num_rows().get() {
-            for col in 0..cfa.row_length().get() {
-                let i = Coord2D::new(RowIndex::new(row), ColIndex::new(col));
-                let color = cfa[i];
-                seen[color] = true;
+        for row in cfa.rows() {
+            for col in row.cols() {
+                seen[*col] = true;
             }
         }
         seen
