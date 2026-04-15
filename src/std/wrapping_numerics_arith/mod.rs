@@ -56,7 +56,10 @@ where
         (lhs_lo, borrow) = lhs_lo.borrowing_sub(rhs_lo, borrow);
         (lhs_hi, borrow) = lhs_hi.borrowing_sub(rhs_hi, borrow);
         assert!(!borrow);
-        assert_eq!(lhs_hi, T::ZERO);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(lhs_hi == T::ZERO);
+        }
         lhs_lo
     }
 }
@@ -134,13 +137,15 @@ where
         }
 
         if let Ok(ibound) = domain.try_into() {
-            return rhs
+            let res = rhs
                 .checked_rem(ibound)
                 .unwrap()
                 .checked_add(ibound)
                 .unwrap()
-                .try_into()
-                .unwrap();
+                .try_into();
+            #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+            let res = unsafe { res.unwrap_unchecked() };
+            return res;
         }
 
         rhs.cast_unsigned().wrapping_add(domain)
@@ -164,7 +169,10 @@ where
         let lhs = **self;
         let sum = SumAndCarry(lhs.carrying_add(rhs, false));
         let rem = sum % **domain;
-        WrappingUnsigned::new(BoundUnsigned::new(*domain, rem).unwrap())
+        let res = BoundUnsigned::new(*domain, rem);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let res = unsafe { res.unwrap_unchecked() };
+        WrappingUnsigned::new(res)
     }
 }
 

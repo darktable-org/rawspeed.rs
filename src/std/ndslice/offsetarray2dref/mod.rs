@@ -37,24 +37,40 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
     #[inline]
     #[must_use]
     fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
+        if row.val() >= self.num_rows().val().get() {
+            return None;
+        }
         let row =
-            BoundRowIndex::new(RowCount::new(self.data.num_rows().get()), row)?;
+            BoundRowIndex::new(RowCount::new(self.data.num_rows().get()), row);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let row = unsafe { row.unwrap_unchecked() };
         let row = WrappingRowIndex::from(row) + self.origin.row();
-        self.data.get_row(**row)
+        let row = self.data.get_row(**row);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let row = unsafe { row.unwrap_unchecked() };
+        Some(row)
     }
 
     #[inline]
     #[must_use]
-    pub fn get_elt(&self, index: Coord2D) -> Option<&T> {
-        let row = self.get_row(index.row())?;
+    pub fn get_elt(&self, index: Coord2D) -> Option<&'a T> {
+        let row = self.get_row(RowIndex::new(*index.row()))?;
+        if *index.col() >= self.row_length().val().get() {
+            return None;
+        }
 
         let col = BoundColIndex::new(
             RowLength::new(self.data.row_length().get()),
             index.col(),
-        )?;
+        );
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let col = unsafe { col.unwrap_unchecked() };
         let col = WrappingColIndex::from(col) + self.origin.col();
         let col = ***col;
-        row.get(col)
+        let col = row.get(col);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let col = unsafe { col.unwrap_unchecked() };
+        Some(col)
     }
 
     #[inline]

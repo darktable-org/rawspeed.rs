@@ -15,7 +15,7 @@ where
     #[inline]
     #[must_use]
     pub fn new(domain: T) -> Option<Self> {
-        if domain == ConstZero::ZERO {
+        if domain <= ConstZero::ZERO {
             return None;
         }
         Some(Self { domain })
@@ -23,7 +23,11 @@ where
 
     #[inline]
     #[must_use]
-    pub const fn domain(&self) -> &T {
+    pub fn domain(&self) -> &T {
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(self.domain > ConstZero::ZERO);
+        }
         &self.domain
     }
 }
@@ -64,7 +68,11 @@ where
 
     #[inline]
     #[must_use]
-    pub const fn value(&self) -> &T {
+    pub fn value(&self) -> &T {
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(self.value < *self.domain);
+        }
         &self.value
     }
 
