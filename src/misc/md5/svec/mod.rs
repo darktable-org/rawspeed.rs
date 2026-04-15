@@ -1,6 +1,8 @@
 use rawspeed_common_generic_num::generic_num::common::ConstZero;
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct SVec<T, const N: usize>
 where
     T: Copy + ConstZero,

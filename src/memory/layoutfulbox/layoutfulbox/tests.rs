@@ -13,7 +13,7 @@ fn runtime_align_of<T>(x: &T) -> Align {
 
 #[test]
 fn basic_1xu8_align_1_as_u8_test() {
-    LayoutfulBox::<u8>::new(
+    let _unused = LayoutfulBox::<u8>::new(
         core::alloc::Layout::array::<u8>(1)
             .unwrap()
             .align_to(1)
@@ -24,7 +24,7 @@ fn basic_1xu8_align_1_as_u8_test() {
 
 #[test]
 fn basic_1xu8_align_2_as_u8_test() {
-    LayoutfulBox::<u8>::new(
+    let _unused = LayoutfulBox::<u8>::new(
         core::alloc::Layout::array::<u8>(1)
             .unwrap()
             .align_to(2)
@@ -36,7 +36,7 @@ fn basic_1xu8_align_2_as_u8_test() {
 #[test]
 #[should_panic(expected = "layout.size().is_multiple_of(size_of::<T>())")]
 fn basic_1xu8_align_1_as_u16_test() {
-    LayoutfulBox::<u16>::new(
+    let _unused = LayoutfulBox::<u16>::new(
         core::alloc::Layout::array::<u8>(1)
             .unwrap()
             .align_to(1)
@@ -48,7 +48,7 @@ fn basic_1xu8_align_1_as_u16_test() {
 #[test]
 #[should_panic(expected = "layout.size().is_multiple_of(size_of::<T>())")]
 fn basic_1xu8_align_2_as_u16_test() {
-    LayoutfulBox::<u16>::new(
+    let _unused = LayoutfulBox::<u16>::new(
         core::alloc::Layout::array::<u8>(1)
             .unwrap()
             .align_to(2)
@@ -59,7 +59,7 @@ fn basic_1xu8_align_2_as_u16_test() {
 
 #[test]
 fn basic_2xu8_align_1_as_u8_test() {
-    LayoutfulBox::<u8>::new(
+    let _unused = LayoutfulBox::<u8>::new(
         core::alloc::Layout::array::<u8>(2)
             .unwrap()
             .align_to(1)
@@ -70,7 +70,7 @@ fn basic_2xu8_align_1_as_u8_test() {
 
 #[test]
 fn basic_2xu8_align_2_as_u8_test() {
-    LayoutfulBox::<u8>::new(
+    let _unused = LayoutfulBox::<u8>::new(
         core::alloc::Layout::array::<u8>(2)
             .unwrap()
             .align_to(2)
@@ -82,7 +82,7 @@ fn basic_2xu8_align_2_as_u8_test() {
 #[test]
 #[should_panic(expected = "layout.align().is_multiple_of(align_of::<T>())")]
 fn basic_2xu8_align_1_as_u16_test() {
-    LayoutfulBox::<u16>::new(
+    let _unused = LayoutfulBox::<u16>::new(
         core::alloc::Layout::array::<u8>(2)
             .unwrap()
             .align_to(1)
@@ -93,7 +93,7 @@ fn basic_2xu8_align_1_as_u16_test() {
 
 #[test]
 fn basic_2xu8_align_2_as_u16_test() {
-    LayoutfulBox::<u16>::new(
+    let _unused = LayoutfulBox::<u16>::new(
         core::alloc::Layout::array::<u8>(2)
             .unwrap()
             .align_to(2)

@@ -1,12 +1,13 @@
 use crate::logger::Logger;
 
 #[derive(Debug, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct TestLogger {
     log: Vec<String>,
 }
 
 impl TestLogger {
-    #[must_use]
     pub const fn new() -> Self {
         Self { log: vec![] }
     }

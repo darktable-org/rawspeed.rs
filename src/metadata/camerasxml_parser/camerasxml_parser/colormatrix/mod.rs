@@ -15,6 +15,8 @@ mod repr {
     };
 
     #[derive(Debug, Clone, PartialEq)]
+    #[non_exhaustive]
+    #[must_use]
     pub struct ColorMatrixRows {
         pub elts: Vec<colormatrixrow::PlaneValues>,
     }
@@ -59,6 +61,7 @@ mod repr {
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct ColorMatrix {
     data: Vec<T>,
 }
@@ -71,7 +74,6 @@ impl ColorMatrix {
     }
 
     #[inline]
-    #[must_use]
     pub const fn mat(&self) -> Array2DRef<'_, T> {
         Array2DRef::new(
             self.data.as_slice(),

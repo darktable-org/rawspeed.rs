@@ -9,6 +9,7 @@ pub enum BlackArea {
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct IndividualBlackAreas {
     pub areas: Vec<BlackArea>,
 }

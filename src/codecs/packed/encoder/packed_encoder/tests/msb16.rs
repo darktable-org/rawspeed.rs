@@ -91,7 +91,7 @@ fn u8_enumeration_test() -> std::io::Result<()> {
                     Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
                         ExtraPadding::new(NumBytes::new(num_padding_bytes))
                     });
-                packer.pack()?;
+                let _ = packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
             }
@@ -170,7 +170,7 @@ fn u4_enumeration_test() -> std::io::Result<()> {
                     Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
                         ExtraPadding::new(NumBytes::new(num_padding_bytes))
                     });
-                packer.pack()?;
+                let _ = packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
             }
@@ -240,7 +240,7 @@ fn u16_enumeration_test() -> std::io::Result<()> {
                     Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
                         ExtraPadding::new(NumBytes::new(num_padding_bytes))
                     });
-                packer.pack()?;
+                let _ = packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
             }
@@ -338,7 +338,7 @@ fn u12_enumeration_test() -> std::io::Result<()> {
                     Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
                         ExtraPadding::new(NumBytes::new(num_padding_bytes))
                     });
-                packer.pack()?;
+                let _ = packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
             }
@@ -435,7 +435,7 @@ fn u32_enumeration_test() -> std::io::Result<()> {
                     Packer::new(&mut buf, BIT_ORDER, NUM_BITS, img, |_| {
                         ExtraPadding::new(NumBytes::new(num_padding_bytes))
                     });
-                packer.pack()?;
+                let _ = packer.pack()?;
                 buf.flush()?;
                 res.push(buf.get_ref().clone());
             }

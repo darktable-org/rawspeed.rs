@@ -6,6 +6,7 @@ pub enum LayoutfulBoxError {
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct LayoutfulBox<T> {
     layout: core::alloc::Layout,
     ptr: *mut u8,

@@ -7,6 +7,7 @@ use crate::camerasxml_parser::color::{self, ColorVariant};
 
 #[derive(Debug, Clone, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct Matrix {
     data: Vec<ColorVariant>,
     row_length: RowLength<core::num::NonZero<usize>>,
@@ -23,7 +24,6 @@ impl Matrix {
     }
 
     #[inline]
-    #[must_use]
     pub const fn mat(&self) -> Array2DRef<'_, ColorVariant> {
         Array2DRef::new(
             self.data.as_slice(),

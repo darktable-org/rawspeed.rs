@@ -54,12 +54,13 @@ impl<'a> Token<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct TokenStream<'a> {
     inner: xmltokenizer::TokenStream<'a>,
 }
 
 impl<'a> TokenStream<'a> {
-    #[must_use]
     #[inline]
     pub fn new(buf: &'a str) -> Self {
         let mut this = Self {

@@ -113,6 +113,8 @@ fn extract_high_bits_input_exhaustive_test() {
 #[test]
 fn extract_high_bits_test() {
     #[derive(Debug, Copy, Clone, PartialEq)]
+    #[non_exhaustive]
+    #[must_use]
     struct Pat {
         input: u8,
         num_bits: u32,
@@ -265,6 +267,8 @@ fn extract_low_bits_input_exhaustive_test() {
 #[test]
 fn extract_low_bits_test() {
     #[derive(Debug, Copy, Clone, PartialEq)]
+    #[non_exhaustive]
+    #[must_use]
     struct Pat {
         input: u8,
         num_bits: u32,

@@ -7,6 +7,7 @@ use crate::bitstreamcache::{
 
 #[derive(Debug, Copy, Clone)]
 #[non_exhaustive]
+#[must_use]
 pub struct BitStreamFlowHighInLowOut;
 
 impl<T> BitStreamFlowTrait<T> for BitStreamFlowHighInLowOut

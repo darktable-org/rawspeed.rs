@@ -7,6 +7,8 @@ pub enum ColorVariant {
     B,
 }
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct ColorRowValues {
     pub values: Vec<ColorVariant>,
 }

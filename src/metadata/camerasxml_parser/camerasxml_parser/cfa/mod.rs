@@ -11,6 +11,7 @@ mod repr;
 #[derive(Debug, Clone, PartialEq)]
 #[expect(clippy::upper_case_acronyms)]
 #[non_exhaustive]
+#[must_use]
 pub struct CFA {
     data: ColorFilterArray,
 }

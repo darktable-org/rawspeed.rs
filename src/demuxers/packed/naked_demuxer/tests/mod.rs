@@ -122,7 +122,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -164,7 +164,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -188,7 +188,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -338,7 +338,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 9];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -375,7 +375,7 @@ macro_rules! impl_generic_tests {
                     );
                     let res = res.decode(&mut output);
                     if test_width == width && test_height == height {
-                        res.unwrap();
+                    let _ = res.unwrap();
                     } else {
                         assert_eq!(
                             res.unwrap_err(),
@@ -486,7 +486,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_if_supported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -509,7 +509,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -532,7 +532,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_if_supported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -555,7 +555,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
 
         #[test]
@@ -650,7 +650,7 @@ macro_rules! impl_generic_tests {
             let cameras = xmlparser::parse_str::<Cameras<'_>>(cameras).unwrap();
             let input = vec![0_u8; 8];
             let res = NakedDemuxer::new(&input, &cameras, DecodeableCamera::new_unless_unsupported);
-            res.unwrap();
+            let _ = res.unwrap();
         }
     };
 }

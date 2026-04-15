@@ -23,13 +23,11 @@ impl<'a, T> OffsetArray2DRef<'a, T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.data.row_length()
     }
 
     #[inline]
-    #[must_use]
     pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
         self.data.num_rows()
     }

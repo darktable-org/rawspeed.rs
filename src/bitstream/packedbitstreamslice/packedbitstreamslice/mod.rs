@@ -30,6 +30,8 @@ where
 
 #[derive(Debug)]
 // #[non_exhaustive]
+#[non_exhaustive]
+#[must_use]
 pub struct PackingDescriptionImpl<BitOrder, const ITEM_PACKED_BITLEN: usize> {
     packed_mcu_bytelen: usize,
     packed_item_count: usize,
@@ -40,7 +42,6 @@ pub struct PackingDescriptionImpl<BitOrder, const ITEM_PACKED_BITLEN: usize> {
 impl<BitOrder, const ITEM_PACKED_BITLEN: usize>
     PackingDescriptionImpl<BitOrder, ITEM_PACKED_BITLEN>
 {
-    #[must_use]
     #[inline]
     pub const fn new() -> Self
     where
@@ -76,6 +77,8 @@ where
 }
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct PackedBitstreamSlice<'a, BitOrder, const ITEM_PACKED_BITLEN: usize>
 where
     BitOrder: Clone
@@ -90,6 +93,7 @@ where
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct PackedBitstreamSliceWrongSizeError {
     expected_multiplicity: usize,
     actual_len: usize,
@@ -131,7 +135,6 @@ where
         Ok(Self { slice })
     }
 
-    #[must_use]
     #[inline]
     pub const fn get_slice(&self) -> BitStreamSlice<'a, BitOrder> {
         self.slice

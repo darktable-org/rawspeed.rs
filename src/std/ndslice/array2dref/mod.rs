@@ -3,6 +3,8 @@ use rawspeed_std::coord_common::{
 };
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct Array2DRef<'a, T> {
     slice: &'a [T],
     pitch: RowPitch<core::num::NonZero<usize>>,
@@ -31,7 +33,6 @@ impl<'a, T> Array2DRef<'a, T> {
     }
 
     #[inline]
-    #[must_use]
     pub const fn row_length(&self) -> RowLength<core::num::NonZero<usize>> {
         self.row_length
     }
@@ -51,7 +52,6 @@ impl<'a, T> Array2DRef<'a, T> {
     }
 
     #[inline]
-    #[must_use]
     pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
         let num_rows = core::num::NonZero::new(self.rows().len());
         #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]

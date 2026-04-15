@@ -1,6 +1,8 @@
 use crate::svec::SVec;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct MD5State([u32; 4]);
 
 impl<'a> IntoIterator for &'a MD5State {
@@ -156,13 +158,11 @@ impl MD5State {
     }
 
     #[inline]
-    #[must_use]
     pub const fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
         Self([a, b, c, d])
     }
 
     #[inline]
-    #[must_use]
     pub const fn init() -> Self {
         Self::new(0x6745_2301, 0xEFCD_AB89, 0x98BA_DCFE, 0x1032_5476)
     }
@@ -205,6 +205,8 @@ impl MD5State {
 }
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct MD5 {
     buf: SVec<u8, 64>,
     state: MD5State,
@@ -257,7 +259,6 @@ impl MD5 {
     }
 
     #[inline]
-    #[must_use]
     pub fn flush(mut self) -> MD5State {
         assert!(!self.buf.is_full());
 

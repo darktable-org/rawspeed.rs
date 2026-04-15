@@ -9,6 +9,8 @@ use crate::bitstreambytesequencereader::{
 };
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct BitStreamByteSequenceDefaultReader<'a, T, ByteArray> {
     input: &'a [u8],
     pos: usize,
@@ -21,7 +23,6 @@ where
     T: BitStreamSliceConstraints,
 {
     #[inline]
-    #[must_use]
     pub const fn new(input: BitStreamSlice<'a, T>) -> Self {
         Self {
             input: input.get_bytes(),

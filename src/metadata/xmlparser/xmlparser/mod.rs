@@ -5,6 +5,8 @@ use rawspeed_metadata_xmltokendesparsifier::xmltokendesparsifier::{
 pub type Result<T> = core::result::Result<T, String>;
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct ParseStream<'a> {
     inner: TokenStream<'a>,
 }
@@ -24,7 +26,6 @@ where
 }
 
 impl<'a> ParseStream<'a> {
-    #[must_use]
     #[inline]
     pub fn new(buf: &'a str) -> Self {
         Self {
@@ -51,14 +52,22 @@ pub fn parse_str<'a, T: for<'b> Parse<'a, 'b>>(str: &'a str) -> Result<T> {
 }
 
 macro_rules! impl_matcher {
-    ($ident:ident) => {
+    (
+        $(
+            #$attributes:tt
+        )*
+        $ident:ident
+    ) => {
         #[derive(Debug, Clone, Copy, PartialEq)]
+        #[non_exhaustive]
+        $(
+            #$attributes
+        )*
         pub struct $ident<'a> {
             buf: &'a str,
         }
 
         impl<'a> $ident<'a> {
-            #[must_use]
             #[inline]
             const fn new(buf: &'a str) -> Self {
                 Self { buf }
@@ -91,15 +100,30 @@ macro_rules! impl_matcher {
     };
 }
 
-impl_matcher!(ElementContentVerbatim);
+impl_matcher!(
+    #[must_use]
+    ElementContentVerbatim
+);
 impl_matcher!(Gt);
 impl_matcher!(Lt);
-impl_matcher!(ElementName);
+impl_matcher!(
+    #[must_use]
+    ElementName
+);
 impl_matcher!(ElementSlash);
-impl_matcher!(ElementAttributeName);
+impl_matcher!(
+    #[must_use]
+    ElementAttributeName
+);
 impl_matcher!(ElementAttributeEq);
-impl_matcher!(ElementAttributeValue);
-impl_matcher!(Garbage);
+impl_matcher!(
+    #[must_use]
+    ElementAttributeValue
+);
+impl_matcher!(
+    #[must_use]
+    Garbage
+);
 
 #[cfg(test)]
 mod tests;

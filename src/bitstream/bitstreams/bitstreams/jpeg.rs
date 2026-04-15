@@ -5,6 +5,7 @@ use crate::bitstreams::{BitOrder, BitOrderTrait, BitStreamTraits};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct BitOrderJPEG;
 
 impl BitOrderTrait for BitOrderJPEG {}

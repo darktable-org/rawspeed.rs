@@ -86,6 +86,8 @@ fn guess_bits(
 }
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct NakedDemuxer<'a> {
     camera: &'a Camera<'a>,
     input: Array2DRef<'a, u8>,

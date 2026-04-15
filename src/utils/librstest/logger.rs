@@ -4,11 +4,11 @@ pub trait Logger {
 
 #[derive(Debug)]
 #[non_exhaustive]
+#[must_use]
 pub struct StdoutLogger;
 
 impl StdoutLogger {
     #[inline]
-    #[must_use]
     pub const fn new() -> Self {
         Self {}
     }

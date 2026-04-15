@@ -198,6 +198,7 @@ impl From<ColorBasisError> for DCrawFilterError {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct DCrawFilter {
     filter: u32,
 }

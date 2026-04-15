@@ -1,6 +1,8 @@
 use super::{alias, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct IndividualAliases<'a> {
     pub values: Vec<alias::Alias<'a>>,
 }

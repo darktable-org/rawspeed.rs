@@ -11,12 +11,13 @@ mod repr {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct Plane {
     plane: u8,
 }
 
 impl Plane {
-    #[must_use]
     #[inline]
     pub const fn new(plane: u8) -> Self {
         Self { plane }

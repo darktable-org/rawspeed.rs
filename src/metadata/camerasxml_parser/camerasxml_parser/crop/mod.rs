@@ -20,12 +20,12 @@ mod private {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct AbsoluteCropPosition {
     pos: Coord2D,
 }
 
 impl AbsoluteCropPosition {
-    #[must_use]
     #[inline]
     pub const fn new(pos: Coord2D) -> Self {
         Self { pos }
@@ -57,6 +57,7 @@ pub enum Height {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct CropSize {
     width: Width,
     height: Height,
@@ -64,7 +65,6 @@ pub struct CropSize {
 
 impl CropSize {
     #[inline]
-    #[must_use]
     pub const fn new(width: Width, height: Height) -> Self {
         Self { width, height }
     }
@@ -84,13 +84,13 @@ impl CropSize {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct Crop {
     pub pos: AbsoluteCropPosition,
     pub dim: CropSize,
 }
 
 impl Crop {
-    #[must_use]
     #[inline]
     pub const fn new(pos: AbsoluteCropPosition, dim: CropSize) -> Self {
         Self { pos, dim }

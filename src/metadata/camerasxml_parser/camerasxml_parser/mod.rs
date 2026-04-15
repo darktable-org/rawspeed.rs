@@ -2,6 +2,7 @@ use rawspeed_metadata_xmlparser::xmlparser;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct Int {
     val: i32,
 }
@@ -30,6 +31,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Int {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct Str<'a> {
     val: &'a str,
 }
@@ -56,6 +58,7 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for Str<'a> {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct BodyStr<'a> {
     val: &'a str,
 }
@@ -82,22 +85,19 @@ impl<'a, 'b> xmlparser::Parse<'a, 'b> for BodyStr<'a> {
 
 macro_rules! impl_attr_matcher {
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $attr_ident:ident: $val_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub val: $val_type_ident,
         }
@@ -214,22 +214,19 @@ macro_rules! _impl_elt_with_body_matcher {
 
 macro_rules! impl_elt_matcher {
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $attr0_ident:ident: $val0_type_ident:path,
             $attr1_ident:ident: $val1_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -241,23 +238,20 @@ macro_rules! impl_elt_matcher {
         );
     };
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $attr0_ident:ident: $val0_type_ident:path,
             $attr1_ident:ident: $val1_type_ident:path,
             $attr2_ident:ident: $val2_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -271,11 +265,9 @@ macro_rules! impl_elt_matcher {
         );
     };
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $attr0_ident:ident: $val0_type_ident:path,
             $attr1_ident:ident: $val1_type_ident:path,
@@ -283,12 +275,11 @@ macro_rules! impl_elt_matcher {
             $attr3_ident:ident: $val3_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,
@@ -307,22 +298,19 @@ macro_rules! impl_elt_matcher {
 
 macro_rules! impl_elt_with_body_matcher {
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $body_ident:ident: $body_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $body_ident: $body_type_ident,
         }
@@ -332,23 +320,20 @@ macro_rules! impl_elt_with_body_matcher {
         );
     };
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $attr0_ident:ident: $val0_type_ident:path,
             $body_ident:ident: $body_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $body_ident: $body_type_ident,
@@ -360,24 +345,21 @@ macro_rules! impl_elt_with_body_matcher {
         );
     };
     (
-        #[derive(
-            $(
-                $trait:ident
-            ),+
-        )]
+        $(
+            #$attributes:tt
+        )*
         struct $struct_ident:ident $(<$struct_lifetime:lifetime>)? {
             $attr0_ident:ident: $val0_type_ident:path,
             $attr1_ident:ident: $val1_type_ident:path,
             $body_ident:ident: $body_type_ident:path,
         }
     ) => {
-        #[derive(
-            $(
-                $trait
-            ),+
-        )]
+        $(
+            #$attributes
+        )*
         #[allow(clippy::upper_case_acronyms, clippy::allow_attributes)]
         #[non_exhaustive]
+        #[must_use]
         pub struct $struct_ident $(<$struct_lifetime>)? {
             pub $attr0_ident: $val0_type_ident,
             pub $attr1_ident: $val1_type_ident,

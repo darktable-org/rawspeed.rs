@@ -2,6 +2,7 @@ use rawspeed_bitstream_bitstreamslice::bitstreamslice::BitStreamSliceConstraints
 
 #[derive(Debug)]
 #[non_exhaustive]
+#[must_use]
 pub struct BitstreamPosition<T>
 where
     T: BitStreamSliceConstraints,
@@ -15,7 +16,6 @@ impl<T> BitstreamPosition<T>
 where
     T: BitStreamSliceConstraints,
 {
-    #[must_use]
     #[inline]
     pub const fn new(mcu_index: usize, bit_index: u32) -> Self {
         Self {

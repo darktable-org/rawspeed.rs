@@ -25,6 +25,7 @@ impl core::fmt::Display for RawParserError {
 
 #[derive(Debug)]
 #[non_exhaustive]
+#[must_use]
 pub struct RawParser;
 
 impl<'a> RawParser {

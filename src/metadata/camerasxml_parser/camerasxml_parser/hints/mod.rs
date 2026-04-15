@@ -1,6 +1,8 @@
 use super::{hint, xmlparser};
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct IndividualHints<'a> {
     pub values: Vec<hint::Hint<'a>>,
 }

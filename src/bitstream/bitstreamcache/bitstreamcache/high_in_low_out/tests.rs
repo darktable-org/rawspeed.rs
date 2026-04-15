@@ -133,7 +133,7 @@ fn bitstreamcache_zero_peek_of_empty_test() {
     type T = BitStreamCacheHighInLowOut<u8>;
     let cache = T::new();
     assert_eq!(cache.fill_level(), 0);
-    cache.peek(0);
+    let _ = cache.peek(0);
     unreachable!();
 }
 
@@ -143,7 +143,7 @@ fn bitstreamcache_non_zero_peek_of_empty_test() {
     type T = BitStreamCacheHighInLowOut<u8>;
     let cache = T::new();
     assert_eq!(cache.fill_level(), 0);
-    cache.peek(1);
+    let _ = cache.peek(1);
     unreachable!();
 }
 
@@ -155,7 +155,7 @@ fn bitstreamcache_zero_peek_of_non_empty_test() {
     assert_eq!(cache.fill_level(), 0);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 1);
-    cache.peek(0);
+    let _ = cache.peek(0);
     unreachable!();
 }
 
@@ -166,7 +166,7 @@ fn bitstreamcache_non_zero_peek_of_non_empty_test() {
     assert_eq!(cache.fill_level(), 0);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 1);
-    cache.peek(1);
+    let _ = cache.peek(1);
     assert_eq!(cache.fill_level(), 1);
 }
 
@@ -178,7 +178,7 @@ fn bitstreamcache_peek_overflow_test() {
     assert_eq!(cache.fill_level(), 0);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 1);
-    cache.peek(2);
+    let _ = cache.peek(2);
     unreachable!();
 }
 
@@ -189,11 +189,11 @@ fn bitstreamcache_peek_after_refill_test() {
     assert_eq!(cache.fill_level(), 0);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 1);
-    cache.peek(1);
+    let _ = cache.peek(1);
     assert_eq!(cache.fill_level(), 1);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 2);
-    cache.peek(2);
+    let _ = cache.peek(2);
     assert_eq!(cache.fill_level(), 2);
 }
 
@@ -205,11 +205,11 @@ fn bitstreamcache_peek_overflow_after_refill_test() {
     assert_eq!(cache.fill_level(), 0);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 1);
-    cache.peek(1);
+    let _ = cache.peek(1);
     assert_eq!(cache.fill_level(), 1);
     cache.push(BitSeq::new(BitLen::new(1), 0).unwrap());
     assert_eq!(cache.fill_level(), 2);
-    cache.peek(3);
+    let _ = cache.peek(3);
     unreachable!();
 }
 

@@ -11,6 +11,8 @@ use rawspeed_bitstream_packedbitstreamslice::packedbitstreamslice::{
 };
 
 #[derive(Debug)]
+#[non_exhaustive]
+#[must_use]
 pub struct PackedBitstreamUnpacker<BitOrder, const ITEM_PACKED_BITLEN: usize>
 where
     BitOrder: Clone + Copy + BitOrderTrait + BitStreamTraits,
@@ -21,6 +23,7 @@ where
 
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
+#[must_use]
 pub struct PackedBitstreamUnpackerWrongSizeError {
     expected: usize,
     actual: usize,

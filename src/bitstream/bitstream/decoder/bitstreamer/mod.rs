@@ -44,6 +44,8 @@ where
 }
 
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
+#[must_use]
 pub struct BitStreamerBase<
     'a,
     T,
@@ -145,7 +147,6 @@ where
     <T as BitStreamTraits>::StreamFlow: BitStreamFlowTrait<u64>,
 {
     #[inline]
-    #[must_use]
     pub fn new(reader: R) -> Self {
         Self {
             reader,

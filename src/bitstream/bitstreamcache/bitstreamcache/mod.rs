@@ -53,6 +53,8 @@ where
 }
 
 #[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+#[must_use]
 pub struct BitStreamCacheBase<F: BitStreamFlowTrait<T>, T: BitStreamCacheData> {
     // The actual bits stored in the cache
     cache: T,

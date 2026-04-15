@@ -1,6 +1,8 @@
 use rawspeed_common_generic_num::generic_num::common::{ConstZero, Integer};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct Bound<T>
 where
     T: Integer + PartialEq + PartialOrd + Clone + Copy,
@@ -45,6 +47,8 @@ where
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct BoundUnsigned<T>
 where
     T: Integer + PartialEq + PartialOrd + Clone + Copy,
@@ -77,7 +81,6 @@ where
     }
 
     #[inline]
-    #[must_use]
     pub const fn domain(&self) -> &Bound<T> {
         &self.domain
     }

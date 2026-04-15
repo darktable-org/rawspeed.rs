@@ -1,4 +1,6 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct RowLength<T = usize> {
     val: T,
 }
@@ -8,7 +10,6 @@ where
     T: Copy,
 {
     #[inline]
-    #[must_use]
     pub const fn new(len: T) -> Self {
         Self { val: len }
     }
@@ -30,6 +31,8 @@ impl<T> core::ops::Deref for RowLength<T> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct RowCount<T = usize> {
     val: T,
 }
@@ -39,7 +42,6 @@ where
     T: Copy,
 {
     #[inline]
-    #[must_use]
     pub const fn new(len: T) -> Self {
         Self { val: len }
     }
@@ -61,6 +63,8 @@ impl<T> core::ops::Deref for RowCount<T> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct Dimensions2D<T = usize> {
     row_len: RowLength<T>,
     row_count: RowCount<T>,
@@ -71,25 +75,24 @@ where
     T: Copy,
 {
     #[inline]
-    #[must_use]
     pub const fn new(row_len: RowLength<T>, row_count: RowCount<T>) -> Self {
         Self { row_len, row_count }
     }
 
     #[inline]
-    #[must_use]
     pub const fn row_len(&self) -> RowLength<T> {
         self.row_len
     }
 
     #[inline]
-    #[must_use]
     pub const fn row_count(&self) -> RowCount<T> {
         self.row_count
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct RowPitch<T = usize> {
     val: T,
 }
@@ -99,7 +102,6 @@ where
     T: Copy,
 {
     #[inline]
-    #[must_use]
     pub const fn new(pitch: T) -> Self {
         Self { val: pitch }
     }
@@ -121,13 +123,14 @@ impl<T> core::ops::Deref for RowPitch<T> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct RowIndex {
     row: usize,
 }
 
 impl RowIndex {
     #[inline]
-    #[must_use]
     pub const fn new(row: usize) -> Self {
         Self { row }
     }
@@ -165,13 +168,14 @@ impl PartialOrd<RowCount> for RowIndex {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct ColIndex {
     col: usize,
 }
 
 impl ColIndex {
     #[inline]
-    #[must_use]
     pub const fn new(col: usize) -> Self {
         Self { col }
     }
@@ -193,6 +197,8 @@ impl core::ops::Deref for ColIndex {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct Coord2D {
     row: RowIndex,
     col: ColIndex,
@@ -200,32 +206,30 @@ pub struct Coord2D {
 
 impl Coord2D {
     #[inline]
-    #[must_use]
     pub const fn new(row: RowIndex, col: ColIndex) -> Self {
         Self { row, col }
     }
 
     #[inline]
-    #[must_use]
     pub const fn row(&self) -> RowIndex {
         self.row
     }
 
     #[inline]
-    #[must_use]
     pub const fn col(&self) -> ColIndex {
         self.col
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct RowOffset {
     row: isize,
 }
 
 impl RowOffset {
     #[inline]
-    #[must_use]
     pub const fn new(row: isize) -> Self {
         Self { row }
     }
@@ -247,13 +251,14 @@ impl core::ops::Deref for RowOffset {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct ColOffset {
     col: isize,
 }
 
 impl ColOffset {
     #[inline]
-    #[must_use]
     pub const fn new(col: isize) -> Self {
         Self { col }
     }
@@ -291,6 +296,8 @@ impl PartialOrd<RowLength> for ColIndex {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
+#[must_use]
 pub struct CoordOffset2D {
     row: RowOffset,
     col: ColOffset,
@@ -298,32 +305,30 @@ pub struct CoordOffset2D {
 
 impl CoordOffset2D {
     #[inline]
-    #[must_use]
     pub const fn new(row: RowOffset, col: ColOffset) -> Self {
         Self { row, col }
     }
 
     #[inline]
-    #[must_use]
     pub const fn row(&self) -> RowOffset {
         self.row
     }
 
     #[inline]
-    #[must_use]
     pub const fn col(&self) -> ColOffset {
         self.col
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[non_exhaustive]
+#[must_use]
 pub struct ByteMultiple {
     val: usize,
 }
 
 impl ByteMultiple {
     #[inline]
-    #[must_use]
     pub const fn new(len: usize) -> Self {
         Self { val: len }
     }
@@ -345,6 +350,8 @@ impl core::ops::Deref for ByteMultiple {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[non_exhaustive]
+#[must_use]
 pub struct Align {
     val: ByteMultiple,
 }
