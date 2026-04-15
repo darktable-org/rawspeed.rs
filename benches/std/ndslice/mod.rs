@@ -1,6 +1,6 @@
 use criterion::{
-    Bencher, BenchmarkId, Criterion, Throughput, criterion_group,
-    criterion_main,
+    AxisScale, Bencher, BenchmarkId, Criterion, PlotConfiguration, Throughput,
+    criterion_group, criterion_main,
 };
 use rawspeed_std::coord_common::{
     ColOffset, CoordOffset2D, Dimensions2D, RowCount, RowLength, RowOffset,
@@ -70,25 +70,19 @@ fn prepare_and_run_bench(
     b.iter(|| run_bench(core::hint::black_box(view)));
 }
 
-fn bench_quadrant(
+fn bench_config(
     group: &mut criterion::BenchmarkGroup<'_, criterion::measurement::WallTime>,
     dims: Dimensions2D<core::num::NonZero<usize>>,
     off: CoordOffset2D,
 ) {
-    let quadrants = match (*off.row(), *off.col()) {
-        (row, col) if (row == 0 && col == 0) => "I",
-        (row, col) if (row == 0 && col != 0) => "I_II",
-        (row, col) if (row != 0 && col == 0) => "I_IV",
-        (row, col) if (row != 0 && col != 0) => "I_II_IV_III",
-        (_, _) => unreachable!(),
-    };
     let num_elts = dims.row_count().get() * dims.row_len().get();
+    let num_bytes = size_of::<T>() * num_elts;
     group.throughput(Throughput::ElementsAndBytes {
         elements: num_elts.try_into().unwrap(),
-        bytes: (size_of::<T>() * num_elts).try_into().unwrap(),
+        bytes: num_bytes.try_into().unwrap(),
     });
     group.bench_with_input(
-        BenchmarkId::from_parameter(quadrants.to_owned()),
+        BenchmarkId::from_parameter(num_bytes),
         &(dims, off),
         |b: &mut Bencher<'_>,
          p: &(Dimensions2D<core::num::NonZero<usize>>, CoordOffset2D)| {
@@ -98,22 +92,55 @@ fn bench_quadrant(
 }
 
 fn enumerate_quadrants(c: &mut Criterion) {
-    let unit = 512;
-    let dims = Dimensions2D::new(
-        RowLength::new(core::num::NonZero::new(2 * unit).unwrap()),
-        RowCount::new(core::num::NonZero::new(2 * unit).unwrap()),
-    );
+    let sizes = || -> Box<dyn Iterator<Item = _>> {
+        if true {
+            let sizes = [16].into_iter();
+            Box::new(sizes)
+        } else {
+            let sizes = core::iter::successors(Some(1_usize), |&prev| {
+                prev.checked_mul(2)
+            })
+            .take_while(|s| *s <= 16 * 1024);
+            Box::new(sizes)
+        }
+    };
 
-    let mut group = c.benchmark_group("iter");
-    for row_offset in [0, unit] {
-        let row_offset = RowOffset::new(row_offset.try_into().unwrap());
-        for col_offset in [0, unit] {
-            let col_offset = ColOffset::new(col_offset.try_into().unwrap());
-            let off = CoordOffset2D::new(row_offset, col_offset);
-            bench_quadrant(&mut group, dims, off);
+    for with_row_offset in [false, true] {
+        for with_col_offset in [false, true] {
+            let quadrants = {
+                if !with_row_offset && !with_col_offset {
+                    "I"
+                } else if !with_row_offset && with_col_offset {
+                    "I_II"
+                } else if with_row_offset && !with_col_offset {
+                    "I_IV"
+                } else if with_row_offset && with_col_offset {
+                    "I_II_IV_III"
+                } else {
+                    unreachable!()
+                }
+            };
+            let mut group = c.benchmark_group(format!("iter/{quadrants}"));
+            group.plot_config(
+                PlotConfiguration::default()
+                    .summary_scale(AxisScale::Logarithmic),
+            );
+            for unit in sizes() {
+                let dims = Dimensions2D::new(
+                    RowLength::new(core::num::NonZero::new(2 * unit).unwrap()),
+                    RowCount::new(core::num::NonZero::new(2 * unit).unwrap()),
+                );
+                let unit = unit.try_into().unwrap();
+                let row_offset =
+                    RowOffset::new(if with_row_offset { unit } else { 0 });
+                let col_offset =
+                    ColOffset::new(if with_col_offset { unit } else { 0 });
+                let off = CoordOffset2D::new(row_offset, col_offset);
+                bench_config(&mut group, dims, off);
+            }
+            group.finish();
         }
     }
-    group.finish();
 }
 
 criterion_group!(benches, enumerate_quadrants);
