@@ -1,4 +1,3 @@
-use rawspeed_common_exact_ops::exact_ops::div::CheckedDivExact;
 use rawspeed_std::coord_common::{
     Coord2D, RowCount, RowIndex, RowLength, RowPitch,
 };
@@ -38,38 +37,54 @@ impl<'a, T> Array2DRef<'a, T> {
     }
 
     #[inline]
+    fn rows(&self) -> core::slice::ChunksExact<'a, T> {
+        let rows = self.slice.chunks_exact(self.pitch().val().get());
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(rows.remainder().is_empty());
+        }
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(rows.len() != 0);
+        }
+        rows
+    }
+
+    #[inline]
     #[must_use]
     pub fn num_rows(&self) -> RowCount<core::num::NonZero<usize>> {
-        CheckedDivExact::checked_div_exact(
-            self.slice.len(),
-            self.pitch().val().get(),
-        )
-        .and_then(|v| v.try_into().ok())
-        .map(RowCount::new)
-        .unwrap()
+        let num_rows = core::num::NonZero::new(self.rows().len());
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let num_rows = unsafe { num_rows.unwrap_unchecked() };
+        RowCount::new(num_rows)
     }
 
     #[inline]
     #[must_use]
     pub fn get_row(&self, row: RowIndex) -> Option<&'a [T]> {
-        if *row >= self.num_rows().get() {
+        if row.val() >= self.num_rows().val().get() {
             return None;
         }
-        Some(
-            {
-                let full_row =
-                    self.slice.chunks_exact(self.pitch().get()).nth(*row)?;
-                full_row.get(..self.row_length().get())
-            }
-            .unwrap(),
-        )
+        let full_row = self.rows().nth(*row);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let full_row = unsafe { full_row.unwrap_unchecked() };
+        let parts = full_row.split_at_checked(self.row_length.val().get());
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let (data, _padding) = unsafe { parts.unwrap_unchecked() };
+        Some(data)
     }
 
     #[inline]
     #[must_use]
     pub fn get_elt(&self, index: Coord2D) -> Option<&'a T> {
         let row = self.get_row(RowIndex::new(*index.row()))?;
-        row.get(*index.col())
+        if *index.col() >= self.row_length().val().get() {
+            return None;
+        }
+        let elt = row.get(*index.col());
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        let elt = unsafe { elt.unwrap_unchecked() };
+        Some(elt)
     }
 }
 
