@@ -117,6 +117,8 @@ impl<T> NormalizeRHS for T
 where
     T: Clone
         + Copy
+        + ConstZero
+        + PartialOrd
         + CastUnsigned
         + TryFrom<<T as CastUnsigned>::Output>
         + CheckedRem<Output = Option<T>>
@@ -141,11 +143,12 @@ where
                 .checked_rem(ibound)
                 .unwrap()
                 .checked_add(ibound)
-                .unwrap()
-                .try_into();
+                .unwrap();
             #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
-            let res = unsafe { res.unwrap_unchecked() };
-            return res;
+            unsafe {
+                core::hint::assert_unchecked(res > T::ZERO);
+            }
+            return res.try_into().unwrap();
         }
 
         rhs.cast_unsigned().wrapping_add(domain)
