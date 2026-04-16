@@ -38,12 +38,11 @@ impl<T> LayoutfulBox<T> {
     #[inline]
     #[must_use]
     pub const fn get_slice_mut(&mut self) -> &mut [T] {
+        let data = self.ptr.cast::<T>();
+        let len = self.layout.size() / size_of::<T>();
         #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
         unsafe {
-            core::slice::from_raw_parts_mut(
-                self.ptr.cast::<T>(),
-                self.layout.size() / size_of::<T>(),
-            )
+            core::slice::from_raw_parts_mut(data, len)
         }
     }
 }
