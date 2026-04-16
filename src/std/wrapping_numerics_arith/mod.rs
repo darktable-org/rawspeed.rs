@@ -1,6 +1,6 @@
 use rawspeed_common_generic_num::generic_num::{
     arith::{BorrowingSub, CarryingAdd, CheckedAdd, CheckedRem, WrappingAdd},
-    common::{CastUnsigned, ConstOne, ConstZero, Integer, Max},
+    common::{CastUnsigned, ConstOne, ConstZero, Integer, Max, Min},
 };
 
 use crate::{
@@ -79,10 +79,26 @@ where
     }
 }
 
+trait TypeSignednessCheck {
+    #[must_use]
+    fn is_signed() -> bool;
+}
+
+impl<T> TypeSignednessCheck for T
+where
+    T: ConstZero + Min + PartialOrd,
+{
+    #[inline]
+    fn is_signed() -> bool {
+        T::MIN < T::ZERO
+    }
+}
+
 impl<T> core::ops::Rem<T> for SumAndCarry<T>
 where
     Self: core::ops::Sub<T, Output = T> + PartialOrd<SumAndCarry<T>>,
     T: core::fmt::Debug
+        + TypeSignednessCheck
         + Copy
         + PartialOrd
         + ConstZero
@@ -98,11 +114,20 @@ where
     type Output = T;
 
     fn rem(self, rhs: T) -> Self::Output {
-        if self < SumAndCarry((rhs, false)) {
-            let lhs = SumWithZeroCarry::try_from(self).unwrap();
-            return lhs.0;
+        assert!(!T::is_signed());
+        let modulo = {
+            if self < SumAndCarry((rhs, false)) {
+                SumWithZeroCarry::try_from(self).unwrap().0
+            } else {
+                self - rhs
+            }
+        };
+        assert!(modulo >= T::ZERO);
+        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            core::hint::assert_unchecked(modulo < rhs);
         }
-        self - rhs
+        modulo
     }
 }
 
@@ -172,9 +197,7 @@ where
         let lhs = **self;
         let sum = SumAndCarry(lhs.carrying_add(rhs, false));
         let rem = sum % **domain;
-        let res = BoundUnsigned::new(*domain, rem);
-        #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
-        let res = unsafe { res.unwrap_unchecked() };
+        let res = BoundUnsigned::new(*domain, rem).unwrap();
         WrappingUnsigned::new(res)
     }
 }
