@@ -51,9 +51,10 @@ impl<T> Drop for LayoutfulBox<T> {
     #[inline]
     fn drop(&mut self) {
         let ptr = core::mem::take(&mut self.ptr);
+        let layout = self.layout;
         #[expect(unsafe_code, clippy::undocumented_unsafe_blocks)]
         unsafe {
-            std::alloc::dealloc(ptr, self.layout);
+            std::alloc::dealloc(ptr, layout);
         }
     }
 }
