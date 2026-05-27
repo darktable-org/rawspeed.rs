@@ -1,3 +1,3 @@
 ## AI usage ##
 
-Please consult [AGENTS.md][] file.
+Please consult [AGENTS](AGENTS.md) file.
