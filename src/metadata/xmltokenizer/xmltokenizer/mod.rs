@@ -224,7 +224,7 @@ impl<'a> TokenStream<'a> {
         match tok {
             TokenTy::Lt => return (tok, tok_end),
             TokenTy::TrailingGarbage if tok_end == 0 => {
-                assert!(tok_end == self.buf.len());
+                assert_eq!(tok_end, self.buf.len());
                 return (tok, tok_end);
             }
             TokenTy::ElementContentVerbatim
@@ -277,7 +277,7 @@ impl<'a> TokenStream<'a> {
                 | TokenTy::ElementAttributeValue
                 | TokenTy::ElementWhitespaceAfterAttributeValue
         ));
-        assert!(Some(0) == self.buf.find(|c: char| !is_xml_whitespace(c)));
+        assert_eq!(Some(0), self.buf.find(|c: char| !is_xml_whitespace(c)));
 
         match self.prev_tok {
             TokenTy::Lt | TokenTy::ElementWhitespaceAfterLt
@@ -444,7 +444,7 @@ impl<'a> TokenStream<'a> {
         };
         assert!(!self.prev_tok.is_whitespace() || !tok.0.is_whitespace());
         if let (TokenTy::TrailingGarbage, tok_end) = tok {
-            assert!(tok_end == self.buf.len());
+            assert_eq!(tok_end, self.buf.len());
             if self.buf.is_empty() {
                 return None;
             }

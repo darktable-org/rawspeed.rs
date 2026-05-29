@@ -36,6 +36,7 @@ env:
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   MACOSX_DEPLOYMENT_TARGET: ${{ inputs.os-ver }}
+  RUN_CLIPPY: ${{ inputs.rust-toolchain-name != 'nightly' }}
 
 jobs:
   macOS:
@@ -81,8 +82,12 @@ jobs:
           rustup toolchain install ${{ inputs.rust-toolchain-name }} --allow-downgrade --profile minimal
           rustup default ${{ inputs.rust-toolchain-name }}
           RUST_COMPONENTS="${RUST_COMPONENTS} \
+          "
+          if [ "${{ env.RUN_CLIPPY }}" = "true" ]; then
+          RUST_COMPONENTS="${RUST_COMPONENTS} \
             clippy \
           "
+          fi
           if [ "${{ env.WITH_CODE_COVERAGE }}" = "true" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
             llvm-tools-preview \
@@ -142,6 +147,7 @@ jobs:
           cargo check --profile ${{ inputs.build-profile }} --all-features --all-targets
       - name: Run Clippy (libs)
         timeout-minutes: 1
+        if: env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -149,6 +155,7 @@ jobs:
           cargo clippy --profile ${{ inputs.build-profile }} --all-features --lib
       - name: Run Clippy (tests)
         timeout-minutes: 1
+        if: env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -156,6 +163,7 @@ jobs:
           cargo clippy --profile ${{ inputs.build-profile }} --all-features --tests
       - name: Run Clippy (bins)
         timeout-minutes: 1
+        if: env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -163,6 +171,7 @@ jobs:
           cargo clippy --profile ${{ inputs.build-profile }} --all-features --bins
       - name: Run Clippy (benches)
         timeout-minutes: 1
+        if: env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -170,6 +179,7 @@ jobs:
           cargo clippy --profile ${{ inputs.build-profile }} --all-features --benches
       - name: Run Clippy (... rest)
         timeout-minutes: 1
+        if: env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
