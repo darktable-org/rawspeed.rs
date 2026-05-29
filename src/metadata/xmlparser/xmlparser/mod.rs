@@ -34,7 +34,10 @@ impl<'a> ParseStream<'a> {
     }
 
     #[inline]
-    pub fn parse<T: for<'b> Parse<'a, 'b>>(&mut self) -> Result<T> {
+    pub fn parse<T>(&mut self) -> Result<T>
+    where
+        T: for<'b> Parse<'a, 'b>,
+    {
         let mut fork = self.clone();
         match T::parse(&mut fork) {
             Ok(res) => {
@@ -47,7 +50,10 @@ impl<'a> ParseStream<'a> {
 }
 
 #[inline]
-pub fn parse_str<'a, T: for<'b> Parse<'a, 'b>>(str: &'a str) -> Result<T> {
+pub fn parse_str<'a, T>(str: &'a str) -> Result<T>
+where
+    T: for<'b> Parse<'a, 'b>,
+{
     ParseStream::new(str).parse::<T>()
 }
 

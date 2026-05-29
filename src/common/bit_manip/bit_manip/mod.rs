@@ -3,10 +3,10 @@ use rawspeed_common_generic_num::generic_num::common::{
 };
 
 #[inline]
-pub fn extract_high_bits<T: Integer + core::ops::Shr<u32, Output = T>>(
-    value: T,
-    num_bits: u32,
-) -> T {
+pub fn extract_high_bits<T>(value: T, num_bits: u32) -> T
+where
+    T: Integer + core::ops::Shr<u32, Output = T>,
+{
     if num_bits == 0 {
         return <T>::ZERO;
     }
