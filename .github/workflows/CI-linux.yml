@@ -48,6 +48,7 @@ env:
   SRC_DIR: ${{ github.workspace }}/rawspeed.rs
   CODECOV_TOKEN_EXISTS: ${{ secrets.CODECOV_TOKEN != '' }}
   CODE_COVERAGE_SUPPORTED: ${{ inputs.job-flavor == 'plain' && (inputs.target-os != 'windows' || inputs.rust-toolchain-abi == 'msvc') }}
+  RUN_CLIPPY: ${{ inputs.rust-toolchain-name != 'nightly' }}
 
 defaults:
   run:
@@ -324,9 +325,11 @@ jobs:
           elif [ "${{ inputs.job-flavor }}" = "SonarQube" ]; then
           /bin/true
           elif [ "${{ inputs.job-flavor }}" = "plain" ]; then
+          if [ "${{ env.RUN_CLIPPY }}" = "true" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
             clippy \
           "
+          fi
           elif [ "${{ inputs.job-flavor }}" = "Miri" ]; then
           RUST_COMPONENTS="${RUST_COMPONENTS} \
             rust-src \
@@ -472,7 +475,7 @@ jobs:
           cargo check --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-features --all-targets
       - name: Run Clippy (libs)
         timeout-minutes: 1
-        if: inputs.job-flavor == 'plain'
+        if: inputs.job-flavor == 'plain' && env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -480,7 +483,7 @@ jobs:
           cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-features --lib
       - name: Run Clippy (tests)
         timeout-minutes: 1
-        if: inputs.job-flavor == 'plain'
+        if: inputs.job-flavor == 'plain' && env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -488,7 +491,7 @@ jobs:
           cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-features --tests
       - name: Run Clippy (bins)
         timeout-minutes: 1
-        if: inputs.job-flavor == 'plain'
+        if: inputs.job-flavor == 'plain' && env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -496,7 +499,7 @@ jobs:
           cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-features --bins
       - name: Run Clippy (benches)
         timeout-minutes: 1
-        if: inputs.job-flavor == 'plain'
+        if: inputs.job-flavor == 'plain' && env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
@@ -504,7 +507,7 @@ jobs:
           cargo clippy --target ${{ env.RUST_TARGET }} --profile ${{ inputs.build-profile }} --all-features --benches
       - name: Run Clippy (... rest)
         timeout-minutes: 1
-        if: inputs.job-flavor == 'plain'
+        if: inputs.job-flavor == 'plain' && env.RUN_CLIPPY == 'true'
         run: |
           set -xe
           . "$HOME/.cargo/env"
