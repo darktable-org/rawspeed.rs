@@ -469,5 +469,4 @@ impl<'a> Iterator for TokenStream<'a> {
 }
 
 #[cfg(test)]
-#[allow(clippy::allow_attributes, clippy::large_stack_frames)]
 mod tests;

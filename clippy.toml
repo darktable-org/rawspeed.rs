@@ -1,2 +1,2 @@
 cognitive-complexity-threshold = 10
-stack-size-threshold = 16384
+stack-size-threshold = 8192
