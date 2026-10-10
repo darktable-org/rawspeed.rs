@@ -41,5 +41,4 @@ impl<'a> ByteStreamer<'a> {
 
 #[cfg(test)]
 #[expect(clippy::cast_sign_loss)]
-#[expect(clippy::float_cmp)]
 mod tests;
