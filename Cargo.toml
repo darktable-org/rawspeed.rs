@@ -58,13 +58,8 @@ rawspeed-bitstream-bitstreamcache = { path = "src/bitstream/bitstreamcache" }
 rawspeed-bitstream-bitstreamposition = { path = "src/bitstream/bitstreamposition" }
 rawspeed-bitstream-bitstreams = { path = "src/bitstream/bitstreams" }
 rawspeed-bitstream-bitstreamslice = { path = "src/bitstream/bitstreamslice" }
-rawspeed-bitstream-bytestream-decoder = { path = "src/bitstream/bytestream/decoder" }
-rawspeed-bitstream-bytestream-encoder = { path = "src/bitstream/bytestream/encoder" }
 rawspeed-bitstream-packedbitstreamslice = { path = "src/bitstream/packedbitstreamslice" }
-rawspeed-bitstream-packedbitstreamunpacker = { path = "src/bitstream/packedbitstreamunpacker" }
 rawspeed-codecs-packed-decoder = { path = "src/codecs/packed/decoder" }
-rawspeed-codecs-packed-encoder = { path = "src/codecs/packed/encoder" }
-rawspeed-common = { path = "src/common" }
 rawspeed-common-bit_manip = { path = "src/common/bit_manip" }
 rawspeed-common-bitseq = { path = "src/common/bitseq" }
 rawspeed-common-exact_ops = { path = "src/common/exact_ops" }
@@ -73,7 +68,6 @@ rawspeed-common-generic_num = { path = "src/common/generic_num" }
 rawspeed-common-lcm = { path = "src/common/lcm" }
 rawspeed-demuxers-packed = { path = "src/demuxers/packed" }
 rawspeed-demuxers-rawdemuxer = { path = "src/demuxers/rawdemuxer" }
-rawspeed-memory = { path = "src/memory" }
 rawspeed-memory-endianness = { path = "src/memory/endianness" }
 rawspeed-memory-layoutfulbox = { path = "src/memory/layoutfulbox" }
 rawspeed-memory-nd_slice_procurement = { path = "src/memory/nd-slice-procurement" }
@@ -85,23 +79,18 @@ rawspeed-metadata-xmlparser = { path = "src/metadata/xmlparser" }
 rawspeed-metadata-xmltokendesparsifier = { path = "src/metadata/xmltokendesparsifier" }
 rawspeed-metadata-xmltokenizer = { path = "src/metadata/xmltokenizer" }
 rawspeed-misc-md5 = { path = "src/misc/md5" }
-rawspeed-parsers = { path = "src/parsers" }
 rawspeed-parsers-rawparser = { path = "src/parsers/rawparser" }
-rawspeed-src = { path = "src" }
 rawspeed-std = { path = "src/std" }
 rawspeed-std-ndslice = { path = "src/std/ndslice" }
-rawspeed-std-range_rotation = { path = "src/std/range_rotation" }
 rawspeed-utils-librstest = { path = "src/utils/librstest" }
-rawspeed-utils-rstest = { path = "src/utils/rstest" }
 criterion = { version = "0.8.2", default-features = false, features = [] }
 
 [workspace.package]
 version = "0.1.0"
 authors = ["Roman Lebedev <lebedev.ri@gmail.com>"]
 edition = "2024"
-rust-version = "1.96"
+rust-version = "1.99"
 documentation = "https://rawspeed.rs"
-homepage = "https://rawspeed.rs"
 repository = "https://github.com/darktable-org/rawspeed.rs"
 license = "MIT OR Apache-2.0"
 
@@ -217,9 +206,7 @@ cognitive_complexity = { level = "warn", priority = 0 }
 get_unwrap = { level = "allow", priority = 0 }
 type_repetition_in_bounds = { level = "warn", priority = 0 }
 missing_const_for_fn = { level = "warn", priority = 0 }
-
-# FIXME: reenable after https://github.com/rust-lang/rust-clippy/issues/15099
-large_stack_frames = { level = "allow", priority = 1 }
+large_stack_frames = { level = "warn", priority = 0 }
 
 blanket_clippy_restriction_lints = { level = "allow", priority = 0 }
 let_underscore_must_use = { level = "allow", priority = 0 }
@@ -258,3 +245,8 @@ single_call_fn = { level = "allow", priority = 0 }
 trivially_copy_pass_by_ref = { level = "allow", priority = 0 }
 pattern_type_mismatch = { level = "allow", priority = 0 }
 pub_with_shorthand = { level = "allow", priority = 0 }
+inline_modules = { level = "allow", priority = 0 }
+definition_in_module_root = { level = "allow", priority = 0 }
+assert_is_empty = { level = "allow", priority = 0 }
+chunks_exact_to_as_chunks = { level = "allow", priority = 0 }
+format_in_format_args = { level = "allow", priority = 0 }

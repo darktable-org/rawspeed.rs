@@ -259,7 +259,7 @@ where
             + ToNeBytes + SwapBytes,
         <<<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as ToNeBytes>::Output: AsSlice<EltType = u8>,
         <<<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<u64>>::Error: core::fmt::Debug
-    {
+{
         let row = self.input.get_row(row).unwrap();
         let mut row_writer = ByteCountingWriter::new(&mut *self.writer);
         let mut vac: BitVacuumerBase<'_, BitOrder, _> =
@@ -297,7 +297,7 @@ where
             + ToNeBytes + SwapBytes,
         <<<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as ToNeBytes>::Output: AsSlice<EltType = u8>,
         <<<BitOrder as BitStreamTraits>::MCUByteArrayType as ConcatBytesNe>::Output as TryFrom<u64>>::Error: core::fmt::Debug
-    {
+{
         for row in 0..self.input.num_rows().get() {
             let real_pitch = self.pack_row::<BitOrder>(RowIndex::new(row))?;
             assert_eq!(real_pitch, self.pitch.base);

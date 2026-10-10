@@ -1,5 +1,6 @@
-use crate::offsetarray2dref::OffsetArray2DRef;
 use rawspeed_std::coord_common::{ColIndex, Coord2D, RowIndex};
+
+use crate::offsetarray2dref::OffsetArray2DRef;
 
 #[non_exhaustive]
 #[must_use]

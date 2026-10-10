@@ -42,7 +42,7 @@ where
             + ToNeBytes + SwapBytes,
         <CacheStorage as ToNeBytes>::Output: AsSlice<EltType=u8>,
         <CacheStorage as TryFrom<u64>>::Error: core::fmt::Debug
-        {
+{
         assert!(self.cache.fill_level() >= CacheStorage::BITWIDTH);
 
         let chunk = CacheStorage::try_from(

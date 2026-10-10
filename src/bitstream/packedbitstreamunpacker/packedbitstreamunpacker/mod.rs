@@ -55,7 +55,7 @@ where
         BitOrder: BitStreamerTraits<[u8; 4]>,
         u16: TryFrom<<BitStreamerBase<'a, BitOrder> as BitStream>::T>,
         <u16 as TryFrom<<BitStreamerBase<'a, BitOrder> as BitStream>::T>>::Error: core::fmt::Debug,
-    {
+{
         const {
             assert!(ITEM_PACKED_BITLEN >= 1 && ITEM_PACKED_BITLEN <= 16);
         }
