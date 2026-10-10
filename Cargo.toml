@@ -101,7 +101,6 @@ authors = ["Roman Lebedev <lebedev.ri@gmail.com>"]
 edition = "2024"
 rust-version = "1.99"
 documentation = "https://rawspeed.rs"
-homepage = "https://rawspeed.rs"
 repository = "https://github.com/darktable-org/rawspeed.rs"
 license = "MIT OR Apache-2.0"
 
