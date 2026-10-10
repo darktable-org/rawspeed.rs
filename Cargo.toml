@@ -58,13 +58,8 @@ rawspeed-bitstream-bitstreamcache = { path = "src/bitstream/bitstreamcache" }
 rawspeed-bitstream-bitstreamposition = { path = "src/bitstream/bitstreamposition" }
 rawspeed-bitstream-bitstreams = { path = "src/bitstream/bitstreams" }
 rawspeed-bitstream-bitstreamslice = { path = "src/bitstream/bitstreamslice" }
-rawspeed-bitstream-bytestream-decoder = { path = "src/bitstream/bytestream/decoder" }
-rawspeed-bitstream-bytestream-encoder = { path = "src/bitstream/bytestream/encoder" }
 rawspeed-bitstream-packedbitstreamslice = { path = "src/bitstream/packedbitstreamslice" }
-rawspeed-bitstream-packedbitstreamunpacker = { path = "src/bitstream/packedbitstreamunpacker" }
 rawspeed-codecs-packed-decoder = { path = "src/codecs/packed/decoder" }
-rawspeed-codecs-packed-encoder = { path = "src/codecs/packed/encoder" }
-rawspeed-common = { path = "src/common" }
 rawspeed-common-bit_manip = { path = "src/common/bit_manip" }
 rawspeed-common-bitseq = { path = "src/common/bitseq" }
 rawspeed-common-exact_ops = { path = "src/common/exact_ops" }
@@ -73,7 +68,6 @@ rawspeed-common-generic_num = { path = "src/common/generic_num" }
 rawspeed-common-lcm = { path = "src/common/lcm" }
 rawspeed-demuxers-packed = { path = "src/demuxers/packed" }
 rawspeed-demuxers-rawdemuxer = { path = "src/demuxers/rawdemuxer" }
-rawspeed-memory = { path = "src/memory" }
 rawspeed-memory-endianness = { path = "src/memory/endianness" }
 rawspeed-memory-layoutfulbox = { path = "src/memory/layoutfulbox" }
 rawspeed-memory-nd_slice_procurement = { path = "src/memory/nd-slice-procurement" }
@@ -85,14 +79,10 @@ rawspeed-metadata-xmlparser = { path = "src/metadata/xmlparser" }
 rawspeed-metadata-xmltokendesparsifier = { path = "src/metadata/xmltokendesparsifier" }
 rawspeed-metadata-xmltokenizer = { path = "src/metadata/xmltokenizer" }
 rawspeed-misc-md5 = { path = "src/misc/md5" }
-rawspeed-parsers = { path = "src/parsers" }
 rawspeed-parsers-rawparser = { path = "src/parsers/rawparser" }
-rawspeed-src = { path = "src" }
 rawspeed-std = { path = "src/std" }
 rawspeed-std-ndslice = { path = "src/std/ndslice" }
-rawspeed-std-range_rotation = { path = "src/std/range_rotation" }
 rawspeed-utils-librstest = { path = "src/utils/librstest" }
-rawspeed-utils-rstest = { path = "src/utils/rstest" }
 criterion = { version = "0.8.2", default-features = false, features = [] }
 
 [workspace.package]
