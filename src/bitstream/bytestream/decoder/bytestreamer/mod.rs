@@ -25,7 +25,7 @@ impl<'a> ByteStreamer<'a> {
         for<'b> <<T as FromBits>::BitsTy as ToNeBytes>::Output:
             TryFrom<&'b [u8]> + ConcatBytesNe<Output = <T as FromBits>::BitsTy>,
         for<'b> <<<T as FromBits>::BitsTy as ToNeBytes>::Output as TryFrom<&'b [u8]>>::Error: core::fmt::Debug,
-    {
+{
         let size: usize = size_of::<T>();
         let (slice, rest) = self.slice.split_at_checked(size).unwrap();
         self.slice = rest;
