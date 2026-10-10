@@ -257,3 +257,7 @@ trivially_copy_pass_by_ref = { level = "allow", priority = 0 }
 pattern_type_mismatch = { level = "allow", priority = 0 }
 pub_with_shorthand = { level = "allow", priority = 0 }
 inline_modules = { level = "allow", priority = 0 }
+definition_in_module_root = { level = "allow", priority = 0 }
+assert_is_empty = { level = "allow", priority = 0 }
+chunks_exact_to_as_chunks = { level = "allow", priority = 0 }
+format_in_format_args = { level = "allow", priority = 0 }
